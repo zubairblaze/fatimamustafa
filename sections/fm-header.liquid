@@ -148,8 +148,12 @@
 {% schema %}
 {
   "name": "FM Header",
-  "tag": "header",
   "class": "fm-header-section",
+  "enabled_on": {
+    "groups": [
+      "header"
+    ]
+  },
   "settings": [
     {
       "type": "image_picker",
@@ -199,8 +203,14 @@
       "id": "menu_type_desktop",
       "label": "Drawer menu style",
       "options": [
-        { "value": "drawer", "label": "Drawer" },
-        { "value": "dropdown", "label": "Dropdown" }
+        {
+          "value": "drawer",
+          "label": "Drawer"
+        },
+        {
+          "value": "dropdown",
+          "label": "Dropdown"
+        }
       ],
       "default": "drawer"
     },
@@ -269,6 +279,11 @@
   "blocks": [
     {
       "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Header"
     }
   ]
 }
