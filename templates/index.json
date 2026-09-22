@@ -15,9 +15,9 @@
         "slide_KB88tR": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/hero_home_2.jpg",
-            "heading": "VELVET",
-            "subheading": "Luxury Formals",
+            "image": "shopify://shop_images/FM-Banner-1_jpg.jpg",
+            "heading": "",
+            "subheading": "",
             "link": "",
             "button_label": "",
             "button_link": "",
@@ -27,28 +27,46 @@
             "position_horizontal": "center"
           }
         },
-        "slide_HneddU": {
+        "slide_LzKA9E": {
           "type": "slide",
           "settings": {
-            "heading": "VELVET",
-            "subheading": "Luxury Formals",
+            "image": "shopify://shop_images/FM-Banner-2_jpg.jpg",
+            "heading": "",
+            "subheading": "",
             "link": "",
             "button_label": "",
             "button_link": "",
             "text_color": "#ffffff",
             "overlay_opacity": 10,
-            "position_vertical": "middle",
+            "position_vertical": "bottom",
+            "position_horizontal": "center"
+          }
+        },
+        "slide_Upbm4m": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/FM-Banner-3_jpg.jpg",
+            "heading": "",
+            "subheading": "",
+            "link": "",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
+            "overlay_opacity": 10,
+            "position_vertical": "bottom",
             "position_horizontal": "center"
           }
         }
       },
       "block_order": [
         "slide_KB88tR",
-        "slide_HneddU"
+        "slide_LzKA9E",
+        "slide_Upbm4m"
       ],
       "settings": {
         "height": "full",
         "height_mobile": 70,
+        "image_fit": "cover",
         "autoplay": true,
         "autoplay_speed": 6,
         "accessibility_label": "Featured collections"
@@ -108,7 +126,11 @@
       "settings": {
         "title": "New Arrivals",
         "subtitle": "Shop the latest arrivals across every category",
+        "columns_desktop": 6,
+        "columns_mobile": 2,
+        "show_arrows": true,
         "image_ratio": "tall",
+        "image_fit": "cover",
         "background": "#ffffff",
         "padding_top": 36,
         "padding_bottom": 28
@@ -143,6 +165,7 @@
         "columns": "2",
         "weighted": true,
         "image_ratio": "portrait",
+        "image_fit": "cover",
         "label_alignment": "left",
         "full_bleed": false,
         "background": "#ffffff",
@@ -188,6 +211,7 @@
         "columns": "3",
         "weighted": false,
         "image_ratio": "tall",
+        "image_fit": "cover",
         "label_alignment": "left",
         "full_bleed": false,
         "background": "#ffffff",
@@ -247,6 +271,7 @@
         "view_all_link": "",
         "products_to_show": 10,
         "image_ratio": "portrait",
+        "image_fit": "cover",
         "show_vendor": false,
         "show_secondary_image": true,
         "new_badge_label": "New",
@@ -272,7 +297,8 @@
         "background": "#ffffff",
         "panel_background": "#ffffff",
         "padding_top": 8,
-        "padding_bottom": 8
+        "padding_bottom": 8,
+        "image_fit": "cover"
       }
     },
     "fm_bridal": {
@@ -340,7 +366,8 @@
         "full_bleed": false,
         "background": "#ffffff",
         "padding_top": 8,
-        "padding_bottom": 40
+        "padding_bottom": 40,
+        "image_fit": "cover"
       }
     },
     "fm_worn_loved": {
@@ -431,7 +458,8 @@
         "shop_label": "Shop this look",
         "background": "#ffffff",
         "padding_top": 40,
-        "padding_bottom": 48
+        "padding_bottom": 48,
+        "image_fit": "cover"
       }
     }
   },
