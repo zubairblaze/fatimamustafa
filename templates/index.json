@@ -16,6 +16,7 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/FM-Banner-1_jpg.jpg",
+            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-1_jpg.jpg",
             "heading": "",
             "subheading": "",
             "link": "",
@@ -31,6 +32,7 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/FM-Banner-2_jpg.jpg",
+            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-2_jpg.jpg",
             "heading": "",
             "subheading": "",
             "link": "",
@@ -46,6 +48,7 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/FM-Banner-3_jpg.jpg",
+            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-3_jpg.jpg",
             "heading": "",
             "subheading": "",
             "link": "",
