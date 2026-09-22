@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "name": "t:sections.footer.name",
   "type": "footer",
@@ -17,6 +26,13 @@
     "fm_footer": {
       "type": "fm-footer",
       "blocks": {
+        "link_column_MyVejx": {
+          "type": "link_column",
+          "settings": {
+            "title": "Policies",
+            "menu": "policies"
+          }
+        },
         "col_information": {
           "type": "link_column",
           "settings": {
@@ -33,10 +49,12 @@
         }
       },
       "block_order": [
+        "link_column_MyVejx",
         "col_information",
         "col_customer_care"
       ],
       "settings": {
+        "logo": "shopify://shop_images/Fatima_Mustafa_Logo_1.png",
         "logo_width": 180,
         "address": "<p>Store address line 1, City</p><p>Phone: +00 000 0000000</p><p>Email: hello@example.com</p>",
         "show_social": true,
