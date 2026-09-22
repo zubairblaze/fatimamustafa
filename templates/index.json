@@ -26,28 +26,13 @@
             "position_vertical": "middle",
             "position_horizontal": "center"
           }
-        },
-        "slide_2": {
-          "type": "slide",
-          "settings": {
-            "heading": "Saunf",
-            "subheading": "Of M.Prints",
-            "link": "",
-            "button_label": "",
-            "button_link": "",
-            "text_color": "#ffffff",
-            "overlay_opacity": 15,
-            "position_vertical": "bottom",
-            "position_horizontal": "center"
-          }
         }
       },
       "block_order": [
-        "slide_1",
-        "slide_2"
+        "slide_1"
       ],
       "settings": {
-        "height": "large",
+        "height": "full",
         "height_mobile": 70,
         "autoplay": true,
         "autoplay_speed": 6,
