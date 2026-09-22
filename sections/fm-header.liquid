@@ -35,40 +35,15 @@
     </div>
 
     {%- comment -%} Centre: logo {%- endcomment -%}
-    {%- liquid
-      assign logo_alt = section.settings.logo.alt | default: shop.name | escape
-      assign logo_sizes = section.settings.logo_width | append: 'px'
-
-      comment
-        The wrapper is an h1 on the homepage and a div elsewhere. Use a dynamic
-        tag name: opening a tag inside one conditional and closing it inside
-        another leaves the markup unbalanced to a Liquid HTML parser, and a
-        section that fails to parse takes its whole section group with it.
-      endcomment
-      assign logo_tag = 'div'
-      if request.page_type == 'index'
-        assign logo_tag = 'h1'
-      endif
-    -%}
-    <{{ logo_tag }} class="fm-header__logo-heading">
-    <a href="{{ routes.root_url }}" class="fm-header__logo">
-      {%- if section.settings.logo != blank -%}
-        {{
-          section.settings.logo
-          | image_url: width: 600
-          | image_tag:
-            loading: 'eager',
-            fetchpriority: 'high',
-            widths: '100, 150, 200, 300, 400, 600',
-            width: section.settings.logo_width,
-            sizes: logo_sizes,
-            alt: logo_alt
-        }}
-      {%- else -%}
-        <span class="fm-header__wordmark">{{ shop.name }}</span>
-      {%- endif -%}
-    </a>
-    </{{ logo_tag }}>
+    {%- if request.page_type == 'index' -%}
+      <h1 class="fm-header__logo-heading">
+        {% render 'fm-header-logo', logo: section.settings.logo, logo_width: section.settings.logo_width %}
+      </h1>
+    {%- else -%}
+      <div class="fm-header__logo-heading">
+        {% render 'fm-header-logo', logo: section.settings.logo, logo_width: section.settings.logo_width %}
+      </div>
+    {%- endif -%}
 
     {%- comment -%} Right: utility links, wishlist, account, cart {%- endcomment -%}
     <div class="fm-header__group fm-header__group--end">
