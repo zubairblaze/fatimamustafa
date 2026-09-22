@@ -129,7 +129,7 @@
       "settings": {
         "title": "New Arrivals",
         "subtitle": "Shop the latest arrivals across every category",
-        "columns_desktop": 6,
+        "columns_desktop": 4,
         "columns_mobile": 2,
         "show_arrows": true,
         "image_ratio": "tall",
