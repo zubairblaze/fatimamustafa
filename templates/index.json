@@ -282,6 +282,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
+            "image": "shopify://shop_images/ECF95A52-0DC8-456E-B4C0-AE976FE10D69.jpg",
             "label": "Dholki",
             "link": ""
           }
@@ -290,6 +291,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
+            "image": "shopify://shop_images/7A0D0CAA-0B78-4BDC-8353-1CDAA52FAEA7.jpg",
             "label": "Mehendi",
             "link": ""
           }
@@ -298,6 +300,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
+            "image": "shopify://shop_images/EBEA8A82-688E-4E90-A0EC-3AB6A148D218.jpg",
             "label": "Mehendi",
             "link": ""
           }
@@ -306,6 +309,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
+            "image": "shopify://shop_images/Skinnyshalwara.jpg",
             "label": "Nikkah",
             "link": ""
           }
@@ -314,6 +318,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
+            "image": "shopify://shop_images/08_23f45681-a537-4196-b32d-b56acc4bf4fd.jpg",
             "label": "Barat",
             "link": ""
           }
@@ -330,6 +335,7 @@
         "title": "Bridal",
         "show_view_all": true,
         "view_all_link": "",
+        "image": "shopify://shop_images/AAD36CA2-408A-46A9-8155-A49E239E608B.jpg",
         "image_link": "",
         "full_bleed": false,
         "background": "#ffffff",
