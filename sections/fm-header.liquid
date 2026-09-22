@@ -1,0 +1,275 @@
+<link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-cart-notification.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- if settings.predictive_search_enabled -%}
+  <link rel="stylesheet" href="{{ 'component-price.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+{{ 'fm-header.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} .fm-header-wrapper {
+    background-color: {{ section.settings.background }};
+    color: {{ section.settings.text_color }};
+  }
+
+  #shopify-section-{{ section.id }} .fm-header__logo img {
+    width: {{ section.settings.logo_width_mobile }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} .fm-header__logo img {
+      width: {{ section.settings.logo_width }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fm-header-wrapper{% if section.settings.sticky %} fm-header-wrapper--sticky{% endif %} color-{{ section.settings.color_scheme }}">
+  <header class="fm-header">
+    {%- comment -%} Left: drawer menu and search {%- endcomment -%}
+    <div class="fm-header__group">
+      {%- if section.settings.menu != blank -%}
+        {% render 'header-drawer' %}
+      {%- endif -%}
+
+      {% render 'header-search', input_id: 'Search-In-Modal' %}
+    </div>
+
+    {%- comment -%} Centre: logo {%- endcomment -%}
+    {%- liquid
+      assign logo_alt = section.settings.logo.alt | default: shop.name | escape
+      assign logo_sizes = section.settings.logo_width | append: 'px'
+      assign is_home = false
+      if request.page_type == 'index'
+        assign is_home = true
+      endif
+    -%}
+    {%- if is_home -%}<h1 class="fm-header__logo-heading">{%- endif -%}
+    <a href="{{ routes.root_url }}" class="fm-header__logo">
+      {%- if section.settings.logo != blank -%}
+        {{
+          section.settings.logo
+          | image_url: width: 600
+          | image_tag:
+            loading: 'eager',
+            fetchpriority: 'high',
+            widths: '100, 150, 200, 300, 400, 600',
+            width: section.settings.logo_width,
+            sizes: logo_sizes,
+            alt: logo_alt
+        }}
+      {%- else -%}
+        <span class="fm-header__wordmark">{{ shop.name }}</span>
+      {%- endif -%}
+    </a>
+    {%- if is_home -%}</h1>{%- endif -%}
+
+    {%- comment -%} Right: utility links, wishlist, account, cart {%- endcomment -%}
+    <div class="fm-header__group fm-header__group--end">
+      {%- if section.settings.menu_utility != blank -%}
+        <nav class="fm-header__utils" aria-label="{{ section.settings.menu_utility.title | escape }}">
+          {%- for link in section.settings.menu_utility.links -%}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+
+      {%- if section.settings.show_wishlist -%}
+        <a
+          href="{{ section.settings.wishlist_url | default: routes.search_url }}"
+          class="fm-header__icon"
+        >
+          <span class="svg-wrapper">{{ 'icon-heart.svg' | inline_asset_content }}</span>
+          <span class="visually-hidden">{{ section.settings.wishlist_label }}</span>
+        </a>
+      {%- endif -%}
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}" class="fm-header__icon">
+          <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+          <span class="visually-hidden">{{ 'customer.log_in' | t }}</span>
+        </a>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            {% render block %}
+        {%- endcase -%}
+      {%- endfor -%}
+
+      <a href="{{ routes.cart_url }}" class="fm-header__icon" id="cart-icon-bubble">
+        {%- if cart.item_count > 0 -%}
+          <span class="svg-wrapper">{{ 'icon-cart.svg' | inline_asset_content }}</span>
+          <span class="fm-header__count">{{ cart.item_count }}</span>
+        {%- else -%}
+          <span class="svg-wrapper">{{ 'icon-cart-empty.svg' | inline_asset_content }}</span>
+        {%- endif -%}
+        <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+      </a>
+    </div>
+  </header>
+
+  {%- comment -%} Desktop navigation row {%- endcomment -%}
+  {%- if section.settings.show_nav and section.settings.menu != blank -%}
+    <nav class="fm-nav" aria-label="{{ section.settings.menu.title | escape }}">
+      <ul class="fm-nav__list" role="list">
+        {%- for link in section.settings.menu.links -%}
+          <li class="fm-nav__item">
+            <a
+              href="{{ link.url }}"
+              class="fm-nav__link"
+              {% if link.current %}aria-current="page"{% endif %}
+            >
+              {{- link.title -}}
+            </a>
+
+            {%- if link.links.size > 0 -%}
+              <ul class="fm-nav__submenu" role="list">
+                {%- for child in link.links -%}
+                  <li>
+                    <a href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>
+                      {{- child.title -}}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+  {%- endif -%}
+</div>
+
+{%- if settings.cart_type == 'notification' -%}
+  {% render 'cart-notification', color_scheme: settings.cart_color_scheme %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "FM Header",
+  "tag": "header",
+  "class": "fm-header-section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo",
+      "info": "Falls back to the store name."
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 60,
+      "max": 320,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo width on desktop",
+      "default": 160
+    },
+    {
+      "type": "range",
+      "id": "logo_width_mobile",
+      "min": 50,
+      "max": 220,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo width on mobile",
+      "default": 110
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_nav",
+      "label": "Show navigation row on desktop",
+      "info": "The menu is always available from the drawer.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "menu_type_desktop",
+      "label": "Drawer menu style",
+      "options": [
+        { "value": "drawer", "label": "Drawer" },
+        { "value": "dropdown", "label": "Dropdown" }
+      ],
+      "default": "drawer"
+    },
+    {
+      "type": "color_scheme",
+      "id": "menu_color_scheme",
+      "label": "Drawer color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Utilities"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_utility",
+      "label": "Utility links",
+      "info": "Small uppercase links left of the icons. Hidden below 990px."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wishlist",
+      "label": "Show wishlist icon",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "wishlist_url",
+      "label": "Wishlist link"
+    },
+    {
+      "type": "text",
+      "id": "wishlist_label",
+      "label": "Wishlist label",
+      "default": "Wishlist"
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky",
+      "label": "Stick to the top on scroll",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1a1a1a"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}

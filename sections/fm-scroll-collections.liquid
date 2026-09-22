@@ -1,7 +1,29 @@
 {{ 'fm-scroll-row.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'fm-carousel.js' | asset_url }}" defer="defer"></script>
 
+{%- liquid
+  assign cols_desktop = section.settings.columns_desktop | default: 6
+  assign cols_mobile = section.settings.columns_mobile | default: 2
+  assign gaps_desktop = cols_desktop | minus: 1
+  assign gaps_mobile = cols_mobile | minus: 1
+
+  assign desktop_vw = 100 | divided_by: cols_desktop | append: 'vw'
+  assign mobile_vw = 100 | divided_by: cols_mobile | append: 'vw'
+  assign tile_sizes = '(min-width: 750px) ' | append: desktop_vw | append: ', ' | append: mobile_vw
+-%}
+
 {%- style -%}
+  #shopify-section-{{ section.id }} .fm-scroll-row__item {
+    /* Show exactly the requested number of tiles, with a sliver of the next. */
+    width: calc((100% - {{ gaps_mobile }} * var(--fm-gutter)) / {{ cols_mobile }} - var(--fm-peek));
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} .fm-scroll-row__item {
+      width: calc((100% - {{ gaps_desktop }} * var(--fm-gutter)) / {{ cols_desktop }} - var(--fm-peek));
+    }
+  }
+
   #shopify-section-{{ section.id }} {
     padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
@@ -16,21 +38,34 @@
   }
 {%- endstyle -%}
 
-<div class="fm-scroll-row fm-scroll-row--{{ section.settings.image_ratio }}">
-  {%- if section.settings.title != blank or section.settings.subtitle != blank -%}
-    <div class="fm-head">
-      <div class="fm-head__text">
-        {%- if section.settings.title != blank -%}
-          <h2 class="fm-head__title">{{ section.settings.title }}</h2>
-        {%- endif -%}
-        {%- if section.settings.subtitle != blank -%}
-          <p class="fm-head__subtitle">{{ section.settings.subtitle }}</p>
+<div class="fm-scroll-row fm-scroll-row--{{ section.settings.image_ratio }} fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
+  <fm-scroller>
+    {%- if section.settings.title != blank or section.settings.subtitle != blank or section.settings.show_arrows -%}
+      <div class="fm-head">
+        <div class="fm-head__text">
+          {%- if section.settings.title != blank -%}
+            <h2 class="fm-head__title">{{ section.settings.title }}</h2>
+          {%- endif -%}
+          {%- if section.settings.subtitle != blank -%}
+            <p class="fm-head__subtitle">{{ section.settings.subtitle }}</p>
+          {%- endif -%}
+        </div>
+
+        {%- if section.settings.show_arrows -%}
+          <div class="fm-head__aside">
+            <div class="fm-arrows">
+              <button type="button" class="fm-arrow fm-arrow--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
+                {% render 'fm-arrow-icon' %}
+              </button>
+              <button type="button" class="fm-arrow fm-arrow--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
+                {% render 'fm-arrow-icon' %}
+              </button>
+            </div>
+          </div>
         {%- endif -%}
       </div>
-    </div>
-  {%- endif -%}
+    {%- endif -%}
 
-  <fm-scroller>
     <ul class="fm-scroller fm-scroll-row__track" data-fm-track role="list">
       {%- for block in section.blocks -%}
         {%- liquid
@@ -64,7 +99,7 @@
                   class: 'fm-tile__media',
                   loading: 'lazy',
                   widths: '200, 300, 400, 600, 900',
-                  sizes: '(min-width: 990px) 16vw, (min-width: 750px) 22vw, 44vw',
+                  sizes: tile_sizes,
                   alt: alt_text
               }}
             {%- else -%}
@@ -105,15 +140,64 @@
       "default": "Shop the latest arrivals across every category"
     },
     {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "label": "Collections shown on desktop",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Collections shown on mobile",
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": true
+    },
+    {
       "type": "select",
       "id": "image_ratio",
       "label": "Image shape",
       "options": [
-        { "value": "square", "label": "Square" },
-        { "value": "portrait", "label": "Portrait" },
-        { "value": "tall", "label": "Tall" }
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "tall",
+          "label": "Tall"
+        }
       ],
       "default": "portrait"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
     },
     {
       "type": "color",
@@ -177,12 +261,24 @@
     {
       "name": "FM Scroll Row",
       "blocks": [
-        { "type": "tile" },
-        { "type": "tile" },
-        { "type": "tile" },
-        { "type": "tile" },
-        { "type": "tile" },
-        { "type": "tile" }
+        {
+          "type": "tile"
+        },
+        {
+          "type": "tile"
+        },
+        {
+          "type": "tile"
+        },
+        {
+          "type": "tile"
+        },
+        {
+          "type": "tile"
+        },
+        {
+          "type": "tile"
+        }
       ]
     }
   ]

@@ -12,6 +12,7 @@
     <div class="fm-footer__brand">
       {%- if section.settings.logo != blank -%}
         {%- assign logo_alt = section.settings.logo.alt | default: shop.name -%}
+        {%- assign logo_sizes = section.settings.logo_width | append: 'px' -%}
         {{
           section.settings.logo
           | image_url: width: 600
@@ -20,7 +21,7 @@
             loading: 'lazy',
             widths: '150, 250, 350, 600',
             width: section.settings.logo_width,
-            sizes: section.settings.logo_width | append: 'px',
+            sizes: logo_sizes,
             alt: logo_alt
         }}
       {%- else -%}

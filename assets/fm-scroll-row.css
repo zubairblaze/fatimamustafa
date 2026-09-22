@@ -18,21 +18,10 @@
   scroll-padding-left: var(--fm-edge);
 }
 
+/* Width comes from the section's own <style> block, which derives it from the
+   "collections shown" settings. This is the fallback if that is ever absent. */
 .fm-scroll-row__item {
   width: 44vw;
-  max-width: 28rem;
-}
-
-@media screen and (min-width: 750px) {
-  .fm-scroll-row__item {
-    width: 22vw;
-  }
-}
-
-@media screen and (min-width: 990px) {
-  .fm-scroll-row__item {
-    width: 15.6vw;
-  }
 }
 
 .fm-scroll-row__tile {

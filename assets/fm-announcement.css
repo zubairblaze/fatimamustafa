@@ -1,0 +1,79 @@
+/* FM — thin announcement strip: message centred, optional links at the edges */
+
+.fm-announce {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  min-height: 3.6rem;
+  padding: 0.6rem var(--fm-edge);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fm-announce__messages {
+  position: relative;
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.fm-announce__message {
+  display: block;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
+}
+
+/* Later messages stack on top of the first, which holds the height. */
+.fm-announce__message:not(:first-child) {
+  position: absolute;
+  inset: 0;
+}
+
+.fm-announce:not(:defined) .fm-announce__message:first-child,
+.fm-announce__message:only-child,
+.fm-announce__message--active {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fm-announce__message {
+    transition: none;
+  }
+}
+
+.fm-announce__message a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.fm-announce__links {
+  display: none;
+  align-items: center;
+  gap: 1.6rem;
+  flex-shrink: 0;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-announce__links {
+    display: flex;
+  }
+}
+
+.fm-announce__links a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.fm-announce__links a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}

@@ -22,8 +22,10 @@
   height: 100%;
 }
 
-/* Without JS only the first slide is laid out, so show it. */
+/* Before the element upgrades (or with JS off) the first slide is the one
+   that shows; a lone slide is visible on its own and never waits for JS. */
 .fm-hero:not(:defined) .fm-hero__slide:first-child,
+.fm-hero__slide:only-child,
 .fm-hero__slide--active {
   opacity: 1;
   visibility: visible;

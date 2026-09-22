@@ -28,7 +28,7 @@
 
 <fm-hero
   id="fm-hero-{{ section.id }}"
-  class="fm-hero"
+  class="fm-hero fm-fit-{{ section.settings.image_fit | default: 'cover' }}"
   data-interval="{% if section.settings.autoplay %}{{ section.settings.autoplay_speed | times: 1000 }}{% else %}0{% endif %}"
   role="region"
   aria-label="{{ section.settings.accessibility_label | escape }}"
@@ -156,10 +156,22 @@
       "id": "height",
       "label": "Desktop height",
       "options": [
-        { "value": "small", "label": "Small" },
-        { "value": "medium", "label": "Medium" },
-        { "value": "large", "label": "Large" },
-        { "value": "full", "label": "Full screen" }
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        },
+        {
+          "value": "full",
+          "label": "Full screen"
+        }
       ],
       "default": "large"
     },
@@ -172,6 +184,22 @@
       "unit": "vh",
       "label": "Mobile height",
       "default": 70
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
     },
     {
       "type": "checkbox",
@@ -261,9 +289,18 @@
           "id": "position_vertical",
           "label": "Vertical position",
           "options": [
-            { "value": "top", "label": "Top" },
-            { "value": "middle", "label": "Middle" },
-            { "value": "bottom", "label": "Bottom" }
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "middle",
+              "label": "Middle"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
           ],
           "default": "bottom"
         },
@@ -272,9 +309,18 @@
           "id": "position_horizontal",
           "label": "Horizontal position",
           "options": [
-            { "value": "left", "label": "Left" },
-            { "value": "center", "label": "Center" },
-            { "value": "right", "label": "Right" }
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
           ],
           "default": "center"
         }
@@ -285,8 +331,12 @@
     {
       "name": "FM Hero",
       "blocks": [
-        { "type": "slide" },
-        { "type": "slide" }
+        {
+          "type": "slide"
+        },
+        {
+          "type": "slide"
+        }
       ]
     }
   ]

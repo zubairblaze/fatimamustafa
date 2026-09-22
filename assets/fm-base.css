@@ -11,6 +11,7 @@
   --fm-gutter: 0.8rem;
   --fm-edge: 1.2rem;
   --fm-track: 0.14em;
+  --fm-peek: 1.6rem;
   --fm-scrim: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.1) 38%, rgba(0, 0, 0, 0) 62%);
 }
 
@@ -124,6 +125,22 @@ fm-scroller {
 
 .fm-scroller::-webkit-scrollbar {
   display: none;
+}
+
+/* Drag-to-pan affordance. The classes are applied by fm-carousel.js, so a
+   scroller with nothing to scroll keeps the default cursor. */
+.fm-scroller--draggable {
+  cursor: grab;
+}
+
+.fm-scroller--grabbing {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none;
+}
+
+.fm-scroller--grabbing a {
+  pointer-events: none;
 }
 
 .fm-scroller > * {
@@ -285,4 +302,31 @@ fm-scroller {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* --- Image fit -------------------------------------------------------------
+   Sections expose this as a setting: "cover" fills the frame and crops,
+   "contain" fits the whole image in and letterboxes it.
+
+   The class is doubled to raise specificity. Section stylesheets load after
+   this file and set object-fit on selectors of equal weight (e.g.
+   `.fm-ugc__media img`), so at a single class they would win on source order. */
+
+.fm-fit-cover.fm-fit-cover img,
+.fm-fit-cover.fm-fit-cover .fm-tile__media {
+  object-fit: cover;
+}
+
+.fm-fit-contain.fm-fit-contain img,
+.fm-fit-contain.fm-fit-contain .fm-tile__media {
+  object-fit: contain;
+}
+
+/* Letterboxing needs something behind it. */
+.fm-fit-contain .fm-tile,
+.fm-fit-contain .fm-card__media,
+.fm-fit-contain .fm-ugc__media,
+.fm-fit-contain .fm-split__media,
+.fm-fit-contain .fm-bridal__aside {
+  background-color: rgb(var(--fm-shell));
 }

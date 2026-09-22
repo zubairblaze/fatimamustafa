@@ -19,7 +19,7 @@
   }
 {%- endstyle -%}
 
-<div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %}">
+<div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %} fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
   <div class="fm-split{% if section.settings.image_position == 'left' %} fm-split--image-first{% endif %}">
     <div class="fm-split__panel">
       {%- if section.settings.eyebrow != blank -%}
@@ -144,8 +144,14 @@
       "id": "image_position",
       "label": "Image position on desktop",
       "options": [
-        { "value": "left", "label": "Left" },
-        { "value": "right", "label": "Right" }
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
       ],
       "default": "right"
     },
@@ -190,6 +196,22 @@
       "unit": "px",
       "label": "Bottom padding",
       "default": 8
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
     }
   ],
   "presets": [

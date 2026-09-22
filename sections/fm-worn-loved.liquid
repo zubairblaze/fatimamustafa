@@ -16,7 +16,7 @@
   }
 {%- endstyle -%}
 
-<div class="fm-ugc">
+<div class="fm-ugc fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
   <fm-scroller>
     <div class="fm-head">
       <div class="fm-head__text">
@@ -150,6 +150,22 @@
       "unit": "px",
       "label": "Bottom padding",
       "default": 40
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
     }
   ],
   "blocks": [
@@ -195,11 +211,21 @@
     {
       "name": "FM Worn & Loved",
       "blocks": [
-        { "type": "post" },
-        { "type": "post" },
-        { "type": "post" },
-        { "type": "post" },
-        { "type": "post" }
+        {
+          "type": "post"
+        },
+        {
+          "type": "post"
+        },
+        {
+          "type": "post"
+        },
+        {
+          "type": "post"
+        },
+        {
+          "type": "post"
+        }
       ]
     }
   ]

@@ -2,11 +2,11 @@
   "name": "t:sections.header.name",
   "type": "header",
   "sections": {
-    "announcement-bar": {
-      "type": "announcement-bar",
+    "fm_announcement": {
+      "type": "fm-announcement",
       "blocks": {
-        "announcement-bar-0": {
-          "type": "announcement",
+        "message_1": {
+          "type": "message",
           "settings": {
             "text": "Free shipping on orders above $200",
             "link": ""
@@ -14,41 +14,35 @@
         }
       },
       "block_order": [
-        "announcement-bar-0"
+        "message_1"
       ],
       "settings": {
-        "auto_rotate": false,
-        "change_slides_speed": 5,
-        "color_scheme": "scheme-4",
-        "show_line_separator": false,
-        "show_social": false,
-        "enable_country_selector": false,
-        "enable_language_selector": false
+        "background": "#121212",
+        "text_color": "#ffffff",
+        "auto_rotate": true,
+        "rotate_speed": 5
       }
     },
-    "header": {
-      "type": "header",
+    "fm_header": {
+      "type": "fm-header",
       "settings": {
-        "logo_position": "middle-center",
-        "mobile_logo_position": "center",
+        "logo_width": 160,
+        "logo_width_mobile": 110,
         "menu": "main-menu",
+        "show_nav": true,
         "menu_type_desktop": "drawer",
-        "sticky_header_type": "on-scroll-up",
-        "show_line_separator": false,
-        "color_scheme": "scheme-1",
         "menu_color_scheme": "scheme-1",
-        "enable_country_selector": false,
-        "enable_language_selector": false,
-        "margin_bottom": 0,
-        "padding_top": 12,
-        "padding_bottom": 12,
-        "fm_show_wishlist": true,
-        "fm_wishlist_label": "Wishlist"
+        "show_wishlist": true,
+        "wishlist_label": "Wishlist",
+        "sticky": true,
+        "color_scheme": "scheme-1",
+        "background": "#ffffff",
+        "text_color": "#1a1a1a"
       }
     }
   },
   "order": [
-    "announcement-bar",
-    "header"
+    "fm_announcement",
+    "fm_header"
   ]
 }

@@ -4,6 +4,9 @@
  * Three custom elements, each progressive: the markup is usable without JS
  * (the scrollers are native overflow scrollers, the tab panels all render,
  * the hero shows its first slide), and these upgrade it in place.
+ *
+ * Each is guarded on customElements.get — several sections load this file,
+ * and a second execution would otherwise redeclare the classes.
  */
 
 /* ---------------------------------------------------------------- scroller */
@@ -24,6 +27,8 @@ if (!customElements.get('fm-scroller')) {
       if (this.prev) this.prev.addEventListener('click', () => this.scrollByPage(-1));
       if (this.next) this.next.addEventListener('click', () => this.scrollByPage(1));
 
+      this.bindDrag();
+
       this.resizeObserver = new ResizeObserver(() => this.syncArrows());
       this.resizeObserver.observe(this.track);
 
@@ -35,7 +40,74 @@ if (!customElements.get('fm-scroller')) {
       if (this.resizeObserver) this.resizeObserver.disconnect();
     }
 
-    /** One "page" is the visible width, less a sliver so context carries over. */
+    /**
+     * Drag to pan, so the carousels work with a mouse the way they already do
+     * with a finger. Touch is left to native scrolling — hijacking it there
+     * costs momentum and rubber-banding for nothing.
+     */
+    bindDrag() {
+      let startX = 0;
+      let startScroll = 0;
+      let pointerId = null;
+      let moved = 0;
+
+      const onDown = (event) => {
+        if (event.pointerType === 'touch' || event.button !== 0) return;
+        pointerId = event.pointerId;
+        startX = event.clientX;
+        startScroll = this.track.scrollLeft;
+        moved = 0;
+        this.dragged = false;
+      };
+
+      const onMove = (event) => {
+        if (pointerId === null || event.pointerId !== pointerId) return;
+        const delta = event.clientX - startX;
+        if (Math.abs(delta) > 3) {
+          // Only capture, and only suppress link hits, once it is clearly a
+          // drag — otherwise a plain click never reaches the card beneath.
+          if (!moved) {
+            this.track.setPointerCapture(pointerId);
+            this.track.classList.add('fm-scroller--grabbing');
+          }
+          moved = Math.max(moved, Math.abs(delta));
+          this.track.scrollLeft = startScroll - delta;
+          event.preventDefault();
+        }
+      };
+
+      const onUp = (event) => {
+        if (pointerId === null) return;
+        if (this.track.hasPointerCapture(pointerId)) this.track.releasePointerCapture(pointerId);
+        pointerId = null;
+        this.track.classList.remove('fm-scroller--grabbing');
+        // A drag ends with a click on whatever card was under the pointer.
+        // The flag is read by the capture listener below; a timer to clear it
+        // would race the click itself.
+        this.dragged = moved > 5;
+      };
+
+      this.track.addEventListener(
+        'click',
+        (event) => {
+          if (!this.dragged) return;
+          this.dragged = false;
+          event.preventDefault();
+          event.stopPropagation();
+        },
+        { capture: true }
+      );
+
+      this.track.addEventListener('pointerdown', onDown);
+      this.track.addEventListener('pointermove', onMove);
+      this.track.addEventListener('pointerup', onUp);
+      this.track.addEventListener('pointercancel', onUp);
+      this.track.addEventListener('dragstart', (e) => {
+        if (moved > 5) e.preventDefault();
+      });
+    }
+
+    /** One "page" is as many whole items as currently fit. */
     scrollByPage(direction) {
       const item = this.track.querySelector(':scope > *');
       const step = item ? item.getBoundingClientRect().width + this.gap() : this.track.clientWidth;
@@ -57,6 +129,7 @@ if (!customElements.get('fm-scroller')) {
       if (this.prev) this.prev.disabled = atStart || noOverflow;
       if (this.next) this.next.disabled = atEnd || noOverflow;
       this.toggleAttribute('data-fm-static', noOverflow);
+      this.track.classList.toggle('fm-scroller--draggable', !noOverflow);
 
       if (this.progress) {
         const visible = this.track.clientWidth / this.track.scrollWidth;
@@ -138,28 +211,66 @@ if (!customElements.get('fm-hero')) {
   class FmHero extends HTMLElement {
     connectedCallback() {
       this.slides = Array.from(this.querySelectorAll('[data-fm-slide]'));
-      this.dots = Array.from(this.querySelectorAll('[data-fm-dot]'));
-      if (this.slides.length < 2) return;
+      if (!this.slides.length) return;
 
+      this.dots = Array.from(this.querySelectorAll('[data-fm-dot]'));
       this.index = 0;
       this.interval = parseInt(this.dataset.interval, 10) || 0;
 
-      this.dots.forEach((dot, i) => dot.addEventListener('click', () => {
-        this.goTo(i);
-        this.restart();
-      }));
+      // Show the first slide even when there is only one; rotation and the
+      // swipe handlers below are the only parts that need a second.
+      this.goTo(0);
+      if (this.slides.length < 2) return;
+
+      this.dots.forEach((dot, i) =>
+        dot.addEventListener('click', () => {
+          this.goTo(i);
+          this.restart();
+        })
+      );
 
       this.addEventListener('mouseenter', () => this.stop());
       this.addEventListener('mouseleave', () => this.start());
       this.addEventListener('focusin', () => this.stop());
       this.addEventListener('focusout', () => this.start());
 
-      this.goTo(0);
+      this.bindSwipe();
       this.start();
     }
 
     disconnectedCallback() {
       this.stop();
+    }
+
+    /** Horizontal swipe or drag moves one slide. */
+    bindSwipe() {
+      let startX = null;
+      let startY = 0;
+
+      this.addEventListener(
+        'pointerdown',
+        (event) => {
+          if (event.button && event.button !== 0) return;
+          startX = event.clientX;
+          startY = event.clientY;
+        },
+        { passive: true }
+      );
+
+      this.addEventListener('pointerup', (event) => {
+        if (startX === null) return;
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+        startX = null;
+        // Ignore mostly-vertical gestures — that's the page scrolling.
+        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+        this.goTo((this.index + (dx < 0 ? 1 : -1) + this.slides.length) % this.slides.length);
+        this.restart();
+      });
+
+      this.addEventListener('pointercancel', () => {
+        startX = null;
+      });
     }
 
     goTo(index) {
@@ -181,7 +292,7 @@ if (!customElements.get('fm-hero')) {
 
     start() {
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!this.interval || reduced || this.timer) return;
+      if (!this.interval || reduced || this.timer || this.slides.length < 2) return;
       this.timer = setInterval(() => this.goTo((this.index + 1) % this.slides.length), this.interval);
     }
 

@@ -15,7 +15,7 @@
   }
 {%- endstyle -%}
 
-<div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %}">
+<div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %} fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
   {%- if section.settings.title != blank -%}
     <div class="fm-head">
       <div class="fm-head__text">
@@ -109,9 +109,18 @@
       "id": "columns",
       "label": "Columns on desktop",
       "options": [
-        { "value": "2", "label": "2" },
-        { "value": "3", "label": "3" },
-        { "value": "4", "label": "4" }
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        }
       ],
       "default": "2"
     },
@@ -127,20 +136,54 @@
       "id": "image_ratio",
       "label": "Image shape",
       "options": [
-        { "value": "landscape", "label": "Landscape" },
-        { "value": "square", "label": "Square" },
-        { "value": "portrait", "label": "Portrait" },
-        { "value": "tall", "label": "Tall" }
+        {
+          "value": "landscape",
+          "label": "Landscape"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "tall",
+          "label": "Tall"
+        }
       ],
       "default": "portrait"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
     },
     {
       "type": "select",
       "id": "label_alignment",
       "label": "Label position",
       "options": [
-        { "value": "left", "label": "Bottom left" },
-        { "value": "center", "label": "Bottom center" }
+        {
+          "value": "left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "center",
+          "label": "Bottom center"
+        }
       ],
       "default": "left"
     },
@@ -212,8 +255,12 @@
     {
       "name": "FM Collection Grid",
       "blocks": [
-        { "type": "tile" },
-        { "type": "tile" }
+        {
+          "type": "tile"
+        },
+        {
+          "type": "tile"
+        }
       ]
     }
   ]

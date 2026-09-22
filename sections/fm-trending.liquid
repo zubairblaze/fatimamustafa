@@ -17,7 +17,7 @@
   }
 {%- endstyle -%}
 
-<div class="fm-section fm-trending">
+<div class="fm-section fm-trending fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
   <fm-tabs>
     <div class="fm-head">
       <div class="fm-head__text">
@@ -156,11 +156,36 @@
       "id": "image_ratio",
       "label": "Image shape",
       "options": [
-        { "value": "square", "label": "Square" },
-        { "value": "portrait", "label": "Portrait" },
-        { "value": "tall", "label": "Tall" }
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "tall",
+          "label": "Tall"
+        }
       ],
       "default": "portrait"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
     },
     {
       "type": "checkbox",
@@ -231,9 +256,15 @@
     {
       "name": "FM Trending",
       "blocks": [
-        { "type": "tab" },
-        { "type": "tab" },
-        { "type": "tab" }
+        {
+          "type": "tab"
+        },
+        {
+          "type": "tab"
+        },
+        {
+          "type": "tab"
+        }
       ]
     }
   ]
