@@ -12,20 +12,6 @@
     "fm_hero": {
       "type": "fm-hero",
       "blocks": {
-        "slide_HneddU": {
-          "type": "slide",
-          "settings": {
-            "heading": "VELVET",
-            "subheading": "Luxury Formals",
-            "link": "",
-            "button_label": "",
-            "button_link": "",
-            "text_color": "#ffffff",
-            "overlay_opacity": 10,
-            "position_vertical": "middle",
-            "position_horizontal": "center"
-          }
-        },
         "slide_KB88tR": {
           "type": "slide",
           "settings": {
@@ -40,11 +26,25 @@
             "position_vertical": "bottom",
             "position_horizontal": "center"
           }
+        },
+        "slide_HneddU": {
+          "type": "slide",
+          "settings": {
+            "heading": "VELVET",
+            "subheading": "Luxury Formals",
+            "link": "",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
+            "overlay_opacity": 10,
+            "position_vertical": "middle",
+            "position_horizontal": "center"
+          }
         }
       },
       "block_order": [
-        "slide_HneddU",
-        "slide_KB88tR"
+        "slide_KB88tR",
+        "slide_HneddU"
       ],
       "settings": {
         "height": "large",
