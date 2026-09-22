@@ -22,7 +22,7 @@
             "button_link": "",
             "text_color": "#ffffff",
             "overlay_opacity": 10,
-            "position_vertical": "bottom",
+            "position_vertical": "middle",
             "position_horizontal": "center"
           }
         },
