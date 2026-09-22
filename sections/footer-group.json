@@ -1,1 +1,52 @@
-{"name":"t:sections.footer.name","type":"footer","sections":{"footer":{"type":"footer","settings":{"color_scheme":"scheme-1","newsletter_enable":true,"newsletter_heading":"Subscribe to our emails","enable_follow_on_shop":true,"show_social":true,"enable_country_selector":true,"enable_language_selector":true,"payment_enable":true,"show_policy":true,"margin_top":0,"padding_top":36,"padding_bottom":36}}},"order":["footer"]}
+{
+  "name": "t:sections.footer.name",
+  "type": "footer",
+  "sections": {
+    "fm_newsletter": {
+      "type": "fm-newsletter",
+      "settings": {
+        "heading": "Join our newsletter",
+        "text": "New arrivals, private sales and styling notes.",
+        "placeholder": "Enter your email",
+        "button_label": "Subscribe",
+        "background": "#ffffff",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "fm_footer": {
+      "type": "fm-footer",
+      "blocks": {
+        "col_information": {
+          "type": "link_column",
+          "settings": {
+            "title": "Information",
+            "menu": "footer"
+          }
+        },
+        "col_customer_care": {
+          "type": "link_column",
+          "settings": {
+            "title": "Customer Care",
+            "menu": "footer"
+          }
+        }
+      },
+      "block_order": [
+        "col_information",
+        "col_customer_care"
+      ],
+      "settings": {
+        "logo_width": 180,
+        "address": "<p>Store address line 1, City</p><p>Phone: +00 000 0000000</p><p>Email: hello@example.com</p>",
+        "show_social": true,
+        "show_payment_icons": true,
+        "background": "#ffffff"
+      }
+    }
+  },
+  "order": [
+    "fm_newsletter",
+    "fm_footer"
+  ]
+}

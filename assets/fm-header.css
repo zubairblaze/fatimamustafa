@@ -1,0 +1,70 @@
+/* FM — restyles Dawn's header toward the reference: thin, tracked, centred. */
+
+.header {
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgb(var(--fm-rule, 230, 230, 230));
+}
+
+.header__inline-menu .header__menu-item,
+.header__menu-item {
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.header__icon .svg-wrapper svg,
+.header__icon svg {
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+/* --- Utility strip -------------------------------------------------------- */
+
+.fm-header-utils {
+  display: none;
+  align-items: center;
+  gap: 1.8rem;
+  margin-right: 0.6rem;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-header-utils {
+    display: flex;
+  }
+}
+
+.fm-header-utils__link {
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--color-foreground), 0.72);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.fm-header-utils__link:hover {
+  color: rgb(var(--color-foreground));
+  text-decoration: underline;
+}
+
+/* --- Wishlist ------------------------------------------------------------- */
+
+.header__icon--wishlist .fm-wishlist-count {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.4rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.6rem;
+  text-align: center;
+  background-color: rgb(var(--color-foreground));
+  color: rgb(var(--color-background));
+}
+
+.header__icon--wishlist {
+  position: relative;
+}

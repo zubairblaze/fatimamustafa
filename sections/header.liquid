@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="{{ 'component-list-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+{{ 'fm-header.css' | asset_url | stylesheet_tag }}
 <link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
 <link
@@ -280,6 +281,7 @@
           </localization-form>
         {%- endif -%}
       </div>
+      {% render 'fm-header-utilities' %}
       {% render 'header-search', input_id: 'Search-In-Modal' %}
 
       {%- if shop.customer_accounts_enabled -%}
@@ -676,6 +678,29 @@
       "unit": "px",
       "label": "t:sections.all.padding.padding_bottom",
       "default": 20
+    },
+    {
+      "type": "link_list",
+      "id": "fm_utility_menu",
+      "label": "Utility links",
+      "info": "Small uppercase links shown to the left of the header icons."
+    },
+    {
+      "type": "checkbox",
+      "id": "fm_show_wishlist",
+      "label": "Show wishlist icon",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "fm_wishlist_url",
+      "label": "Wishlist link"
+    },
+    {
+      "type": "text",
+      "id": "fm_wishlist_label",
+      "label": "Wishlist label",
+      "default": "Wishlist"
     }
   ],
   "blocks": [

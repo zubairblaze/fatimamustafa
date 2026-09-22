@@ -1,0 +1,171 @@
+{{ 'fm-footer.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    background-color: {{ section.settings.background }};
+    border-top: 1px solid rgb(var(--fm-rule));
+  }
+{%- endstyle -%}
+
+<div class="fm-section">
+  <div class="fm-footer">
+    <div class="fm-footer__brand">
+      {%- if section.settings.logo != blank -%}
+        {%- assign logo_alt = section.settings.logo.alt | default: shop.name -%}
+        {{
+          section.settings.logo
+          | image_url: width: 600
+          | image_tag:
+            class: 'fm-footer__brand-logo',
+            loading: 'lazy',
+            widths: '150, 250, 350, 600',
+            width: section.settings.logo_width,
+            sizes: section.settings.logo_width | append: 'px',
+            alt: logo_alt
+        }}
+      {%- else -%}
+        <p class="fm-footer__brand-name">{{ shop.name }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.address != blank -%}
+        <div class="fm-footer__brand-text">{{ section.settings.address }}</div>
+      {%- endif -%}
+    </div>
+
+    <div class="fm-footer__columns">
+      {%- for block in section.blocks -%}
+        <div {{ block.shopify_attributes }}>
+          {%- if block.settings.title != blank -%}
+            <h2 class="fm-footer__column-title">{{ block.settings.title }}</h2>
+          {%- endif -%}
+
+          {%- if block.settings.menu != blank -%}
+            <ul class="fm-footer__list" role="list">
+              {%- for link in block.settings.menu.links -%}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <div class="fm-footer__bottom">
+    <p class="fm-footer__copyright">
+      &copy; {{ 'now' | date: '%Y' }}, {{ shop.name | link_to: routes.root_url }}.
+      {{ powered_by_link }}
+    </p>
+
+    {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+      <ul class="fm-footer__payment" role="list">
+        {%- for type in shop.enabled_payment_types -%}
+          <li>{{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}</li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if section.settings.show_social -%}
+      <ul class="fm-footer__social" role="list">
+        {%- liquid
+          assign socials = 'facebook,instagram,youtube,tiktok,twitter,pinterest,snapchat,tumblr,vimeo' | split: ','
+        -%}
+        {%- for network in socials -%}
+          {%- assign key = 'social_' | append: network | append: '_link' -%}
+          {%- assign url = settings[key] -%}
+          {%- if url != blank -%}
+            <li>
+              <a href="{{ url }}" rel="noopener" target="_blank">
+                <span class="fm-visually-hidden">{{ network | capitalize }}</span>
+                <span class="svg-wrapper">
+                  {{- 'icon-' | append: network | append: '.svg' | inline_asset_content -}}
+                </span>
+              </a>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FM Footer",
+  "tag": "footer",
+  "class": "fm-footer-section",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Footer logo",
+      "info": "Falls back to the store name."
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 80,
+      "max": 320,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 180
+    },
+    {
+      "type": "richtext",
+      "id": "address",
+      "label": "Address and contact",
+      "default": "<p>Enter your store address, phone number and support email here.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "label": "Show social icons",
+      "info": "Links come from Theme settings → Social media.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Show payment icons",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link_column",
+      "name": "Link column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Information"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "default": "footer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Footer",
+      "blocks": [
+        { "type": "link_column" },
+        { "type": "link_column" }
+      ]
+    }
+  ]
+}
+{% endschema %}

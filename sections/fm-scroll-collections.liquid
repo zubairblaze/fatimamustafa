@@ -1,0 +1,190 @@
+{{ 'fm-scroll-row.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'fm-carousel.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+    background-color: {{ section.settings.background }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fm-scroll-row fm-scroll-row--{{ section.settings.image_ratio }}">
+  {%- if section.settings.title != blank or section.settings.subtitle != blank -%}
+    <div class="fm-head">
+      <div class="fm-head__text">
+        {%- if section.settings.title != blank -%}
+          <h2 class="fm-head__title">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="fm-head__subtitle">{{ section.settings.subtitle }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <fm-scroller>
+    <ul class="fm-scroller fm-scroll-row__track" data-fm-track role="list">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign collection = block.settings.collection
+          assign label = block.settings.label
+          if label == blank
+            assign label = collection.title
+          endif
+
+          assign image = block.settings.image
+          if image == blank
+            assign image = collection.featured_image
+          endif
+
+          assign url = block.settings.link
+          if url == blank and collection != blank
+            assign url = collection.url
+          endif
+
+          assign alt_text = image.alt | default: label | escape        -%}
+        <li class="fm-scroll-row__item" {{ block.shopify_attributes }}>
+          <a
+            href="{{ url | default: routes.all_products_collection_url }}"
+            class="fm-tile fm-scroll-row__tile fm-ratio fm-scroll-row__frame"
+          >
+            {%- if image != blank -%}
+              {{
+                image
+                | image_url: width: 900
+                | image_tag:
+                  class: 'fm-tile__media',
+                  loading: 'lazy',
+                  widths: '200, 300, 400, 600, 900',
+                  sizes: '(min-width: 990px) 16vw, (min-width: 750px) 22vw, 44vw',
+                  alt: alt_text
+              }}
+            {%- else -%}
+              {%- assign placeholder_index = forloop.index0 | modulo: 4 | plus: 1 -%}
+              <div class="fm-tile__placeholder">
+                {{ 'collection-apparel-' | append: placeholder_index | placeholder_svg_tag }}
+              </div>
+            {%- endif -%}
+
+            <span class="fm-tile__scrim"></span>
+            {%- if label != blank -%}
+              <span class="fm-tile__label">{{ label }}</span>
+            {%- endif -%}
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </fm-scroller>
+</div>
+
+{% schema %}
+{
+  "name": "FM Scroll Row",
+  "tag": "section",
+  "class": "fm-scroll-collections",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "New Arrivals"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subheading",
+      "default": "Shop the latest arrivals across every category"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "tall", "label": "Tall" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Falls back to the collection image."
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "info": "Falls back to the collection title."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Falls back to the collection URL."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Scroll Row",
+      "blocks": [
+        { "type": "tile" },
+        { "type": "tile" },
+        { "type": "tile" },
+        { "type": "tile" },
+        { "type": "tile" },
+        { "type": "tile" }
+      ]
+    }
+  ]
+}
+{% endschema %}

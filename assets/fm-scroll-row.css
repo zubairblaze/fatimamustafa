@@ -1,0 +1,52 @@
+/* FM — edge-bleed category scroller ("New Arrivals") */
+
+.fm-scroll-row {
+  padding-top: 3.2rem;
+  padding-bottom: 3.2rem;
+}
+
+.fm-scroll-row .fm-head {
+  padding-left: var(--fm-edge);
+  padding-right: var(--fm-edge);
+}
+
+/* The track itself runs edge to edge; the gutter lives on the first/last item
+   so partial tiles stay visible at both ends, as in the reference. */
+.fm-scroll-row__track {
+  padding-left: var(--fm-edge);
+  padding-right: var(--fm-edge);
+  scroll-padding-left: var(--fm-edge);
+}
+
+.fm-scroll-row__item {
+  width: 44vw;
+  max-width: 28rem;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-scroll-row__item {
+    width: 22vw;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .fm-scroll-row__item {
+    width: 15.6vw;
+  }
+}
+
+.fm-scroll-row__tile {
+  width: 100%;
+}
+
+.fm-scroll-row__frame {
+  aspect-ratio: 3 / 4;
+}
+
+.fm-scroll-row--tall .fm-scroll-row__frame {
+  aspect-ratio: 2 / 3;
+}
+
+.fm-scroll-row--square .fm-scroll-row__frame {
+  aspect-ratio: 1 / 1;
+}

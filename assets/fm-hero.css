@@ -1,0 +1,206 @@
+/* FM — full-bleed hero slideshow */
+
+.fm-hero {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-color: rgba(var(--fm-ink), 0.04);
+}
+
+.fm-hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.7s ease;
+}
+
+/* The first slide is in flow so the section has something to size against;
+   it needs an explicit height or it collapses to the image's intrinsic one. */
+.fm-hero__slide:first-child {
+  position: relative;
+  height: 100%;
+}
+
+/* Without JS only the first slide is laid out, so show it. */
+.fm-hero:not(:defined) .fm-hero__slide:first-child,
+.fm-hero__slide--active {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fm-hero__slide {
+    transition: none;
+  }
+}
+
+.fm-hero__link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.fm-hero__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fm-hero__media--mobile {
+  display: block;
+}
+
+.fm-hero__media--desktop {
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-hero__media--mobile {
+    display: none;
+  }
+
+  .fm-hero__media--desktop {
+    display: block;
+  }
+}
+
+.fm-hero__placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(var(--fm-ink), 0.08);
+}
+
+.fm-hero__placeholder svg {
+  width: 100%;
+  height: 100%;
+  fill: rgba(var(--fm-ink), 0.16);
+}
+
+.fm-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background-color: #000;
+  pointer-events: none;
+}
+
+.fm-hero__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 4rem var(--fm-edge) 7rem;
+  pointer-events: none;
+}
+
+.fm-hero__content--top {
+  justify-content: flex-start;
+}
+
+.fm-hero__content--middle {
+  justify-content: center;
+}
+
+.fm-hero__content--bottom {
+  justify-content: flex-end;
+}
+
+.fm-hero__content--left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.fm-hero__content--center {
+  align-items: center;
+  text-align: center;
+}
+
+.fm-hero__content--right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.fm-hero__inner {
+  max-width: 72rem;
+}
+
+.fm-hero__heading {
+  margin: 0;
+  font-size: clamp(2.8rem, 6vw, 6.4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* The wordmark carries its own tracking; trim the trailing gap. */
+  text-indent: 0.16em;
+}
+
+.fm-hero__subheading {
+  margin: 1rem 0 0;
+  font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-indent: 0.3em;
+  opacity: 0.92;
+}
+
+.fm-hero__cta {
+  pointer-events: auto;
+  display: inline-block;
+  margin-top: 2.2rem;
+  padding: 1.1rem 2.8rem;
+  font-size: 1.2rem;
+  letter-spacing: var(--fm-track);
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid currentColor;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.fm-hero__cta:hover {
+  background-color: currentColor;
+}
+
+.fm-hero__cta:hover span {
+  mix-blend-mode: difference;
+}
+
+/* --- Pagination ---------------------------------------------------------- */
+
+.fm-hero__dots {
+  position: absolute;
+  right: var(--fm-edge);
+  bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  z-index: 2;
+}
+
+.fm-hero__dot {
+  width: 2.6rem;
+  height: 2px;
+  padding: 0;
+  border: 0;
+  background-color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.fm-hero__dot::before {
+  /* Widen the hit area without widening the mark. */
+  content: '';
+  position: absolute;
+  inset: -1rem -0.4rem;
+}
+
+.fm-hero__dot {
+  position: relative;
+}
+
+.fm-hero__dot--active {
+  background-color: #fff;
+}

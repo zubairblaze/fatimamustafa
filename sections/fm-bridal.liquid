@@ -1,0 +1,247 @@
+{{ 'fm-bridal.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'fm-carousel.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+    background-color: {{ section.settings.background }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %}">
+  <div class="fm-bridal">
+    {%- liquid
+      assign aside_tag = 'div'
+      if section.settings.image_link != blank
+        assign aside_tag = 'a'
+      endif
+      assign aside_alt = section.settings.image.alt | default: section.settings.title | escape
+    -%}
+    <{{ aside_tag }}
+      class="fm-bridal__aside"
+      {% if section.settings.image_link != blank %}href="{{ section.settings.image_link }}"{% endif %}
+    >
+      {%- if section.settings.image != blank -%}
+        {{
+          section.settings.image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '400, 600, 800, 1000, 1200',
+            sizes: '(min-width: 990px) 31vw, 100vw',
+            alt: aside_alt
+        }}
+      {%- else -%}
+        <div class="fm-tile__placeholder">{{ 'lifestyle-2' | placeholder_svg_tag }}</div>
+      {%- endif -%}
+    </{{ aside_tag }}>
+
+    <div class="fm-bridal__main">
+      <fm-scroller>
+        <div class="fm-head">
+          <div class="fm-head__text">
+            {%- if section.settings.title != blank -%}
+              <h2 class="fm-head__title fm-head__title--caps">{{ section.settings.title }}</h2>
+            {%- endif -%}
+          </div>
+
+          <div class="fm-head__aside">
+            {%- if section.settings.show_view_all -%}
+              <a class="fm-head__link" href="{{ section.settings.view_all_link | default: routes.collections_url }}">
+                {{- 'sections.collection_list.view_all' | t -}}
+              </a>
+            {%- endif -%}
+            <div class="fm-arrows">
+              <button type="button" class="fm-arrow fm-arrow--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
+                {% render 'fm-arrow-icon' %}
+              </button>
+              <button type="button" class="fm-arrow fm-arrow--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
+                {% render 'fm-arrow-icon' %}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <ul class="fm-scroller" data-fm-track role="list">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign collection = block.settings.collection
+              assign label = block.settings.label
+              if label == blank
+                assign label = collection.title
+              endif
+
+              assign image = block.settings.image
+              if image == blank
+                assign image = collection.featured_image
+              endif
+
+              assign url = block.settings.link
+              if url == blank and collection != blank
+                assign url = collection.url
+              endif
+
+              assign alt_text = image.alt | default: label | escape
+            -%}
+            <li class="fm-bridal__item" {{ block.shopify_attributes }}>
+              <a href="{{ url | default: routes.collections_url }}" style="text-decoration: none;">
+                <span class="fm-tile fm-ratio fm-bridal__frame">
+                  {%- if image != blank -%}
+                    {{
+                      image
+                      | image_url: width: 800
+                      | image_tag:
+                        class: 'fm-tile__media',
+                        loading: 'lazy',
+                        widths: '250, 350, 450, 600, 800',
+                        sizes: '(min-width: 990px) 17vw, (min-width: 750px) 30vw, 52vw',
+                        alt: alt_text
+                    }}
+                  {%- else -%}
+                    {%- assign placeholder_index = forloop.index0 | modulo: 4 | plus: 1 -%}
+                    <span class="fm-tile__placeholder">
+                      {{ 'collection-apparel-' | append: placeholder_index | placeholder_svg_tag }}
+                    </span>
+                  {%- endif -%}
+                </span>
+                {%- if label != blank -%}
+                  <span class="fm-bridal__caption">{{ label }}</span>
+                {%- endif -%}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        <div class="fm-bridal__progress" aria-hidden="true"><span data-fm-progress></span></div>
+      </fm-scroller>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FM Bridal",
+  "tag": "section",
+  "class": "fm-bridal-section",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Bridal"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show \"View all\" link",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "\"View all\" link"
+    },
+    {
+      "type": "header",
+      "content": "Side image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "image_link",
+      "label": "Image link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_bleed",
+      "label": "Run edge to edge",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Falls back to the collection image."
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Caption",
+          "info": "Falls back to the collection title."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Falls back to the collection URL."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Bridal",
+      "blocks": [
+        { "type": "tile" },
+        { "type": "tile" },
+        { "type": "tile" },
+        { "type": "tile" }
+      ]
+    }
+  ]
+}
+{% endschema %}

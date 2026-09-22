@@ -1,0 +1,207 @@
+{{ 'fm-worn-loved.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'fm-carousel.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+    background-color: {{ section.settings.background }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fm-ugc">
+  <fm-scroller>
+    <div class="fm-head">
+      <div class="fm-head__text">
+        {%- if section.settings.title != blank -%}
+          <h2 class="fm-head__title">{{ section.settings.title }}</h2>
+        {%- endif -%}
+      </div>
+
+      <div class="fm-head__aside">
+        <div class="fm-arrows">
+          <button type="button" class="fm-arrow fm-arrow--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
+            {% render 'fm-arrow-icon' %}
+          </button>
+          <button type="button" class="fm-arrow fm-arrow--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
+            {% render 'fm-arrow-icon' %}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ul class="fm-scroller fm-ugc__track" data-fm-track role="list">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign post_url = block.settings.link
+          assign product = block.settings.product
+          if post_url == blank and product != blank
+            assign post_url = product.url
+          endif
+          assign alt_text = block.settings.image.alt | default: block.settings.handle | escape
+        -%}
+        <li class="fm-ugc__item" {{ block.shopify_attributes }}>
+          <div class="fm-ugc__card">
+            <div class="fm-ugc__top">
+              {%- if block.settings.avatar != blank -%}
+                {{
+                  block.settings.avatar
+                  | image_url: width: 80
+                  | image_tag: class: 'fm-ugc__avatar', loading: 'lazy', widths: '40, 60, 80', alt: ''
+                }}
+              {%- else -%}
+                <span class="fm-ugc__avatar"></span>
+              {%- endif -%}
+
+              {%- if block.settings.handle != blank -%}
+                {%- if block.settings.profile_url != blank -%}
+                  <a class="fm-ugc__handle" href="{{ block.settings.profile_url }}" rel="nofollow noopener" target="_blank">
+                    {{- block.settings.handle -}}
+                  </a>
+                {%- else -%}
+                  <span class="fm-ugc__handle">{{ block.settings.handle }}</span>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+
+            <a class="fm-ugc__media" href="{{ post_url | default: routes.all_products_collection_url }}">
+              {%- if block.settings.image != blank -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 800
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '250, 350, 450, 600, 800',
+                    sizes: '(min-width: 990px) 19vw, (min-width: 750px) 32vw, 62vw',
+                    alt: alt_text
+                }}
+              {%- else -%}
+                {%- assign placeholder_index = forloop.index0 | modulo: 2 | plus: 1 -%}
+                <span class="fm-tile__placeholder">
+                  {{ 'lifestyle-' | append: placeholder_index | placeholder_svg_tag }}
+                </span>
+              {%- endif -%}
+            </a>
+
+            <div class="fm-ugc__bottom">
+              <a class="fm-ugc__shop" href="{{ post_url | default: routes.all_products_collection_url }}">
+                {{ section.settings.shop_label }}
+              </a>
+              <span class="fm-ugc__icons" aria-hidden="true">
+                <span class="svg-wrapper">{{ 'icon-heart.svg' | inline_asset_content }}</span>
+                <span class="svg-wrapper">{{ 'icon-cart-empty.svg' | inline_asset_content }}</span>
+              </span>
+            </div>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </fm-scroller>
+</div>
+
+{% schema %}
+{
+  "name": "FM Worn & Loved",
+  "tag": "section",
+  "class": "fm-ugc-section",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Worn & Loved"
+    },
+    {
+      "type": "text",
+      "id": "shop_label",
+      "label": "Card link text",
+      "default": "Shop this look"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "post",
+      "name": "Photo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Photo"
+        },
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "Avatar"
+        },
+        {
+          "type": "text",
+          "id": "handle",
+          "label": "Username"
+        },
+        {
+          "type": "url",
+          "id": "profile_url",
+          "label": "Profile link"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Featured product"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Falls back to the featured product."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Worn & Loved",
+      "blocks": [
+        { "type": "post" },
+        { "type": "post" },
+        { "type": "post" },
+        { "type": "post" },
+        { "type": "post" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,221 @@
+{{ 'fm-collection-grid.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+    background-color: {{ section.settings.background }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %}">
+  {%- if section.settings.title != blank -%}
+    <div class="fm-head">
+      <div class="fm-head__text">
+        <h2 class="fm-head__title fm-head__title--caps">{{ section.settings.title }}</h2>
+      </div>
+    </div>
+  {%- endif -%}
+
+  <ul
+    class="fm-grid fm-grid--{{ section.settings.columns }} fm-grid--ratio-{{ section.settings.image_ratio }}{% if section.settings.weighted %} fm-grid--weighted{% endif %}"
+    role="list"
+  >
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign collection = block.settings.collection
+        assign label = block.settings.label
+        if label == blank
+          assign label = collection.title
+        endif
+
+        assign image = block.settings.image
+        if image == blank
+          assign image = collection.featured_image
+        endif
+
+        assign url = block.settings.link
+        if url == blank and collection != blank
+          assign url = collection.url
+        endif
+
+        assign columns = section.settings.columns
+        assign sizes = '(min-width: 750px) 50vw, 100vw'
+        if columns == '3'
+          assign sizes = '(min-width: 750px) 33vw, 100vw'
+        elsif columns == '4'
+          assign sizes = '(min-width: 750px) 25vw, 100vw'
+        endif
+
+        assign alt_text = image.alt | default: label | escape
+      -%}
+      <li {{ block.shopify_attributes }}>
+        <a
+          href="{{ url | default: routes.all_products_collection_url }}"
+          class="fm-tile fm-grid__tile fm-ratio fm-grid__frame"
+        >
+          {%- if image != blank -%}
+            {{
+              image
+              | image_url: width: 1800
+              | image_tag:
+                class: 'fm-tile__media',
+                loading: 'lazy',
+                widths: '400, 600, 800, 1000, 1200, 1500, 1800',
+                sizes: sizes,
+                alt: alt_text
+            }}
+          {%- else -%}
+            {%- assign placeholder_index = forloop.index0 | modulo: 4 | plus: 1 -%}
+            <div class="fm-tile__placeholder">
+              {{ 'collection-apparel-' | append: placeholder_index | placeholder_svg_tag }}
+            </div>
+          {%- endif -%}
+
+          <span class="fm-tile__scrim"></span>
+          {%- if label != blank -%}
+            <span class="fm-tile__label{% if section.settings.label_alignment == 'center' %} fm-tile__label--center{% endif %}">
+              {{- label -}}
+            </span>
+          {%- endif -%}
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+</div>
+
+{% schema %}
+{
+  "name": "FM Collection Grid",
+  "tag": "section",
+  "class": "fm-collection-grid",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "info": "Leave blank for an untitled banner row."
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Columns on desktop",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "checkbox",
+      "id": "weighted",
+      "label": "Widen the first tile",
+      "info": "Two-column layouts only.",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "landscape", "label": "Landscape" },
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "tall", "label": "Tall" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "select",
+      "id": "label_alignment",
+      "label": "Label position",
+      "options": [
+        { "value": "left", "label": "Bottom left" },
+        { "value": "center", "label": "Bottom center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_bleed",
+      "label": "Run edge to edge",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 8
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Falls back to the collection image."
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "info": "Falls back to the collection title."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Falls back to the collection URL."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Collection Grid",
+      "blocks": [
+        { "type": "tile" },
+        { "type": "tile" }
+      ]
+    }
+  ]
+}
+{% endschema %}

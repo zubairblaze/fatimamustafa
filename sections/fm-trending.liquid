@@ -1,0 +1,241 @@
+{{ 'fm-product-card.css' | asset_url | stylesheet_tag }}
+{{ 'fm-trending.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'fm-carousel.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+    background-color: {{ section.settings.background }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fm-section fm-trending">
+  <fm-tabs>
+    <div class="fm-head">
+      <div class="fm-head__text">
+        {%- if section.settings.title != blank -%}
+          <h2 class="fm-head__title fm-head__title--caps">{{ section.settings.title }}</h2>
+        {%- endif -%}
+      </div>
+
+      <div class="fm-head__aside">
+        {%- if section.settings.show_view_all -%}
+          <a class="fm-head__link" href="{{ section.settings.view_all_link | default: routes.all_products_collection_url }}">
+            {{- 'sections.collection_list.view_all' | t -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if section.blocks.size > 1 -%}
+      <div class="fm-trending__tabs" role="tablist">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign label = block.settings.label
+            if label == blank
+              assign label = block.settings.collection.title
+            endif
+            if label == blank
+              assign label = 'Collection'
+            endif
+          -%}
+          <button
+            type="button"
+            class="fm-trending__tab"
+            data-fm-tab
+            role="tab"
+            id="fm-tab-{{ section.id }}-{{ forloop.index }}"
+            aria-controls="fm-panel-{{ section.id }}-{{ forloop.index }}"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {{ label }}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign collection = block.settings.collection
+        assign products = collection.products
+        assign limit = section.settings.products_to_show
+      -%}
+      <div
+        class="fm-trending__panel"
+        data-fm-panel
+        role="tabpanel"
+        id="fm-panel-{{ section.id }}-{{ forloop.index }}"
+        aria-labelledby="fm-tab-{{ section.id }}-{{ forloop.index }}"
+        {% unless forloop.first %}hidden{% endunless %}
+      >
+        <fm-scroller class="fm-trending__scroller">
+          <div class="fm-arrows fm-trending__arrows">
+            <button type="button" class="fm-arrow fm-arrow--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
+              {% render 'fm-arrow-icon' %}
+            </button>
+            <button type="button" class="fm-arrow fm-arrow--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
+              {% render 'fm-arrow-icon' %}
+            </button>
+          </div>
+
+          {%- if products.size > 0 -%}
+            <ul class="fm-scroller" data-fm-track role="list">
+              {%- for product in products limit: limit -%}
+                <li class="fm-trending__item">
+                  {% render 'fm-product-card',
+                    product: product,
+                    image_ratio: section.settings.image_ratio,
+                    show_vendor: section.settings.show_vendor,
+                    show_secondary: section.settings.show_secondary_image,
+                    new_badge_label: section.settings.new_badge_label,
+                    index: forloop.index
+                  %}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            {%- comment -%} No collection picked yet: show placeholder cards. {%- endcomment -%}
+            <ul class="fm-scroller" data-fm-track role="list">
+              {%- for i in (1..5) -%}
+                <li class="fm-trending__item">
+                  {% render 'fm-product-card', image_ratio: section.settings.image_ratio, index: forloop.index %}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </fm-scroller>
+      </div>
+    {%- endfor -%}
+  </fm-tabs>
+</div>
+
+{% schema %}
+{
+  "name": "FM Trending",
+  "tag": "section",
+  "class": "fm-trending-section",
+  "max_blocks": 10,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Most Trending"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show \"View all\" link",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "\"View all\" link"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 4,
+      "max": 20,
+      "step": 1,
+      "label": "Products per tab",
+      "default": 10
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "tall", "label": "Tall" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "Show second image on hover",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "new_badge_label",
+      "label": "\"New\" badge text",
+      "info": "Shown on products tagged \"new\".",
+      "default": "New"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Tab label",
+          "info": "Falls back to the collection title."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Trending",
+      "blocks": [
+        { "type": "tab" },
+        { "type": "tab" },
+        { "type": "tab" }
+      ]
+    }
+  ]
+}
+{% endschema %}
