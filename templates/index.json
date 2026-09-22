@@ -12,24 +12,39 @@
     "fm_hero": {
       "type": "fm-hero",
       "blocks": {
-        "slide_1": {
+        "slide_HneddU": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/hero_home_2.jpg",
-            "heading": "",
-            "subheading": "",
-            "link": "shopify://collections/festive-luxe-edit",
+            "heading": "VELVET",
+            "subheading": "Luxury Formals",
+            "link": "",
             "button_label": "",
             "button_link": "",
             "text_color": "#ffffff",
             "overlay_opacity": 10,
-            "position_vertical": "middle",
+            "position_vertical": "bottom",
+            "position_horizontal": "center"
+          }
+        },
+        "slide_KB88tR": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/hero_home_2.jpg",
+            "heading": "VELVET",
+            "subheading": "Luxury Formals",
+            "link": "",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
+            "overlay_opacity": 10,
+            "position_vertical": "bottom",
             "position_horizontal": "center"
           }
         }
       },
       "block_order": [
-        "slide_1"
+        "slide_HneddU",
+        "slide_KB88tR"
       ],
       "settings": {
         "height": "large",
