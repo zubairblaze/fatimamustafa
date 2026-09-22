@@ -38,12 +38,19 @@
     {%- liquid
       assign logo_alt = section.settings.logo.alt | default: shop.name | escape
       assign logo_sizes = section.settings.logo_width | append: 'px'
-      assign is_home = false
+
+      comment
+        The wrapper is an h1 on the homepage and a div elsewhere. Use a dynamic
+        tag name: opening a tag inside one conditional and closing it inside
+        another leaves the markup unbalanced to a Liquid HTML parser, and a
+        section that fails to parse takes its whole section group with it.
+      endcomment
+      assign logo_tag = 'div'
       if request.page_type == 'index'
-        assign is_home = true
+        assign logo_tag = 'h1'
       endif
     -%}
-    {%- if is_home -%}<h1 class="fm-header__logo-heading">{%- endif -%}
+    <{{ logo_tag }} class="fm-header__logo-heading">
     <a href="{{ routes.root_url }}" class="fm-header__logo">
       {%- if section.settings.logo != blank -%}
         {{
@@ -61,7 +68,7 @@
         <span class="fm-header__wordmark">{{ shop.name }}</span>
       {%- endif -%}
     </a>
-    {%- if is_home -%}</h1>{%- endif -%}
+    </{{ logo_tag }}>
 
     {%- comment -%} Right: utility links, wishlist, account, cart {%- endcomment -%}
     <div class="fm-header__group fm-header__group--end">
