@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "fm_hero": {
@@ -6,8 +15,13 @@
         "slide_1": {
           "type": "slide",
           "settings": {
-            "heading": "Velvet",
-            "subheading": "Luxury Formals",
+            "image": "shopify://shop_images/hero_home_2.jpg",
+            "heading": "",
+            "subheading": "",
+            "link": "shopify://collections/festive-luxe-edit",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
             "overlay_opacity": 10,
             "position_vertical": "middle",
             "position_horizontal": "center"
@@ -18,6 +32,10 @@
           "settings": {
             "heading": "Saunf",
             "subheading": "Of M.Prints",
+            "link": "",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
             "overlay_opacity": 15,
             "position_vertical": "bottom",
             "position_horizontal": "center"
@@ -42,43 +60,41 @@
         "tile_1": {
           "type": "tile",
           "settings": {
-            "label": "Accessories"
+            "collection": "bestsellers",
+            "label": "Accessories",
+            "link": ""
           }
         },
         "tile_2": {
           "type": "tile",
           "settings": {
-            "label": "Kids"
+            "collection": "festive-luxe",
+            "label": "Kids",
+            "link": ""
           }
         },
         "tile_3": {
           "type": "tile",
           "settings": {
-            "label": "Unstitched"
+            "collection": "festive-luxe-2026",
+            "label": "Unstitched",
+            "link": ""
           }
         },
         "tile_4": {
           "type": "tile",
           "settings": {
-            "label": "Luxury Formals"
+            "collection": "festive-luxe-edit",
+            "label": "Luxury Formals",
+            "link": ""
           }
         },
         "tile_5": {
           "type": "tile",
           "settings": {
-            "label": "Luxury Pret"
-          }
-        },
-        "tile_6": {
-          "type": "tile",
-          "settings": {
-            "label": "Jewellery"
-          }
-        },
-        "tile_7": {
-          "type": "tile",
-          "settings": {
-            "label": "Festive"
+            "collection": "summer-edit",
+            "label": "Luxury Pret",
+            "link": ""
           }
         }
       },
@@ -87,14 +103,12 @@
         "tile_2",
         "tile_3",
         "tile_4",
-        "tile_5",
-        "tile_6",
-        "tile_7"
+        "tile_5"
       ],
       "settings": {
         "title": "New Arrivals",
         "subtitle": "Shop the latest arrivals across every category",
-        "image_ratio": "portrait",
+        "image_ratio": "tall",
         "background": "#ffffff",
         "padding_top": 36,
         "padding_bottom": 28
@@ -106,13 +120,17 @@
         "tile_1": {
           "type": "tile",
           "settings": {
-            "label": "Luxury Pret"
+            "collection": "festive-luxe-edit",
+            "label": "Luxury Pret",
+            "link": ""
           }
         },
         "tile_2": {
           "type": "tile",
           "settings": {
-            "label": "Luxury Formals"
+            "collection": "festive-luxe",
+            "label": "Luxury Formals",
+            "link": ""
           }
         }
       },
@@ -138,19 +156,25 @@
         "tile_1": {
           "type": "tile",
           "settings": {
-            "label": "Chiffon"
+            "collection": "summer-edit",
+            "label": "Chiffon",
+            "link": ""
           }
         },
         "tile_2": {
           "type": "tile",
           "settings": {
-            "label": "Jewellery"
+            "collection": "festive-luxe-2026",
+            "label": "Jewellery",
+            "link": ""
           }
         },
         "tile_3": {
           "type": "tile",
           "settings": {
-            "label": "Accessories"
+            "collection": "bestsellers",
+            "label": "Accessories",
+            "link": ""
           }
         }
       },
@@ -163,7 +187,7 @@
         "title": "",
         "columns": "3",
         "weighted": false,
-        "image_ratio": "square",
+        "image_ratio": "tall",
         "label_alignment": "left",
         "full_bleed": false,
         "background": "#ffffff",
@@ -177,37 +201,36 @@
         "tab_1": {
           "type": "tab",
           "settings": {
+            "collection": "bestsellers",
             "label": "New Arrivals"
           }
         },
         "tab_2": {
           "type": "tab",
           "settings": {
+            "collection": "festive-luxe-edit",
             "label": "Luxury Pret"
           }
         },
         "tab_3": {
           "type": "tab",
           "settings": {
+            "collection": "festive-luxe-2026",
             "label": "Luxury Formals"
           }
         },
         "tab_4": {
           "type": "tab",
           "settings": {
+            "collection": "festive-luxe-edit",
             "label": "Festive"
           }
         },
         "tab_5": {
           "type": "tab",
           "settings": {
+            "collection": "summer-edit",
             "label": "Pret Solo"
-          }
-        },
-        "tab_6": {
-          "type": "tab",
-          "settings": {
-            "label": "Accessories"
           }
         }
       },
@@ -216,12 +239,12 @@
         "tab_2",
         "tab_3",
         "tab_4",
-        "tab_5",
-        "tab_6"
+        "tab_5"
       ],
       "settings": {
         "title": "Most Trending",
         "show_view_all": true,
+        "view_all_link": "",
         "products_to_show": 10,
         "image_ratio": "portrait",
         "show_vendor": false,
@@ -239,10 +262,13 @@
         "heading": "Shop By Collection",
         "text": "<p>Explore the newest suits we sell in store and online. Every piece is made in premium fabrics and finished by hand.</p>",
         "button_label": "Shop the look",
+        "button_link": "",
+        "image": "shopify://shop_images/image_a61a6d6e-b5a4-41b1-b38a-4699f685aeff.jpg",
+        "image_link": "",
         "wordmark": "Stitched For You",
         "wordmark_color": "#ffffff",
         "image_position": "right",
-        "full_bleed": false,
+        "full_bleed": true,
         "background": "#ffffff",
         "panel_background": "#ffffff",
         "padding_top": 8,
@@ -255,31 +281,41 @@
         "tile_1": {
           "type": "tile",
           "settings": {
-            "label": "Dholki"
+            "collection": "",
+            "label": "Dholki",
+            "link": ""
           }
         },
         "tile_2": {
           "type": "tile",
           "settings": {
-            "label": "Mehendi"
+            "collection": "",
+            "label": "Mehendi",
+            "link": ""
           }
         },
         "tile_3": {
           "type": "tile",
           "settings": {
-            "label": "Mehendi"
+            "collection": "",
+            "label": "Mehendi",
+            "link": ""
           }
         },
         "tile_4": {
           "type": "tile",
           "settings": {
-            "label": "Nikkah"
+            "collection": "",
+            "label": "Nikkah",
+            "link": ""
           }
         },
         "tile_5": {
           "type": "tile",
           "settings": {
-            "label": "Barat"
+            "collection": "",
+            "label": "Barat",
+            "link": ""
           }
         }
       },
@@ -293,6 +329,8 @@
       "settings": {
         "title": "Bridal",
         "show_view_all": true,
+        "view_all_link": "",
+        "image_link": "",
         "full_bleed": false,
         "background": "#ffffff",
         "padding_top": 8,
@@ -305,43 +343,64 @@
         "post_1": {
           "type": "post",
           "settings": {
-            "handle": "@customer1"
+            "handle": "@customer1",
+            "profile_url": "",
+            "product": "",
+            "link": ""
           }
         },
         "post_2": {
           "type": "post",
           "settings": {
-            "handle": "@customer2"
+            "handle": "@customer2",
+            "profile_url": "",
+            "product": "",
+            "link": ""
           }
         },
         "post_3": {
           "type": "post",
           "settings": {
-            "handle": "@customer3"
+            "handle": "@customer3",
+            "profile_url": "",
+            "product": "",
+            "link": ""
           }
         },
         "post_4": {
           "type": "post",
           "settings": {
-            "handle": "@customer4"
+            "handle": "@customer4",
+            "profile_url": "",
+            "product": "",
+            "link": ""
           }
         },
         "post_5": {
           "type": "post",
           "settings": {
-            "handle": "@customer5"
+            "handle": "@customer5",
+            "profile_url": "",
+            "product": "",
+            "link": ""
           }
         },
         "post_6": {
           "type": "post",
           "settings": {
-            "handle": "@customer6"
+            "handle": "@customer6",
+            "profile_url": "",
+            "product": "",
+            "link": ""
           }
         },
         "post_7": {
           "type": "post",
           "settings": {
-            "handle": "@customer7"
+            "handle": "@customer7",
+            "profile_url": "",
+            "product": "",
+            "link": ""
           }
         }
       },
