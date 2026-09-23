@@ -1,0 +1,411 @@
+/* FM — product page: care panel, gallery, info column */
+
+.fm-pdp {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.4rem;
+  padding: 0 var(--fm-edge) 4rem;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-pdp {
+    /* care panel | gallery | info. The reference gives the gallery the
+       narrowest of the three columns; measured off it, the ratio is
+       roughly 1.25 : 1 : 1.24. */
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr) minmax(0, 1.2fr);
+    gap: 3.2rem;
+    align-items: start;
+  }
+
+  .fm-pdp--no-aside {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+}
+
+/* --- Breadcrumbs ----------------------------------------------------------- */
+
+.fm-crumbs {
+  padding: 1.4rem var(--fm-edge);
+  font-size: 1.1rem;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fm-crumbs a:hover {
+  color: rgb(var(--fm-ink));
+  text-decoration: underline;
+}
+
+.fm-crumbs li[aria-current='page'] {
+  color: rgb(var(--fm-ink));
+}
+
+.fm-crumbs__sep {
+  opacity: 0.5;
+}
+
+/* --- Care panel ------------------------------------------------------------ */
+
+.fm-care {
+  order: 3;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-care {
+    order: 0;
+    position: sticky;
+    top: 10rem;
+  }
+}
+
+.fm-care__title {
+  margin: 0 0 1.6rem;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.fm-care__group + .fm-care__group {
+  margin-top: 2rem;
+}
+
+.fm-care__label {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-care__text {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: rgba(var(--fm-ink), 0.75);
+}
+
+.fm-care__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-care__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid rgb(var(--fm-rule));
+  font-size: 1.2rem;
+  color: rgba(var(--fm-ink), 0.8);
+}
+
+.fm-care__item svg,
+.fm-care__item img {
+  width: 1.8rem;
+  height: 1.8rem;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* --- Gallery --------------------------------------------------------------- */
+
+.fm-gallery__main {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(var(--fm-ink), 0.03);
+  aspect-ratio: 3 / 4;
+}
+
+.fm-gallery__main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fm-gallery--contain .fm-gallery__main img {
+  object-fit: contain;
+}
+
+.fm-gallery__thumbs {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-gallery__thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.fm-gallery__thumb {
+  flex: 0 0 auto;
+  width: 7rem;
+  padding: 0;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.fm-gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fm-gallery__thumb[aria-current='true'] {
+  border-color: rgb(var(--fm-ink));
+}
+
+/* --- Info column ----------------------------------------------------------- */
+
+.fm-pdp__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.fm-pdp__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.6rem;
+}
+
+.fm-pdp__title {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.fm-pdp__stock {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgb(var(--fm-rule));
+  white-space: nowrap;
+}
+
+.fm-pdp__stock--out {
+  color: rgba(var(--fm-ink), 0.5);
+}
+
+.fm-pdp__sku {
+  margin: 0;
+  font-size: 1.1rem;
+  color: rgba(var(--fm-ink), 0.5);
+}
+
+.fm-pdp__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid rgb(var(--fm-rule));
+  font-size: 1.2rem;
+}
+
+.fm-pdp__row-label {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-pdp__row-value {
+  text-align: right;
+  color: rgb(var(--fm-ink));
+}
+
+.fm-pdp__price {
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.fm-pdp__price s {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: rgba(var(--fm-ink), 0.45);
+  margin-left: 0.8rem;
+}
+
+.fm-pdp__note {
+  margin: 0;
+  font-size: 1.1rem;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-pdp__note a {
+  color: inherit;
+}
+
+/* --- Size chart link ------------------------------------------------------- */
+
+.fm-pdp__size-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+}
+
+.fm-pdp__size-chart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(var(--fm-ink));
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--fm-ink), 0.3);
+  padding-bottom: 0.2rem;
+}
+
+.fm-pdp__size-chart:hover {
+  border-bottom-color: rgb(var(--fm-ink));
+}
+
+.fm-pdp__size-chart svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* --- Buttons --------------------------------------------------------------- */
+
+.fm-pdp__actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-pdp__actions--split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fm-pdp__wishlist {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  min-height: 4.8rem;
+  padding: 0 1.8rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--fm-ink));
+  background: none;
+  border: 1px solid rgba(var(--fm-ink), 0.35);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+}
+
+.fm-pdp__wishlist:hover {
+  border-color: rgb(var(--fm-ink));
+}
+
+.fm-pdp__wishlist svg {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+/* --- Description accordion -------------------------------------------------- */
+
+.fm-acc {
+  border-top: 1px solid rgb(var(--fm-rule));
+}
+
+.fm-acc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding: 1.4rem 0;
+  cursor: pointer;
+  font-size: 1.3rem;
+  list-style: none;
+}
+
+.fm-acc summary::-webkit-details-marker {
+  display: none;
+}
+
+.fm-acc__icon {
+  position: relative;
+  width: 1.4rem;
+  height: 1.4rem;
+  flex-shrink: 0;
+}
+
+.fm-acc__icon::before,
+.fm-acc__icon::after {
+  content: '';
+  position: absolute;
+  background-color: rgb(var(--fm-ink));
+  transition: transform 0.2s ease;
+}
+
+.fm-acc__icon::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.fm-acc__icon::after {
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  transform: translateX(-50%);
+}
+
+.fm-acc[open] .fm-acc__icon::after {
+  transform: translateX(-50%) scaleY(0);
+}
+
+.fm-acc__body {
+  padding: 0 0 1.8rem;
+  font-size: 1.3rem;
+  line-height: 1.8;
+  color: rgba(var(--fm-ink), 0.75);
+}
+
+.fm-acc__body > :first-child {
+  margin-top: 0;
+}
+
+/* Dawn's variant pills and quantity widget sit inside this column. */
+.fm-pdp__info .product-form__input {
+  margin: 0;
+}
+
+.fm-pdp__info .quantity {
+  max-width: 14rem;
+}

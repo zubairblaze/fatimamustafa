@@ -1,0 +1,453 @@
+{{ 'section-main-product.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-variant-picker.css' | asset_url | stylesheet_tag }}
+{{ 'component-swatch-input.css' | asset_url | stylesheet_tag }}
+{{ 'component-swatch.css' | asset_url | stylesheet_tag }}
+{{ 'fm-product.css' | asset_url | stylesheet_tag }}
+
+<script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'fm-product.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+  assign variant = product.selected_or_first_available_variant
+
+  assign has_aside = false
+  for block in section.blocks
+    if block.type == 'care'
+      assign has_aside = true
+      break
+    endif
+  endfor
+-%}
+
+<product-info
+  id="MainProduct-{{ section.id }}"
+  class="fm-fit-{{ section.settings.image_fit | default: 'cover' }}"
+  data-section="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  data-update-url="true"
+  data-url="{{ product.url }}"
+>
+  {%- if section.settings.show_breadcrumbs -%}
+    {% render 'fm-breadcrumbs', product: product, collection: collection %}
+  {%- endif -%}
+
+  <div class="fm-pdp{% unless has_aside %} fm-pdp--no-aside{% endunless %}">
+    {%- comment -%} Left: product care {%- endcomment -%}
+    {%- if has_aside -%}
+      <aside class="fm-care">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'care' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h2 class="fm-care__title">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+
+              {%- if block.settings.fabric_label != blank or block.settings.fabric_text != blank -%}
+                <div class="fm-care__group">
+                  {%- if block.settings.fabric_label != blank -%}
+                    <p class="fm-care__label">{{ block.settings.fabric_label }}</p>
+                  {%- endif -%}
+                  {%- if block.settings.fabric_text != blank -%}
+                    <p class="fm-care__text">{{ block.settings.fabric_text }}</p>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              {%- assign care_lines = block.settings.care_list | newline_to_br | split: '<br />' -%}
+              {%- if care_lines.size > 0 and block.settings.care_list != blank -%}
+                <div class="fm-care__group">
+                  {%- if block.settings.care_label != blank -%}
+                    <p class="fm-care__label">{{ block.settings.care_label }}</p>
+                  {%- endif -%}
+                  <ul class="fm-care__list" role="list">
+                    {%- for line in care_lines -%}
+                      {%- assign text = line | strip -%}
+                      {%- if text != blank -%}
+                        <li class="fm-care__item">
+                          <span class="svg-wrapper">{{ 'icon-checkmark.svg' | inline_asset_content }}</span>
+                          <span>{{ text }}</span>
+                        </li>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </aside>
+    {%- endif -%}
+
+    {%- comment -%} Centre: gallery {%- endcomment -%}
+    <fm-gallery class="fm-gallery fm-gallery--{{ section.settings.image_fit | default: 'cover' }}">
+      <div class="fm-gallery__main">
+        {%- if product.featured_media -%}
+          {{
+            product.featured_media
+            | image_url: width: 1400
+            | image_tag:
+              loading: 'eager',
+              fetchpriority: 'high',
+              widths: '400, 600, 800, 1000, 1200, 1400',
+              sizes: '(min-width: 990px) 45vw, 100vw',
+              alt: product.featured_media.alt
+          }}
+        {%- else -%}
+          {{ 'product-apparel-1' | placeholder_svg_tag }}
+        {%- endif -%}
+      </div>
+
+      {%- if product.media.size > 1 -%}
+        <ul class="fm-gallery__thumbs" role="list">
+          {%- for media in product.media -%}
+            {%- assign full_src = media.preview_image | image_url: width: 1400 -%}
+            <li>
+              <button
+                type="button"
+                class="fm-gallery__thumb"
+                data-fm-thumb
+                data-full="{{ full_src }}"
+                data-alt="{{ media.alt | escape }}"
+                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+              >
+                {{
+                  media.preview_image
+                  | image_url: width: 200
+                  | image_tag: loading: 'lazy', widths: '80, 140, 200', sizes: '70px', alt: media.alt
+                }}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </fm-gallery>
+
+    {%- comment -%} Right: product info {%- endcomment -%}
+    <div class="fm-pdp__info">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'title' -%}
+            <div class="fm-pdp__heading" {{ block.shopify_attributes }}>
+              <h1 class="fm-pdp__title">{{ product.title | escape }}</h1>
+              {%- if block.settings.show_stock -%}
+                {%- if product.available -%}
+                  <span class="fm-pdp__stock">{{ block.settings.in_stock_text }}</span>
+                {%- else -%}
+                  <span class="fm-pdp__stock fm-pdp__stock--out">
+                    {{- 'products.product.sold_out' | t -}}
+                  </span>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+
+            {%- if block.settings.show_sku and variant.sku != blank -%}
+              <p class="fm-pdp__sku">{{ variant.sku }}</p>
+            {%- endif -%}
+
+          {%- when 'price' -%}
+            <div class="fm-pdp__row" {{ block.shopify_attributes }}>
+              <span class="fm-pdp__row-label">{{ block.settings.label }}</span>
+              <span class="fm-pdp__row-value fm-pdp__price">
+                {{ variant.price | money }}
+                {%- if variant.compare_at_price > variant.price -%}
+                  <s>{{ variant.compare_at_price | money }}</s>
+                {%- endif -%}
+              </span>
+            </div>
+            {%- if block.settings.note != blank -%}
+              <p class="fm-pdp__note">{{ block.settings.note }}</p>
+            {%- endif -%}
+
+          {%- when 'info_row' -%}
+            <div class="fm-pdp__row" {{ block.shopify_attributes }}>
+              <span class="fm-pdp__row-label">{{ block.settings.label }}</span>
+              <span class="fm-pdp__row-value">{{ block.settings.value }}</span>
+            </div>
+
+          {%- when 'variant_picker' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- if block.settings.size_chart_url != blank -%}
+                <div class="fm-pdp__size-head">
+                  <span class="fm-pdp__row-label">{{ block.settings.size_label }}</span>
+                  <a class="fm-pdp__size-chart" href="{{ block.settings.size_chart_url }}">
+                    <span class="svg-wrapper">{{ 'icon-ruler.svg' | inline_asset_content }}</span>
+                    {{ block.settings.size_chart_text }}
+                  </a>
+                </div>
+              {%- endif -%}
+              {% render 'product-variant-picker',
+                product: product,
+                block: block,
+                product_form_id: product_form_id
+              %}
+            </div>
+
+          {%- when 'quantity_selector' -%}
+            <div {{ block.shopify_attributes }}>
+              <label class="fm-pdp__row-label" for="Quantity-{{ section.id }}">
+                {{ 'products.product.quantity.label' | t }}
+              </label>
+              <quantity-input class="quantity" data-url="{{ product.url }}" data-section="{{ section.id }}">
+                <button class="quantity__button" name="minus" type="button">
+                  <span class="visually-hidden">
+                    {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
+                  </span>
+                  <span class="svg-wrapper">{{ 'icon-minus.svg' | inline_asset_content }}</span>
+                </button>
+                <input
+                  class="quantity__input"
+                  type="number"
+                  name="quantity"
+                  id="Quantity-{{ section.id }}"
+                  min="1"
+                  value="1"
+                  form="{{ product_form_id }}"
+                >
+                <button class="quantity__button" name="plus" type="button">
+                  <span class="visually-hidden">
+                    {{- 'products.product.quantity.increase' | t: product: product.title | escape -}}
+                  </span>
+                  <span class="svg-wrapper">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+                </button>
+              </quantity-input>
+            </div>
+
+          {%- when 'buy_buttons' -%}
+            <div class="fm-pdp__actions{% if block.settings.show_wishlist %} fm-pdp__actions--split{% endif %}">
+              {%- if block.settings.show_wishlist -%}
+                <a
+                  class="fm-pdp__wishlist"
+                  href="{{ block.settings.wishlist_url | default: routes.search_url }}"
+                >
+                  <span class="svg-wrapper">{{ 'icon-heart.svg' | inline_asset_content }}</span>
+                  {{ block.settings.wishlist_text }}
+                </a>
+              {%- endif -%}
+
+              {% render 'buy-buttons',
+                block: block,
+                product: product,
+                product_form_id: product_form_id,
+                section_id: section.id
+              %}
+            </div>
+
+          {%- when 'description' -%}
+            {%- if product.description != blank -%}
+              <details class="fm-acc" {{ block.shopify_attributes }}{% if block.settings.open_by_default %} open{% endif %}>
+                <summary>
+                  {{ block.settings.label }}
+                  <span class="fm-acc__icon" aria-hidden="true"></span>
+                </summary>
+                <div class="fm-acc__body rte">{{ product.description }}</div>
+              </details>
+            {%- endif -%}
+
+          {%- when 'collapsible' -%}
+            {%- if block.settings.content != blank -%}
+              <details class="fm-acc" {{ block.shopify_attributes }}{% if block.settings.open_by_default %} open{% endif %}>
+                <summary>
+                  {{ block.settings.label }}
+                  <span class="fm-acc__icon" aria-hidden="true"></span>
+                </summary>
+                <div class="fm-acc__body rte">{{ block.settings.content }}</div>
+              </details>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</product-info>
+
+{% schema %}
+{
+  "name": "FM Product",
+  "tag": "section",
+  "class": "fm-main-product-section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        { "value": "cover", "label": "Cover (fill and crop)" },
+        { "value": "contain", "label": "Contain (fit whole image)" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Title and stock",
+      "limit": 1,
+      "settings": [
+        { "type": "checkbox", "id": "show_stock", "label": "Show stock badge", "default": true },
+        { "type": "text", "id": "in_stock_text", "label": "In stock text", "default": "In Stock" },
+        { "type": "checkbox", "id": "show_sku", "label": "Show SKU", "default": true }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Price" },
+        { "type": "text", "id": "note", "label": "Note below price", "default": "Shipping calculated at checkout." }
+      ]
+    },
+    {
+      "type": "info_row",
+      "name": "Info row",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Shipping time" },
+        { "type": "text", "id": "value", "label": "Value", "default": "7-10 business days" }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant picker",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "picker_type",
+          "label": "Style",
+          "options": [
+            { "value": "dropdown", "label": "Dropdown" },
+            { "value": "button", "label": "Pills" }
+          ],
+          "default": "button"
+        },
+        {
+          "type": "select",
+          "id": "swatch_shape",
+          "label": "Swatch shape",
+          "options": [
+            { "value": "circle", "label": "Circle" },
+            { "value": "square", "label": "Square" },
+            { "value": "none", "label": "None" }
+          ],
+          "default": "circle"
+        },
+        { "type": "text", "id": "size_label", "label": "Size label", "default": "Size" },
+        { "type": "text", "id": "size_chart_text", "label": "Size chart link text", "default": "Size chart" },
+        { "type": "url", "id": "size_chart_url", "label": "Size chart link" }
+      ]
+    },
+    {
+      "type": "quantity_selector",
+      "name": "Quantity",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "limit": 1,
+      "settings": [
+        { "type": "checkbox", "id": "show_wishlist", "label": "Show wishlist button", "default": true },
+        { "type": "text", "id": "wishlist_text", "label": "Wishlist text", "default": "Add to wishlist" },
+        { "type": "url", "id": "wishlist_url", "label": "Wishlist link" },
+        { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout buttons", "default": false },
+        { "type": "checkbox", "id": "show_gift_card_recipient", "label": "Show gift card recipient form", "default": true }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Description" },
+        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+      ]
+    },
+    {
+      "type": "collapsible",
+      "name": "Collapsible row",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Shipping and returns" },
+        { "type": "richtext", "id": "content", "label": "Content" },
+        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+      ]
+    },
+    {
+      "type": "care",
+      "name": "Product care panel",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Product Care" },
+        { "type": "text", "id": "fabric_label", "label": "Fabric label", "default": "Fabric" },
+        { "type": "text", "id": "fabric_text", "label": "Fabric text", "default": "Mix fabric. Handle with care while cleaning." },
+        { "type": "text", "id": "care_label", "label": "Care label", "default": "Care" },
+        {
+          "type": "textarea",
+          "id": "care_list",
+          "label": "Care instructions",
+          "info": "One per line.",
+          "default": "Dry clean only\nCan be ironed on low heat\nDo not use bleach"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Product",
+      "blocks": [
+        { "type": "care" },
+        { "type": "title" },
+        { "type": "price" },
+        { "type": "info_row" },
+        { "type": "variant_picker" },
+        { "type": "quantity_selector" },
+        { "type": "buy_buttons" },
+        { "type": "description" }
+      ]
+    }
+  ]
+}
+{% endschema %}

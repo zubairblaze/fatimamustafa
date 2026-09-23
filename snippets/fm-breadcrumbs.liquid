@@ -1,0 +1,41 @@
+{% comment %}
+  Renders a breadcrumb trail: Home / collection / product.
+
+  Both objects are passed in rather than read from the ambient scope: {% render %}
+  isolates its scope, so relying on them being present is fragile.
+
+  Accepts:
+  - product:    {Object} Product object.
+  - collection: {Object} Collection the product was reached through (optional).
+                Falls back to the product's first collection.
+
+  Usage:
+  {% render 'fm-breadcrumbs', product: product, collection: collection %}
+{% endcomment %}
+
+{%- liquid
+  assign trail_collection = collection
+  if trail_collection == blank
+    assign trail_collection = product.collections.first
+  endif
+-%}
+
+<nav class="fm-crumbs" aria-label="Breadcrumbs">
+  <ol role="list">
+    <li>
+      <a href="{{ routes.root_url }}">Home</a>
+    </li>
+
+    {%- if trail_collection != blank -%}
+      <li aria-hidden="true" class="fm-crumbs__sep">/</li>
+      <li>
+        <a href="{{ trail_collection.url }}">{{ trail_collection.title }}</a>
+      </li>
+    {%- endif -%}
+
+    {%- if product != blank -%}
+      <li aria-hidden="true" class="fm-crumbs__sep">/</li>
+      <li aria-current="page">{{ product.title }}</li>
+    {%- endif -%}
+  </ol>
+</nav>

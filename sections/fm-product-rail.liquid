@@ -1,0 +1,250 @@
+{{ 'fm-product-card.css' | asset_url | stylesheet_tag }}
+{{ 'fm-trending.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'fm-carousel.js' | asset_url }}" defer="defer"></script>
+{%- if section.settings.source == 'recently_viewed' -%}
+  <script src="{{ 'fm-product.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+    background-color: {{ section.settings.background }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign limit = section.settings.products_to_show
+
+  case section.settings.source
+    when 'collection'
+      assign rail_products = section.settings.collection.products
+    when 'recommendations'
+      assign rail_products = recommendations.products
+    when 'recently_viewed'
+      assign rail_products = search.results
+    else
+      assign rail_products = null
+  endcase
+-%}
+
+{%- comment -%}
+  Rendered on its own when Shopify requests this section for the
+  recommendations or recently-viewed fetch; the wrapper is skipped so the
+  caller can lift [data-fm-rail-items] straight out of the response.
+{%- endcomment -%}
+
+{%- capture rail_items -%}
+  {%- if rail_products != blank -%}
+    {%- for product in rail_products limit: limit -%}
+      <li class="fm-trending__item">
+        {% render 'fm-product-card',
+          product: product,
+          image_ratio: section.settings.image_ratio,
+          show_vendor: section.settings.show_vendor,
+          show_secondary: section.settings.show_secondary_image,
+          new_badge_label: section.settings.new_badge_label,
+          index: forloop.index
+        %}
+      </li>
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- liquid
+  assign is_recently_viewed = false
+  if section.settings.source == 'recently_viewed'
+    assign is_recently_viewed = true
+  endif
+
+  assign has_items = false
+  if rail_items != blank
+    assign has_items = true
+  endif
+-%}
+
+{%- if has_items or is_recently_viewed -%}
+  {%- capture rail_markup -%}
+    <div class="fm-section fm-trending fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
+      <fm-scroller class="fm-trending__scroller">
+        <div class="fm-head">
+          <div class="fm-head__text">
+            {%- if section.settings.title != blank -%}
+              <h2 class="fm-head__title">{{ section.settings.title }}</h2>
+            {%- endif -%}
+          </div>
+
+          <div class="fm-head__aside">
+            <div class="fm-arrows">
+              <button type="button" class="fm-arrow fm-arrow--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
+                {% render 'fm-arrow-icon' %}
+              </button>
+              <button type="button" class="fm-arrow fm-arrow--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
+                {% render 'fm-arrow-icon' %}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <ul class="fm-scroller" data-fm-track data-fm-rail-items role="list">
+          {{ rail_items }}
+        </ul>
+      </fm-scroller>
+    </div>
+  {%- endcapture -%}
+
+  {%- if is_recently_viewed -%}
+    <fm-recently-viewed
+      hidden
+      data-product-id="{{ product.id }}"
+      data-section-id="{{ section.id }}"
+      data-url="{{ routes.search_url }}"
+    >
+      {{ rail_markup }}
+    </fm-recently-viewed>
+  {%- else -%}
+    {%- if section.settings.source == 'recommendations' -%}
+      <product-recommendations
+        class="fm-rail-recommendations"
+        data-url="{{ routes.product_recommendations_url }}?limit={{ limit }}&intent={{ section.settings.intent }}"
+        data-section-id="{{ section.id }}"
+        data-product-id="{{ product.id }}"
+      >
+        {{ rail_markup }}
+      </product-recommendations>
+    {%- else -%}
+      {{ rail_markup }}
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "FM Product Rail",
+  "tag": "section",
+  "class": "fm-product-rail-section",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Products from",
+      "options": [
+        { "value": "recommendations", "label": "Shopify recommendations" },
+        { "value": "collection", "label": "A collection" },
+        { "value": "recently_viewed", "label": "Recently viewed" }
+      ],
+      "default": "recommendations"
+    },
+    {
+      "type": "select",
+      "id": "intent",
+      "label": "Recommendation type",
+      "info": "Used when the source is Shopify recommendations.",
+      "options": [
+        { "value": "related", "label": "Related products" },
+        { "value": "complementary", "label": "Often bought together" }
+      ],
+      "default": "related"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Used when the source is a collection."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 4,
+      "max": 20,
+      "step": 1,
+      "label": "Products to show",
+      "default": 10
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "tall", "label": "Tall" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        { "value": "cover", "label": "Cover (fill and crop)" },
+        { "value": "contain", "label": "Contain (fit whole image)" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "Show second image on hover",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "new_badge_label",
+      "label": "\"New\" badge text",
+      "default": "New"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 28
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Product Rail"
+    }
+  ]
+}
+{% endschema %}

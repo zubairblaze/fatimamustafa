@@ -1,1 +1,163 @@
-{"sections":{"main":{"type":"main-product","blocks":{"vendor":{"type":"text","settings":{"text":"{{ product.vendor }}","text_style":"uppercase"}},"title":{"type":"title","settings":{}},"price":{"type":"price","settings":{}},"variant_picker":{"type":"variant_picker","settings":{"picker_type":"button","swatch_shape":"circle"}},"quantity_selector":{"type":"quantity_selector","settings":{}},"buy_buttons":{"type":"buy_buttons","settings":{"show_dynamic_checkout":true,"show_gift_card_recipient":true}},"description":{"type":"description","settings":{}},"share":{"type":"share","settings":{"share_label":"Share"}}},"block_order":["vendor","title","price","variant_picker","quantity_selector","buy_buttons","description","share"],"settings":{"enable_sticky_info":true,"color_scheme":"scheme-1","media_size":"large","constrain_to_viewport":true,"media_fit":"contain","gallery_layout":"stacked","mobile_thumbnails":"hide","media_position":"left","image_zoom":"lightbox","hide_variants":true,"enable_video_looping":false,"padding_top":36,"padding_bottom":12}},"disclosures":{"type":"disclosures","settings":{"padding_top":36,"padding_bottom":0}},"related-products":{"type":"related-products","settings":{"heading":"You may also like","heading_size":"h2","products_to_show":4,"columns_desktop":4,"columns_mobile":"2","color_scheme":"scheme-1","image_ratio":"square","image_shape":"default","show_secondary_image":true,"show_vendor":false,"show_rating":false,"padding_top":36,"padding_bottom":28}}},"order":["main","disclosures","related-products"]}
+{
+  "sections": {
+    "fm_product": {
+      "type": "fm-main-product",
+      "blocks": {
+        "care": {
+          "type": "care",
+          "settings": {
+            "heading": "Product Care",
+            "fabric_label": "Fabric",
+            "fabric_text": "Mix fabric. Handle with care while cleaning.",
+            "care_label": "Care",
+            "care_list": "Dry clean only\nCan be ironed on low heat\nDo not use bleach"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "show_stock": true,
+            "in_stock_text": "In Stock",
+            "show_sku": true
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "label": "Price",
+            "note": "Shipping calculated at checkout."
+          }
+        },
+        "shipping": {
+          "type": "info_row",
+          "settings": {
+            "label": "Shipping time",
+            "value": "7-10 business days"
+          }
+        },
+        "variants": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle",
+            "size_label": "Size",
+            "size_chart_text": "Size chart",
+            "size_chart_url": ""
+          }
+        },
+        "quantity": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_wishlist": true,
+            "wishlist_text": "Add to wishlist",
+            "wishlist_url": "",
+            "show_dynamic_checkout": false,
+            "show_gift_card_recipient": true
+          }
+        },
+        "description": {
+          "type": "description",
+          "settings": {
+            "label": "Description",
+            "open_by_default": false
+          }
+        }
+      },
+      "block_order": [
+        "care",
+        "title",
+        "price",
+        "shipping",
+        "variants",
+        "quantity",
+        "buy",
+        "description"
+      ],
+      "settings": {
+        "show_breadcrumbs": true,
+        "image_fit": "cover",
+        "padding_top": 12,
+        "padding_bottom": 24
+      }
+    },
+    "fm_also_bought": {
+      "type": "fm-product-rail",
+      "settings": {
+        "title": "Customers Also Bought",
+        "source": "recommendations",
+        "intent": "complementary",
+        "products_to_show": 10,
+        "image_ratio": "portrait",
+        "image_fit": "cover",
+        "show_vendor": false,
+        "show_secondary_image": true,
+        "new_badge_label": "New",
+        "background": "#ffffff",
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "fm_similar": {
+      "type": "fm-product-rail",
+      "settings": {
+        "title": "Similar Products",
+        "source": "recommendations",
+        "intent": "related",
+        "products_to_show": 10,
+        "image_ratio": "portrait",
+        "image_fit": "cover",
+        "show_vendor": false,
+        "show_secondary_image": true,
+        "new_badge_label": "New",
+        "background": "#ffffff",
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "fm_trending": {
+      "type": "fm-product-rail",
+      "settings": {
+        "title": "Top Trending Products",
+        "source": "collection",
+        "intent": "related",
+        "products_to_show": 10,
+        "image_ratio": "portrait",
+        "image_fit": "cover",
+        "show_vendor": false,
+        "show_secondary_image": true,
+        "new_badge_label": "New",
+        "background": "#ffffff",
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "fm_recent": {
+      "type": "fm-product-rail",
+      "settings": {
+        "title": "Recently Viewed Products",
+        "source": "recently_viewed",
+        "intent": "related",
+        "products_to_show": 10,
+        "image_ratio": "portrait",
+        "image_fit": "cover",
+        "show_vendor": false,
+        "show_secondary_image": true,
+        "new_badge_label": "New",
+        "background": "#ffffff",
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    }
+  },
+  "order": [
+    "fm_product",
+    "fm_also_bought",
+    "fm_similar",
+    "fm_trending",
+    "fm_recent"
+  ]
+}
