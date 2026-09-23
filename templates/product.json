@@ -93,66 +93,16 @@
         "padding_bottom": 24
       }
     },
-    "fm_also_bought": {
-      "type": "fm-product-rail",
-      "settings": {
-        "title": "Customers Also Bought",
-        "source": "recommendations",
-        "intent": "complementary",
-        "products_to_show": 10,
-        "image_ratio": "portrait",
-        "image_fit": "cover",
-        "show_vendor": false,
-        "show_secondary_image": true,
-        "new_badge_label": "New",
-        "background": "#ffffff",
-        "padding_top": 28,
-        "padding_bottom": 28
-      }
-    },
     "fm_similar": {
       "type": "fm-product-rail",
       "settings": {
         "title": "Similar Products",
         "source": "recommendations",
         "intent": "related",
-        "products_to_show": 10,
+        "collection": "bestsellers",
+        "products_to_show": 5,
         "image_ratio": "portrait",
-        "image_fit": "cover",
-        "show_vendor": false,
-        "show_secondary_image": true,
-        "new_badge_label": "New",
-        "background": "#ffffff",
-        "padding_top": 28,
-        "padding_bottom": 28
-      }
-    },
-    "fm_trending": {
-      "type": "fm-product-rail",
-      "settings": {
-        "title": "Top Trending Products",
-        "source": "collection",
-        "intent": "related",
-        "products_to_show": 10,
-        "image_ratio": "portrait",
-        "image_fit": "cover",
-        "show_vendor": false,
-        "show_secondary_image": true,
-        "new_badge_label": "New",
-        "background": "#ffffff",
-        "padding_top": 28,
-        "padding_bottom": 28
-      }
-    },
-    "fm_recent": {
-      "type": "fm-product-rail",
-      "settings": {
-        "title": "Recently Viewed Products",
-        "source": "recently_viewed",
-        "intent": "related",
-        "products_to_show": 10,
-        "image_ratio": "portrait",
-        "image_fit": "cover",
+        "image_fit": "contain",
         "show_vendor": false,
         "show_secondary_image": true,
         "new_badge_label": "New",
@@ -164,9 +114,6 @@
   },
   "order": [
     "fm_product",
-    "fm_also_bought",
-    "fm_similar",
-    "fm_trending",
-    "fm_recent"
+    "fm_similar"
   ]
 }
