@@ -1,0 +1,812 @@
+/* FM — product page: care panel, gallery, info column */
+
+/* The page lines up with the header rather than with the edge-bleed sections,
+   so the care panel starts under the menu icon and the buy column ends under
+   the cart. Dawn's header carries `page-width`, which is centred at the
+   theme's page width and padded 3.2rem on desktop - except in drawer-menu
+   mode, where Dawn widens it to the viewport. The same `body:has()` test Dawn
+   uses for its own announcement bar keeps the two in step either way. */
+.fm-pdp,
+.fm-crumbs {
+  max-width: var(--page-width);
+  margin-inline: auto;
+  padding-inline: var(--fm-page-edge);
+}
+
+/* The FM header is full-bleed, and so is Dawn's once its menu is a drawer. */
+body:has(.section-header .drawer-menu) .fm-pdp,
+body:has(.section-header .drawer-menu) .fm-crumbs,
+body:has(.fm-header) .fm-pdp,
+body:has(.fm-header) .fm-crumbs {
+  max-width: 100%;
+}
+
+.fm-pdp {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.4rem;
+  padding-bottom: 4rem;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-pdp {
+    /* care panel | gallery | info. The reference gives the gallery the
+       narrowest of the three columns; measured off it, the ratio is
+       roughly 1.25 : 1 : 1.24. */
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr) minmax(0, 1.2fr);
+    gap: 3.2rem;
+    align-items: start;
+  }
+
+  .fm-pdp--no-aside {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+}
+
+/* --- Breadcrumbs ----------------------------------------------------------- */
+
+.fm-crumbs {
+  padding-block: 1.4rem;
+  font-size: 1.1rem;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fm-crumbs a:hover {
+  color: rgb(var(--fm-ink));
+  text-decoration: underline;
+}
+
+.fm-crumbs li[aria-current='page'] {
+  color: rgb(var(--fm-ink));
+}
+
+.fm-crumbs__sep {
+  opacity: 0.5;
+}
+
+/* --- Care panel ------------------------------------------------------------ */
+
+.fm-care {
+  order: 3;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-care {
+    order: 0;
+    position: sticky;
+    top: 10rem;
+  }
+}
+
+.fm-care__title {
+  margin: 0 0 1.6rem;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.fm-care__group + .fm-care__group {
+  margin-top: 2rem;
+}
+
+.fm-care__label {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-care__text {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: rgba(var(--fm-ink), 0.75);
+}
+
+.fm-care__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-care__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid rgb(var(--fm-rule));
+  font-size: 1.2rem;
+  color: rgba(var(--fm-ink), 0.8);
+}
+
+/* The icon sits in its own tile, so a merchant's uploaded glyph lines up with
+   the built-in tick whatever shape it is. */
+.fm-care__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.2rem;
+  height: 3.2rem;
+  background-color: rgba(var(--fm-ink), 0.05);
+}
+
+.fm-care__icon svg,
+.fm-care__icon img {
+  width: 1.8rem;
+  height: 1.8rem;
+  object-fit: contain;
+}
+
+/* --- Gallery --------------------------------------------------------------- */
+
+.fm-gallery__main {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(var(--fm-ink), 0.03);
+  aspect-ratio: 3 / 4;
+}
+
+.fm-gallery__main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fm-gallery--contain .fm-gallery__main img {
+  object-fit: contain;
+}
+
+.fm-gallery__thumbs {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-gallery__thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.fm-gallery__thumb {
+  flex: 0 0 auto;
+  width: 7rem;
+  padding: 0;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.fm-gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fm-gallery__thumb[aria-current='true'] {
+  border-color: rgb(var(--fm-ink));
+}
+
+/* --- Info column ----------------------------------------------------------- */
+
+.fm-pdp__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.fm-pdp__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.6rem;
+}
+
+.fm-pdp__title {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.fm-pdp__stock {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgb(var(--fm-rule));
+  white-space: nowrap;
+}
+
+.fm-pdp__stock--out {
+  color: rgba(var(--fm-ink), 0.5);
+}
+
+.fm-pdp__sku {
+  margin: 0;
+  font-size: 1.1rem;
+  color: rgba(var(--fm-ink), 0.5);
+}
+
+.fm-pdp__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid rgb(var(--fm-rule));
+  font-size: 1.2rem;
+}
+
+.fm-pdp__row-label {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-pdp__row-value {
+  text-align: right;
+  color: rgb(var(--fm-ink));
+}
+
+.fm-pdp__price {
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.fm-pdp__price s {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: rgba(var(--fm-ink), 0.45);
+  margin-left: 0.8rem;
+}
+
+.fm-pdp__note {
+  margin: 0;
+  font-size: 1.1rem;
+  color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-pdp__note a {
+  color: inherit;
+}
+
+/* --- Size chart link ------------------------------------------------------- */
+
+.fm-pdp__size-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+}
+
+.fm-pdp__size-chart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(var(--fm-ink));
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--fm-ink), 0.3);
+  padding-bottom: 0.2rem;
+}
+
+.fm-pdp__size-chart:hover {
+  border-bottom-color: rgb(var(--fm-ink));
+}
+
+.fm-pdp__size-chart svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* --- Buttons --------------------------------------------------------------- */
+
+.fm-pdp__actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+/* Dawn's submit button brings its own metrics and a 1rem bottom margin, which
+   made the buy row 1rem taller than the button inside it - so the outlined
+   wishlist stretched and the filled button did not. Both sides take the FM
+   metrics here so the pair reads as one row. */
+.fm-pdp__actions .product-form__buttons,
+.fm-pdp__actions .product-form__submit {
+  margin-bottom: 0;
+}
+
+.fm-pdp__actions .product-form__submit {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 4.8rem;
+  padding: 0 1.8rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-pdp__actions--split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fm-pdp__wishlist {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  min-height: 4.8rem;
+  padding: 0 1.8rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--fm-ink));
+  background: none;
+  border: 1px solid rgba(var(--fm-ink), 0.35);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+}
+
+.fm-pdp__wishlist:hover {
+  border-color: rgb(var(--fm-ink));
+}
+
+.fm-pdp__wishlist svg {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+/* --- Description accordion -------------------------------------------------- */
+
+.fm-acc {
+  border-top: 1px solid rgb(var(--fm-rule));
+}
+
+.fm-acc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding: 1.4rem 0;
+  cursor: pointer;
+  font-size: 1.3rem;
+  list-style: none;
+}
+
+.fm-acc summary::-webkit-details-marker {
+  display: none;
+}
+
+.fm-acc__icon {
+  position: relative;
+  width: 1.4rem;
+  height: 1.4rem;
+  flex-shrink: 0;
+}
+
+.fm-acc__icon::before,
+.fm-acc__icon::after {
+  content: '';
+  position: absolute;
+  background-color: rgb(var(--fm-ink));
+  transition: transform 0.2s ease;
+}
+
+.fm-acc__icon::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.fm-acc__icon::after {
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  transform: translateX(-50%);
+}
+
+.fm-acc[open] .fm-acc__icon::after {
+  transform: translateX(-50%) scaleY(0);
+}
+
+.fm-acc__body {
+  padding: 0 0 1.8rem;
+  font-size: 1.3rem;
+  line-height: 1.8;
+  color: rgba(var(--fm-ink), 0.75);
+}
+
+.fm-acc__body > :first-child {
+  margin-top: 0;
+}
+
+/* Dawn's variant pills and quantity widget sit inside this column. */
+.fm-pdp__info .product-form__input {
+  margin: 0;
+}
+
+.fm-pdp__info .quantity {
+  max-width: 14rem;
+}
+
+/* --- Custom order ----------------------------------------------------------
+   A "Custom Order" pill sits beside the size pills. Choosing it reveals a
+   measurement form whose fields post as line item properties. */
+
+.fm-custom__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4rem;
+  padding: 0 1.8rem;
+  margin-top: 0.8rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: rgb(var(--fm-ink));
+  background: none;
+  border: 1px solid rgba(var(--fm-ink), 0.35);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fm-custom__toggle:hover {
+  border-color: rgb(var(--fm-ink));
+}
+
+.fm-custom__toggle[aria-pressed='true'] {
+  background-color: rgb(var(--fm-ink));
+  border-color: rgb(var(--fm-ink));
+  color: #fff;
+}
+
+.fm-custom__panel[hidden] {
+  display: none;
+}
+
+.fm-custom__panel {
+  margin-top: 1.6rem;
+}
+
+.fm-custom__intro {
+  margin: 0 0 1.4rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: rgba(var(--fm-ink), 0.65);
+}
+
+.fm-custom__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem 1.6rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media screen and (min-width: 600px) {
+  .fm-custom__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fm-custom__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fm-custom__field--wide {
+  grid-column: 1 / -1;
+}
+
+.fm-custom__field label {
+  font-size: 1.2rem;
+  color: rgb(var(--fm-ink));
+}
+
+.fm-custom__field input,
+.fm-custom__field textarea {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  font-size: 1.3rem;
+  font-family: inherit;
+  color: rgb(var(--fm-ink));
+  background-color: #fff;
+  border: 1px solid rgba(var(--fm-ink), 0.3);
+  border-radius: 0;
+}
+
+.fm-custom__field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.fm-custom__field input:focus,
+.fm-custom__field textarea:focus {
+  outline: 2px solid rgba(var(--fm-ink), 0.5);
+  outline-offset: -2px;
+}
+
+/* --- Size chart modal ------------------------------------------------------ */
+
+.fm-sizechart__dialog {
+  width: min(96vw, 120rem);
+  max-height: min(92vh, 76rem);
+  padding: 0;
+  border: 0;
+  background-color: #fff;
+  color: rgb(var(--fm-ink));
+  overflow: hidden;
+}
+
+.fm-sizechart__dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+.fm-sizechart__head {
+  position: relative;
+  padding: 1.6rem 5.6rem;
+  text-align: center;
+  background-color: rgb(var(--fm-shell));
+}
+
+.fm-sizechart__title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.fm-sizechart__subtitle {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  color: rgba(var(--fm-ink), 0.6);
+}
+
+.fm-sizechart__close {
+  position: absolute;
+  top: 50%;
+  right: 1.6rem;
+  transform: translateY(-50%);
+  width: 4rem;
+  height: 4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.fm-sizechart__close svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+.fm-sizechart__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-height: calc(min(92vh, 76rem) - 7.6rem);
+  overflow: hidden;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-sizechart__body--with-image {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+}
+
+.fm-sizechart__media {
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-sizechart__media {
+    display: block;
+    position: relative;
+    align-self: stretch;
+    /* A floor in absolute units, not a ratio: a percentage or aspect-ratio
+       here would have to be resolved against a grid track that is itself
+       being sized from this item, and collapses to nothing. */
+    min-height: 60rem;
+    overflow: hidden;
+    background-color: rgb(var(--fm-shell));
+  }
+}
+
+/* --- Chart gallery: the product's own images, desktop only ----------------- */
+
+.fm-sizechart__gallery {
+  position: relative;
+  display: block;
+  height: 100%;
+  max-height: 100%;
+}
+
+.fm-sizechart__slides {
+  height: 100%;
+  gap: 0;
+  scroll-snap-type: x mandatory;
+}
+
+.fm-sizechart__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: start;
+}
+
+.fm-sizechart__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.fm-sizechart__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3.6rem;
+  height: 4.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.fm-sizechart__nav:hover:not([disabled]) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.fm-sizechart__nav[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.fm-sizechart__nav svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.fm-sizechart__nav--prev {
+  left: 0;
+}
+
+.fm-sizechart__nav--prev svg {
+  transform: rotate(180deg);
+}
+
+.fm-sizechart__nav--next {
+  right: 0;
+}
+
+.fm-sizechart__content {
+  padding: 2.4rem;
+  font-size: 1.3rem;
+  line-height: 1.7;
+  min-height: 0;
+  max-height: calc(min(92vh, 76rem) - 7.6rem);
+  overflow-y: auto;
+}
+
+/* A first line with no delimiter becomes the chart's own heading. */
+.fm-sizechart__caption {
+  margin: 0 0 1.2rem;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fm-sizechart__content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.6rem;
+}
+
+/* The measurement names are the long cells; giving them the width the
+   reference does keeps them on one line while the size columns stay even. */
+.fm-sizechart__content table th:first-child,
+.fm-sizechart__content table td:first-child {
+  width: 40%;
+}
+
+/* Dawn's base.css styles bare tables through `table:not([class]) td`, which
+   outweighs a single class plus an element. Qualifying with `table` matches
+   that weight, and this sheet loads later, so the chart keeps its own grid. */
+.fm-sizechart__content table th,
+.fm-sizechart__content table td {
+  border: 1px solid rgba(var(--fm-ink), 0.25);
+  padding: 0.8rem 1rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.fm-sizechart__content table th {
+  font-weight: 600;
+  background-color: rgba(var(--fm-ink), 0.04);
+}
+
+/* The table is the widest thing in here; let it scroll rather than clip. */
+.fm-sizechart__scroll {
+  overflow-x: auto;
+}
+
+@media screen and (max-width: 749px) {
+  .fm-sizechart__dialog {
+    width: 94vw;
+  }
+
+  .fm-sizechart__content {
+    padding: 1.6rem;
+  }
+}
+
+.fm-custom__form {
+  margin: 0;
+}
+
+.fm-custom__submit {
+  width: 100%;
+  min-height: 4.6rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fm-custom__success,
+.fm-custom__error {
+  margin: 0 0 1.2rem;
+  font-size: 1.3rem;
+}
+
+.fm-custom__success {
+  color: #2f6b4f;
+}
+
+.fm-custom__error {
+  color: #8c2b2b;
+}

@@ -1,0 +1,137 @@
+{{ 'fm-announcement.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'fm-header.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} .fm-announce {
+    background-color: {{ section.settings.background }};
+    color: {{ section.settings.text_color }};
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign rotate = 0
+  if section.settings.auto_rotate and section.blocks.size > 1
+    assign rotate = section.settings.rotate_speed | times: 1000
+  endif
+-%}
+
+<fm-announce class="fm-announce" data-interval="{{ rotate }}">
+  {%- if section.settings.menu_left != blank -%}
+    <nav class="fm-announce__links" aria-label="{{ section.settings.menu_left.title | escape }}">
+      {%- for link in section.settings.menu_left.links -%}
+        <a href="{{ link.url }}">{{ link.title }}</a>
+      {%- endfor -%}
+    </nav>
+  {%- endif -%}
+
+  <div class="fm-announce__messages">
+    {%- if section.blocks.size > 0 -%}
+      {%- for block in section.blocks -%}
+        <p class="fm-announce__message" data-fm-message {{ block.shopify_attributes }}>
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}">{{ block.settings.text }}</a>
+          {%- else -%}
+            {{ block.settings.text }}
+          {%- endif -%}
+        </p>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+
+  {%- if section.settings.menu_right != blank -%}
+    <nav class="fm-announce__links" aria-label="{{ section.settings.menu_right.title | escape }}">
+      {%- for link in section.settings.menu_right.links -%}
+        <a href="{{ link.url }}">{{ link.title }}</a>
+      {%- endfor -%}
+    </nav>
+  {%- endif -%}
+</fm-announce>
+
+{% schema %}
+{
+  "name": "FM Announcement",
+  "tag": "section",
+  "class": "fm-announcement-section",
+  "enabled_on": {
+    "groups": [
+      "header"
+    ]
+  },
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_rotate",
+      "label": "Rotate messages",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "rotate_speed",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "label": "Seconds between messages",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Edge links"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_left",
+      "label": "Left links",
+      "info": "Hidden below 990px."
+    },
+    {
+      "type": "link_list",
+      "id": "menu_right",
+      "label": "Right links",
+      "info": "Hidden below 990px."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "message",
+      "name": "Message",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "Free shipping on orders above $200"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Announcement",
+      "blocks": [
+        {
+          "type": "message"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

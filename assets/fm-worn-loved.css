@@ -1,0 +1,171 @@
+/* FM — customer photo carousel ("Worn & Loved") */
+
+.fm-ugc {
+  padding-top: 2.4rem;
+}
+
+.fm-ugc .fm-head {
+  align-items: center;
+  position: relative;
+  padding: 0 var(--fm-edge);
+}
+
+.fm-ugc .fm-head__text {
+  flex: 1;
+  text-align: center;
+}
+
+.fm-ugc .fm-head__title {
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+/* Arrows sit at the right edge while the title stays optically centred. */
+.fm-ugc .fm-head__aside {
+  position: absolute;
+  right: var(--fm-edge);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.fm-ugc__track {
+  padding-left: var(--fm-edge);
+  padding-right: var(--fm-edge);
+  scroll-padding-left: var(--fm-edge);
+  margin-top: 1.6rem;
+}
+
+.fm-ugc__item {
+  width: 62vw;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-ugc__item {
+    width: 32vw;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .fm-ugc__item {
+    width: 19vw;
+  }
+}
+
+.fm-ugc__card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid rgb(var(--fm-rule));
+  background-color: #fff;
+}
+
+.fm-ugc__top {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  min-height: 4.2rem;
+}
+
+.fm-ugc__avatar {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background-color: rgba(var(--fm-ink), 0.08);
+}
+
+.fm-ugc__handle {
+  font-size: 1.1rem;
+  color: rgb(var(--fm-ink));
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fm-ugc__handle:hover {
+  text-decoration: underline;
+}
+
+.fm-ugc__media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background-color: rgba(var(--fm-ink), 0.04);
+}
+
+.fm-ugc__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.fm-ugc__card:hover .fm-ugc__media img {
+  transform: scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fm-ugc__media img,
+  .fm-ugc__card:hover .fm-ugc__media img {
+    transition: none;
+    transform: none;
+  }
+}
+
+.fm-ugc__media .fm-tile__placeholder {
+  position: absolute;
+  inset: 0;
+}
+
+.fm-ugc__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  margin-top: auto;
+  border-top: 1px solid rgb(var(--fm-rule));
+}
+
+.fm-ugc__shop {
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: rgb(var(--fm-ink));
+  text-decoration: none;
+}
+
+.fm-ugc__shop:hover {
+  text-decoration: underline;
+}
+
+.fm-ugc__icons {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: rgba(var(--fm-ink), 0.7);
+}
+
+.fm-ugc__icons .svg-wrapper {
+  display: inline-flex;
+}
+
+.fm-ugc__icons svg {
+  width: 1.8rem;
+  height: 1.8rem;
+  display: block;
+}
+
+/* Dawn's cart glyph sits inside a 40x40 viewBox with generous padding, so at a
+   shared size it reads much smaller than the 20x20 heart. Scale it back up. */
+.fm-ugc__icons .icon-cart-empty,
+.fm-ugc__icons .icon-cart {
+  width: 3.2rem;
+  height: 3.2rem;
+  margin: -0.7rem;
+}

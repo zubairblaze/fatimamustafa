@@ -1,0 +1,337 @@
+/* ==========================================================================
+   FM — shared foundations for the custom homepage sections.
+   Tokens, section headers, edge-bleed scrollers, overlay tiles, arrows.
+   ========================================================================== */
+
+:root {
+  --fm-ink: 26, 26, 26;
+  --fm-muted: 118, 118, 118;
+  --fm-rule: 230, 230, 230;
+  --fm-shell: 243, 243, 243;
+  --fm-gutter: 0.8rem;
+  --fm-edge: 1.2rem;
+  /* The container the header and the product page share. The values are
+     Dawn's own `.header.page-width` padding, so the two line up whether the
+     header in the group is Dawn's or the FM one. */
+  --fm-page-edge: 1.5rem;
+  --fm-track: 0.14em;
+  --fm-peek: 1.6rem;
+  --fm-scrim: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.1) 38%, rgba(0, 0, 0, 0) 62%);
+}
+
+@media screen and (min-width: 750px) {
+  :root {
+    --fm-page-edge: 3.2rem;
+    --fm-edge: 1.6rem;
+  }
+}
+
+/* Full-bleed shell: the reference runs edge to edge with a small gutter. */
+.fm-section {
+  padding-left: var(--fm-edge);
+  padding-right: var(--fm-edge);
+}
+
+.fm-section--flush {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* --- Section header ------------------------------------------------------ */
+
+.fm-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin: 0 0 1.2rem;
+}
+
+.fm-head__text {
+  min-width: 0;
+}
+
+.fm-head__title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: rgb(var(--fm-ink));
+}
+
+.fm-head__title--caps {
+  text-transform: uppercase;
+  letter-spacing: var(--fm-track);
+  font-size: 1.4rem;
+}
+
+.fm-head__subtitle {
+  margin: 0.5rem 0 0;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: rgba(var(--fm-ink), 0.6);
+}
+
+.fm-head__aside {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-shrink: 0;
+}
+
+.fm-head__link {
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: rgb(var(--fm-ink));
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--fm-ink), 0.35);
+  padding-bottom: 0.2rem;
+  white-space: nowrap;
+}
+
+.fm-head__link:hover {
+  border-bottom-color: rgb(var(--fm-ink));
+}
+
+/* --- Eyebrow / label ----------------------------------------------------- */
+
+.fm-eyebrow {
+  display: block;
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(var(--fm-ink), 0.55);
+  margin-bottom: 0.8rem;
+}
+
+/* --- Horizontal scroller ------------------------------------------------- */
+
+fm-scroller {
+  display: block;
+  min-width: 0;
+}
+
+.fm-scroller {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  gap: var(--fm-gutter);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* Drag-to-pan affordance. The classes are applied by fm-carousel.js, so a
+   scroller with nothing to scroll keeps the default cursor. */
+.fm-scroller--draggable {
+  cursor: grab;
+}
+
+.fm-scroller--grabbing {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none;
+}
+
+.fm-scroller--grabbing a {
+  pointer-events: none;
+}
+
+.fm-scroller > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fm-scroller {
+    scroll-behavior: auto;
+  }
+}
+
+/* --- Arrow buttons ------------------------------------------------------- */
+
+.fm-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fm-arrow {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(var(--fm-ink), 0.18);
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgb(var(--fm-ink));
+  padding: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.fm-arrow:hover:not([disabled]) {
+  background-color: rgba(var(--fm-ink), 0.06);
+  border-color: rgba(var(--fm-ink), 0.4);
+}
+
+.fm-arrow[disabled] {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.fm-arrow svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.fm-arrow--prev svg {
+  transform: rotate(180deg);
+}
+
+/* --- Media tile with overlay label ---------------------------------------- */
+
+.fm-tile {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+  color: #fff;
+  background-color: rgb(var(--fm-shell));
+}
+
+.fm-tile__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.fm-tile:hover .fm-tile__media {
+  transform: scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fm-tile__media,
+  .fm-tile:hover .fm-tile__media {
+    transition: none;
+    transform: none;
+  }
+}
+
+.fm-tile__placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(var(--fm-ink), 0.06);
+}
+
+.fm-tile__placeholder svg {
+  width: 100%;
+  height: 100%;
+  fill: rgba(var(--fm-ink), 0.14);
+}
+
+.fm-tile__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--fm-scrim);
+  pointer-events: none;
+}
+
+.fm-tile__label {
+  position: absolute;
+  left: 1.6rem;
+  bottom: 1.4rem;
+  right: 1.6rem;
+  font-size: 1.1rem;
+  letter-spacing: var(--fm-track);
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.fm-tile__label--center {
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-tile__label {
+    font-size: 1.3rem;
+  }
+}
+
+/* --- Aspect ratio helper --------------------------------------------------
+   aspect-ratio rather than percentage padding: percentage padding resolves
+   against the element's own width, which makes intrinsic sizing circular and
+   blows the element out inside a grid or flex track. */
+
+.fm-ratio {
+  position: relative;
+  width: 100%;
+}
+
+/* Only the media layers fill the box. A blanket `.fm-ratio > *` also caught
+   the label and its `inset: 0` beat the label's own bottom/left offsets,
+   pinning captions to the top of the tile. */
+.fm-ratio > img,
+.fm-ratio > svg,
+.fm-ratio > .fm-tile__media,
+.fm-ratio > .fm-tile__placeholder,
+.fm-ratio > .fm-tile__scrim {
+  position: absolute;
+  inset: 0;
+}
+
+/* --- Visually hidden ------------------------------------------------------ */
+
+.fm-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Image fit -------------------------------------------------------------
+   Sections expose this as a setting: "cover" fills the frame and crops,
+   "contain" fits the whole image in and letterboxes it.
+
+   The class is doubled to raise specificity. Section stylesheets load after
+   this file and set object-fit on selectors of equal weight (e.g.
+   `.fm-ugc__media img`), so at a single class they would win on source order. */
+
+.fm-fit-cover.fm-fit-cover img,
+.fm-fit-cover.fm-fit-cover .fm-tile__media {
+  object-fit: cover;
+}
+
+.fm-fit-contain.fm-fit-contain img,
+.fm-fit-contain.fm-fit-contain .fm-tile__media {
+  object-fit: contain;
+}
+
+/* Letterboxing needs something behind it. */
+.fm-fit-contain .fm-tile,
+.fm-fit-contain .fm-card__media,
+.fm-fit-contain .fm-ugc__media,
+.fm-fit-contain .fm-split__media,
+.fm-fit-contain .fm-bridal__aside {
+  background-color: rgb(var(--fm-shell));
+}

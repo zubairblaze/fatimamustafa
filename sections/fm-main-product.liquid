@@ -1,0 +1,1082 @@
+{{ 'section-main-product.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-variant-picker.css' | asset_url | stylesheet_tag }}
+{{ 'component-swatch-input.css' | asset_url | stylesheet_tag }}
+{{ 'component-swatch.css' | asset_url | stylesheet_tag }}
+{{ 'fm-product.css' | asset_url | stylesheet_tag }}
+
+<script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'fm-product.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+  assign variant = product.selected_or_first_available_variant
+
+  assign has_aside = false
+  for block in section.blocks
+    if block.type == 'care'
+      assign has_aside = true
+      break
+    endif
+  endfor
+-%}
+
+<product-info
+  id="MainProduct-{{ section.id }}"
+  class="fm-fit-{{ section.settings.image_fit | default: 'cover' }}"
+  data-section="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  data-update-url="true"
+  data-url="{{ product.url }}"
+>
+  {%- if section.settings.show_breadcrumbs -%}
+    {% render 'fm-breadcrumbs', product: product, collection: collection %}
+  {%- endif -%}
+
+  <div class="fm-pdp{% unless has_aside %} fm-pdp--no-aside{% endunless %}">
+    {%- comment -%} Left: product care {%- endcomment -%}
+    {%- if has_aside -%}
+      <aside class="fm-care">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'care' -%}
+            {% render 'fm-product-care', block: block, product: product %}
+          {%- endif -%}
+        {%- endfor -%}
+      </aside>
+    {%- endif -%}
+
+    {%- comment -%} Centre: gallery {%- endcomment -%}
+    <fm-gallery class="fm-gallery fm-gallery--{{ section.settings.image_fit | default: 'cover' }}">
+      <div class="fm-gallery__main">
+        {%- if product.featured_media -%}
+          {{
+            product.featured_media
+            | image_url: width: 1400
+            | image_tag:
+              loading: 'eager',
+              fetchpriority: 'high',
+              widths: '400, 600, 800, 1000, 1200, 1400',
+              sizes: '(min-width: 990px) 45vw, 100vw',
+              alt: product.featured_media.alt
+          }}
+        {%- else -%}
+          {{ 'product-apparel-1' | placeholder_svg_tag }}
+        {%- endif -%}
+      </div>
+
+      {%- if product.media.size > 1 -%}
+        <ul class="fm-gallery__thumbs" role="list">
+          {%- for media in product.media -%}
+            {%- assign full_src = media.preview_image | image_url: width: 1400 -%}
+            <li>
+              <button
+                type="button"
+                class="fm-gallery__thumb"
+                data-fm-thumb
+                data-full="{{ full_src }}"
+                data-alt="{{ media.alt | escape }}"
+                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+              >
+                {{
+                  media.preview_image
+                  | image_url: width: 200
+                  | image_tag: loading: 'lazy', widths: '80, 140, 200', sizes: '70px', alt: media.alt
+                }}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </fm-gallery>
+
+    {%- comment -%} Right: product info {%- endcomment -%}
+    <div class="fm-pdp__info">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'title' -%}
+            <div class="fm-pdp__heading" {{ block.shopify_attributes }}>
+              <h1 class="fm-pdp__title">{{ product.title | escape }}</h1>
+              {%- if block.settings.show_stock -%}
+                {%- if product.available -%}
+                  <span class="fm-pdp__stock">{{ block.settings.in_stock_text }}</span>
+                {%- else -%}
+                  <span class="fm-pdp__stock fm-pdp__stock--out">
+                    {{- 'products.product.sold_out' | t -}}
+                  </span>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+
+            {%- if block.settings.show_sku and variant.sku != blank -%}
+              <p class="fm-pdp__sku">{{ variant.sku }}</p>
+            {%- endif -%}
+
+          {%- when 'price' -%}
+            <div class="fm-pdp__row" {{ block.shopify_attributes }}>
+              <span class="fm-pdp__row-label">{{ block.settings.label }}</span>
+              <span class="fm-pdp__row-value fm-pdp__price">
+                {{ variant.price | money }}
+                {%- if variant.compare_at_price > variant.price -%}
+                  <s>{{ variant.compare_at_price | money }}</s>
+                {%- endif -%}
+              </span>
+            </div>
+            {%- if block.settings.note != blank -%}
+              <p class="fm-pdp__note">{{ block.settings.note }}</p>
+            {%- endif -%}
+
+          {%- when 'info_row' -%}
+            <div class="fm-pdp__row" {{ block.shopify_attributes }}>
+              <span class="fm-pdp__row-label">{{ block.settings.label }}</span>
+              <span class="fm-pdp__row-value">{{ block.settings.value }}</span>
+            </div>
+
+          {%- when 'variant_picker' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- if block.settings.size_chart_url != blank -%}
+                <div class="fm-pdp__size-head">
+                  <span class="fm-pdp__row-label">{{ block.settings.size_label }}</span>
+                  <a class="fm-pdp__size-chart" href="{{ block.settings.size_chart_url }}">
+                    <span class="svg-wrapper">{{ 'icon-ruler.svg' | inline_asset_content }}</span>
+                    {{ block.settings.size_chart_text }}
+                  </a>
+                </div>
+              {%- endif -%}
+              {% render 'product-variant-picker',
+                product: product,
+                block: block,
+                product_form_id: product_form_id
+              %}
+            </div>
+
+          {%- when 'size_chart' -%}
+            {% render 'fm-size-chart', block: block, product: product %}
+
+          {%- when 'custom_order' -%}
+            {%- liquid
+              comment
+                Which products offer a custom order genuinely varies — a bag or
+                a pair of earrings cannot be stitched to measure — so that is a
+                per-product boolean metafield. The field list itself is the same
+                for nearly every garment, so it stays a section setting, with an
+                optional per-product override for the odd exception.
+              endcomment
+              assign ns = block.settings.metafield_namespace | default: 'custom'
+
+              assign show_custom = true
+              if block.settings.availability == 'metafield'
+                assign show_custom = false
+                assign enabled_mf = product.metafields[ns][block.settings.enabled_metafield_key]
+                if enabled_mf.value == true
+                  assign show_custom = true
+                endif
+              endif
+
+              assign field_source = block.settings.fields
+              if block.settings.fields_metafield_key != blank
+                assign fields_mf = product.metafields[ns][block.settings.fields_metafield_key]
+                if fields_mf != blank
+                  assign field_source = fields_mf.value
+                endif
+              endif
+
+              assign measure_lines = field_source | newline_to_br | split: '<br />'
+
+              comment
+                A sold-out product cannot be added to the cart at all — Shopify
+                rejects the line, so re-enabling the button would only fail
+                later. Two ways round it:
+                  variant - the product carries an always-in-stock custom order
+                            option value, and we switch the form to it;
+                  enquiry - the measurements go through the contact form, which
+                            works on any product whatever its stock.
+                Automatic picks the variant when the product has one, else
+                enquiry, so custom orders are never blocked by stock.
+              endcomment
+              assign co_name = block.settings.variant_name | default: 'Custom Order'
+              assign custom_variant = nil
+              for candidate in product.variants
+                if candidate.title contains co_name and candidate.available
+                  assign custom_variant = candidate
+                  break
+                endif
+              endfor
+
+              assign co_mode = block.settings.submit_mode | default: 'auto'
+              if co_mode == 'auto'
+                assign co_mode = 'enquiry'
+                if custom_variant != nil
+                  assign co_mode = 'variant'
+                endif
+              endif
+              if co_mode == 'variant' and custom_variant == nil
+                assign co_mode = 'enquiry'
+              endif
+            -%}
+
+            {%- if show_custom -%}
+              <fm-custom-order
+                class="fm-custom"
+                data-fm-mode="{{ co_mode }}"
+                data-fm-form="{{ product_form_id }}"
+                data-fm-add-label="{{ block.settings.add_label | escape }}"
+                {% if custom_variant != nil %}data-fm-variant="{{ custom_variant.id }}"{% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <button
+                  type="button"
+                  class="fm-custom__toggle"
+                  data-fm-custom-toggle
+                  aria-pressed="false"
+                  aria-controls="fm-custom-panel-{{ section.id }}"
+                >
+                  {{ block.settings.toggle_text }}
+                </button>
+
+                <div class="fm-custom__panel" data-fm-custom-panel id="fm-custom-panel-{{ section.id }}" hidden>
+                  {%- if block.settings.intro != blank -%}
+                    <p class="fm-custom__intro">{{ block.settings.intro }}</p>
+                  {%- endif -%}
+
+                  {%- if co_mode == 'variant' -%}
+                    {%- comment -%}
+                      Fields ride the product form and post as line item
+                      properties; the script points the form at the custom
+                      variant so a sold-out product can still be ordered.
+                    {%- endcomment -%}
+                    <fieldset class="fm-custom__grid">
+                      <legend class="visually-hidden">{{ block.settings.toggle_text }}</legend>
+                      {%- for line in measure_lines -%}
+                        {%- assign field_name = line | strip -%}
+                        {%- if field_name != blank -%}
+                          {%- assign field_id = 'fm-measure-' | append: section.id | append: '-' | append: forloop.index -%}
+                          <div class="fm-custom__field">
+                            <label for="{{ field_id }}">{{ field_name }}</label>
+                            <input
+                              type="text"
+                              id="{{ field_id }}"
+                              name="properties[{{ field_name | escape }}]"
+                              form="{{ product_form_id }}"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              data-fm-required
+                            >
+                          </div>
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {%- if block.settings.show_notes -%}
+                        <div class="fm-custom__field fm-custom__field--wide">
+                          <label for="fm-measure-notes-{{ section.id }}">{{ block.settings.notes_label }}</label>
+                          <textarea
+                            id="fm-measure-notes-{{ section.id }}"
+                            name="properties[{{ block.settings.notes_label | escape }}]"
+                            form="{{ product_form_id }}"
+                          ></textarea>
+                        </div>
+                      {%- endif -%}
+                    </fieldset>
+                  {%- else -%}
+                    {%- comment -%}
+                      Enquiry mode: a contact form, so it works on any product
+                      regardless of stock.
+                    {%- endcomment -%}
+                    {%- assign co_form_id = 'fm-custom-form-' | append: section.id -%}
+                    {%- form 'contact', id: co_form_id, class: 'fm-custom__form' -%}
+                      {%- if form.posted_successfully? -%}
+                        <p class="fm-custom__success">{{ block.settings.success_text }}</p>
+                      {%- else -%}
+                        {%- if form.errors -%}
+                          <p class="fm-custom__error">
+                            {{ form.errors.translated_fields.email | capitalize }}
+                            {{ form.errors.messages.email }}
+                          </p>
+                        {%- endif -%}
+
+                        <input
+                          type="hidden"
+                          name="contact[Product]"
+                          value="{{ product.title | escape }} — {{ shop.url }}{{ product.url }}"
+                        >
+
+                        <fieldset class="fm-custom__grid">
+                          <legend class="visually-hidden">{{ block.settings.toggle_text }}</legend>
+
+                          <div class="fm-custom__field">
+                            <label for="fm-co-name-{{ section.id }}">{{ block.settings.name_label }}</label>
+                            <input type="text" id="fm-co-name-{{ section.id }}" name="contact[name]" autocomplete="name" data-fm-required>
+                          </div>
+                          <div class="fm-custom__field">
+                            <label for="fm-co-email-{{ section.id }}">{{ block.settings.email_label }}</label>
+                            <input type="email" id="fm-co-email-{{ section.id }}" name="contact[email]" autocomplete="email" data-fm-required>
+                          </div>
+
+                          {%- for line in measure_lines -%}
+                            {%- assign field_name = line | strip -%}
+                            {%- if field_name != blank -%}
+                              {%- assign field_id = 'fm-co-' | append: section.id | append: '-' | append: forloop.index -%}
+                              <div class="fm-custom__field">
+                                <label for="{{ field_id }}">{{ field_name }}</label>
+                                <input
+                                  type="text"
+                                  id="{{ field_id }}"
+                                  name="contact[{{ field_name | escape }}]"
+                                  inputmode="decimal"
+                                  autocomplete="off"
+                                  data-fm-required
+                                >
+                              </div>
+                            {%- endif -%}
+                          {%- endfor -%}
+
+                          {%- if block.settings.show_notes -%}
+                            <div class="fm-custom__field fm-custom__field--wide">
+                              <label for="fm-co-notes-{{ section.id }}">{{ block.settings.notes_label }}</label>
+                              <textarea id="fm-co-notes-{{ section.id }}" name="contact[body]"></textarea>
+                            </div>
+                          {%- endif -%}
+
+                          <div class="fm-custom__field fm-custom__field--wide">
+                            <button type="submit" class="fm-custom__submit button button--primary">
+                              {{ block.settings.submit_text }}
+                            </button>
+                          </div>
+                        </fieldset>
+                      {%- endif -%}
+                    {%- endform -%}
+                  {%- endif -%}
+                </div>
+              </fm-custom-order>
+            {%- endif -%}
+
+          {%- when 'quantity_selector' -%}
+            <div {{ block.shopify_attributes }}>
+              <label class="fm-pdp__row-label" for="Quantity-{{ section.id }}">
+                {{ 'products.product.quantity.label' | t }}
+              </label>
+              <quantity-input class="quantity" data-url="{{ product.url }}" data-section="{{ section.id }}">
+                <button class="quantity__button" name="minus" type="button">
+                  <span class="visually-hidden">
+                    {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
+                  </span>
+                  <span class="svg-wrapper">{{ 'icon-minus.svg' | inline_asset_content }}</span>
+                </button>
+                <input
+                  class="quantity__input"
+                  type="number"
+                  name="quantity"
+                  id="Quantity-{{ section.id }}"
+                  min="1"
+                  value="1"
+                  form="{{ product_form_id }}"
+                >
+                <button class="quantity__button" name="plus" type="button">
+                  <span class="visually-hidden">
+                    {{- 'products.product.quantity.increase' | t: product: product.title | escape -}}
+                  </span>
+                  <span class="svg-wrapper">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+                </button>
+              </quantity-input>
+            </div>
+
+          {%- when 'buy_buttons' -%}
+            <div class="fm-pdp__actions{% if block.settings.show_wishlist %} fm-pdp__actions--split{% endif %}">
+              {%- if block.settings.show_wishlist -%}
+                <a
+                  class="fm-pdp__wishlist"
+                  href="{{ block.settings.wishlist_url | default: routes.search_url }}"
+                >
+                  <span class="svg-wrapper">{{ 'icon-heart.svg' | inline_asset_content }}</span>
+                  {{ block.settings.wishlist_text }}
+                </a>
+              {%- endif -%}
+
+              {% render 'buy-buttons',
+                block: block,
+                product: product,
+                product_form_id: product_form_id,
+                section_id: section.id
+              %}
+            </div>
+
+          {%- when 'description' -%}
+            {%- if product.description != blank -%}
+              <details class="fm-acc" {{ block.shopify_attributes }}{% if block.settings.open_by_default %} open{% endif %}>
+                <summary>
+                  {{ block.settings.label }}
+                  <span class="fm-acc__icon" aria-hidden="true"></span>
+                </summary>
+                <div class="fm-acc__body rte">{{ product.description }}</div>
+              </details>
+            {%- endif -%}
+
+          {%- when 'collapsible' -%}
+            {%- if block.settings.content != blank -%}
+              <details class="fm-acc" {{ block.shopify_attributes }}{% if block.settings.open_by_default %} open{% endif %}>
+                <summary>
+                  {{ block.settings.label }}
+                  <span class="fm-acc__icon" aria-hidden="true"></span>
+                </summary>
+                <div class="fm-acc__body rte">{{ block.settings.content }}</div>
+              </details>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</product-info>
+
+{% schema %}
+{
+  "name": "FM Product",
+  "tag": "section",
+  "class": "fm-main-product-section",
+  "enabled_on": {
+    "templates": [
+      "product"
+    ]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Title and stock",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_stock",
+          "label": "Show stock badge",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "in_stock_text",
+          "label": "In stock text",
+          "default": "In Stock"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sku",
+          "label": "Show SKU",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Price"
+        },
+        {
+          "type": "text",
+          "id": "note",
+          "label": "Note below price",
+          "default": "Shipping calculated at checkout."
+        }
+      ]
+    },
+    {
+      "type": "info_row",
+      "name": "Info row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Shipping time"
+        },
+        {
+          "type": "text",
+          "id": "value",
+          "label": "Value",
+          "default": "7-10 business days"
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant picker",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "picker_type",
+          "label": "Style",
+          "options": [
+            {
+              "value": "dropdown",
+              "label": "Dropdown"
+            },
+            {
+              "value": "button",
+              "label": "Pills"
+            }
+          ],
+          "default": "button"
+        },
+        {
+          "type": "select",
+          "id": "swatch_shape",
+          "label": "Swatch shape",
+          "options": [
+            {
+              "value": "circle",
+              "label": "Circle"
+            },
+            {
+              "value": "square",
+              "label": "Square"
+            },
+            {
+              "value": "none",
+              "label": "None"
+            }
+          ],
+          "default": "circle"
+        },
+        {
+          "type": "text",
+          "id": "size_label",
+          "label": "Size label",
+          "default": "Size"
+        },
+        {
+          "type": "text",
+          "id": "size_chart_text",
+          "label": "Size chart link text",
+          "default": "Size chart"
+        },
+        {
+          "type": "url",
+          "id": "size_chart_url",
+          "label": "Size chart link"
+        }
+      ]
+    },
+    {
+      "type": "quantity_selector",
+      "name": "Quantity",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_wishlist",
+          "label": "Show wishlist button",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "wishlist_text",
+          "label": "Wishlist text",
+          "default": "Add to wishlist"
+        },
+        {
+          "type": "url",
+          "id": "wishlist_url",
+          "label": "Wishlist link"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Show dynamic checkout buttons",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "label": "Show gift card recipient form",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Description"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "collapsible",
+      "name": "Collapsible row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Shipping and returns"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "care",
+      "name": "Product care panel",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Product Care"
+        },
+        {
+          "type": "text",
+          "id": "fabric_label",
+          "label": "Fabric label",
+          "default": "Fabric"
+        },
+        {
+          "type": "text",
+          "id": "fabric_text",
+          "label": "Fabric text",
+          "default": "Mix fabric. Handle with care while cleaning."
+        },
+        {
+          "type": "text",
+          "id": "care_label",
+          "label": "Care label",
+          "default": "Care"
+        },
+        {
+          "type": "textarea",
+          "id": "care_list",
+          "label": "Care instructions",
+          "info": "One per line. Used only for products with no care metafields.",
+          "default": "Dry clean only\nCan be ironed on low heat\nDo not use bleach"
+        },
+        {
+          "type": "header",
+          "content": "Per-product care"
+        },
+        {
+          "type": "paragraph",
+          "content": "Set these per product under Products → Metafields. Any product with at least one care_text filled in uses its own list; the rest fall back to the instructions above."
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Metafield namespace",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "fabric_metafield_key",
+          "label": "Fabric text metafield key",
+          "info": "Single or multi-line text. Falls back to the fabric text above.",
+          "default": "care_fabric"
+        },
+        {
+          "type": "text",
+          "id": "icon_key_prefix",
+          "label": "Icon name metafield prefix",
+          "info": "Single line text metafields named care_icon_1 … care_icon_5. Holds a built-in icon name (water, iron, hanger, no-bleach …) or a Font Awesome class list. Optional per row.",
+          "default": "care_icon_"
+        },
+        {
+          "type": "text",
+          "id": "image_key_prefix",
+          "label": "Icon image metafield prefix",
+          "info": "Optional. File metafields named care_image_1 … care_image_5, for an uploaded glyph. Wins over the icon name.",
+          "default": "care_image_"
+        },
+        {
+          "type": "text",
+          "id": "fontawesome_url",
+          "label": "Font Awesome stylesheet URL",
+          "info": "Only needed for Font Awesome class names. Paste your Font Awesome kit or CDN link; leave empty to use the theme's built-in icons."
+        },
+        {
+          "type": "text",
+          "id": "text_key_prefix",
+          "label": "Instruction metafield prefix",
+          "info": "Single line text metafields named care_text_1 … care_text_5.",
+          "default": "care_text_"
+        },
+        {
+          "type": "range",
+          "id": "slot_count",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "label": "Number of care rows",
+          "default": 5
+        }
+      ]
+    },
+    {
+      "type": "size_chart",
+      "name": "Size chart",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link text",
+          "default": "Size Chart"
+        },
+        {
+          "type": "header",
+          "content": "Per-product chart"
+        },
+        {
+          "type": "paragraph",
+          "content": "The chart comes from a product metafield, so each product carries its own. Set it per product under Products → Metafields. Products without one hide the link."
+        },
+        {
+          "type": "paragraph",
+          "content": "Type the chart as one row per line, cells separated by | (or tabs pasted from a spreadsheet). The first line becomes the heading if it has no separators, the next line becomes the column headers. No HTML needed."
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Metafield namespace",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "metafield_key",
+          "label": "Chart metafield key",
+          "info": "Rich text, multi-line text, a page reference, or an image file reference.",
+          "default": "size_chart"
+        },
+        {
+          "type": "text",
+          "id": "image_metafield_key",
+          "label": "Image metafield key",
+          "info": "Optional. A separate image shown beside the chart on desktop."
+        },
+        {
+          "type": "header",
+          "content": "Popup"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "info": "Defaults to the product title."
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Size Charts"
+        },
+        {
+          "type": "richtext",
+          "id": "note",
+          "label": "Note below the chart",
+          "default": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment (merchandise) size.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Fallback"
+        },
+        {
+          "type": "paragraph",
+          "content": "Used only for products with no metafield set. Leave empty to hide the link on those products."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gallery",
+          "label": "Show product images beside the chart",
+          "info": "Desktop only.",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "autorotate_speed",
+          "min": 0,
+          "max": 12,
+          "step": 1,
+          "unit": "s",
+          "label": "Auto-rotate every",
+          "info": "0 turns rotation off.",
+          "default": 4
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Extra image",
+          "info": "Optional. Shown first in the carousel, before the product's own images."
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Fallback chart"
+        }
+      ]
+    },
+    {
+      "type": "custom_order",
+      "name": "Custom order",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "toggle_text",
+          "label": "Button text",
+          "default": "Custom Order"
+        },
+        {
+          "type": "text",
+          "id": "intro",
+          "label": "Intro text",
+          "default": "Not finding your size? Give us your measurements in inches and we will make it to order."
+        },
+        {
+          "type": "textarea",
+          "id": "fields",
+          "label": "Measurement fields",
+          "info": "One per line. Each becomes a line item property, or a line in the enquiry email.",
+          "default": "Shoulder\nSleeve length\nBust\nBottom length\nWaist\nCalf\nHip\nThighs\nTop length\nAnkle"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_notes",
+          "label": "Show a notes field",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "notes_label",
+          "label": "Notes label",
+          "default": "Notes"
+        },
+        {
+          "type": "header",
+          "content": "How the order is placed"
+        },
+        {
+          "type": "paragraph",
+          "content": "A sold-out product cannot be added to the cart, so custom orders need one of these. Automatic uses the variant when the product has one and falls back to an enquiry, which works on every product."
+        },
+        {
+          "type": "select",
+          "id": "submit_mode",
+          "label": "Submit as",
+          "options": [
+            {
+              "value": "auto",
+              "label": "Automatic"
+            },
+            {
+              "value": "variant",
+              "label": "Add to cart (custom order variant)"
+            },
+            {
+              "value": "enquiry",
+              "label": "Enquiry email"
+            }
+          ],
+          "default": "auto"
+        },
+        {
+          "type": "text",
+          "id": "variant_name",
+          "label": "Custom order variant name",
+          "info": "An always-in-stock option value on the product, e.g. a Size called \"Custom Order\".",
+          "default": "Custom Order"
+        },
+        {
+          "type": "text",
+          "id": "add_label",
+          "label": "Add to cart label for custom orders",
+          "default": "Add custom order to cart"
+        },
+        {
+          "type": "header",
+          "content": "Enquiry form"
+        },
+        {
+          "type": "text",
+          "id": "name_label",
+          "label": "Name label",
+          "default": "Your name"
+        },
+        {
+          "type": "text",
+          "id": "email_label",
+          "label": "Email label",
+          "default": "Your email"
+        },
+        {
+          "type": "text",
+          "id": "submit_text",
+          "label": "Submit button",
+          "default": "Send custom order request"
+        },
+        {
+          "type": "text",
+          "id": "success_text",
+          "label": "Success message",
+          "default": "Thank you — we have your measurements and will be in touch shortly."
+        },
+        {
+          "type": "header",
+          "content": "Which products offer this"
+        },
+        {
+          "type": "select",
+          "id": "availability",
+          "label": "Show on",
+          "options": [
+            {
+              "value": "all",
+              "label": "Every product"
+            },
+            {
+              "value": "metafield",
+              "label": "Only products whose metafield is true"
+            }
+          ],
+          "default": "all"
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Metafield namespace",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "enabled_metafield_key",
+          "label": "Enabled metafield key",
+          "info": "A true/false product metafield.",
+          "default": "custom_order_enabled"
+        },
+        {
+          "type": "text",
+          "id": "fields_metafield_key",
+          "label": "Field list metafield key",
+          "info": "Optional. A multi-line text metafield overriding the list above for that product."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Product",
+      "blocks": [
+        {
+          "type": "care"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "info_row"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "quantity_selector"
+        },
+        {
+          "type": "buy_buttons"
+        },
+        {
+          "type": "description"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
