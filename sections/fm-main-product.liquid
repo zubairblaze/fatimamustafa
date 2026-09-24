@@ -200,53 +200,123 @@
             </div>
 
           {%- when 'size_chart' -%}
-            <fm-size-chart class="fm-sizechart" {{ block.shopify_attributes }}>
-              <a class="fm-pdp__size-chart" href="#" data-fm-sizechart-open>
-                <span class="svg-wrapper">{{ 'icon-ruler.svg' | inline_asset_content }}</span>
-                {{ block.settings.link_text }}
-              </a>
+            {%- liquid
+              comment
+                The chart is per-product data, held in a product metafield, so
+                each product can carry its own. The block settings are only a
+                fallback for products that have none.
+              endcomment
+              assign ns = block.settings.metafield_namespace | default: 'custom'
+              assign chart = product.metafields[ns][block.settings.metafield_key]
 
-              <dialog class="fm-sizechart__dialog" aria-label="{{ block.settings.heading | escape }}">
-                <div class="fm-sizechart__head">
-                  <h2 class="fm-sizechart__title">{{ block.settings.heading }}</h2>
-                  {%- if block.settings.subheading != blank -%}
-                    <p class="fm-sizechart__subtitle">{{ block.settings.subheading }}</p>
-                  {%- endif -%}
-                  <button type="button" class="fm-sizechart__close" data-fm-sizechart-close>
-                    <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
-                    <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
-                  </button>
-                </div>
+              assign chart_content = block.settings.content
+              assign chart_image = block.settings.image
 
-                <div class="fm-sizechart__body{% if block.settings.image != blank %} fm-sizechart__body--with-image{% endif %}">
-                  {%- if block.settings.image != blank -%}
-                    <div class="fm-sizechart__media">
-                      {{
-                        block.settings.image
-                        | image_url: width: 900
-                        | image_tag:
-                          loading: 'lazy',
-                          widths: '300, 500, 700, 900',
-                          sizes: '(min-width: 750px) 40vw, 90vw',
-                          alt: block.settings.image.alt
-                      }}
-                    </div>
-                  {%- endif -%}
+              if chart.type == 'page_reference'
+                assign chart_content = chart.value.content
+              elsif chart.type == 'file_reference'
+                assign chart_image = chart.value
+              elsif chart.type != blank
+                assign chart_content = chart
+              endif
 
-                  <div class="fm-sizechart__content">
-                    <div class="fm-sizechart__scroll rte">{{ block.settings.content }}</div>
-                    {%- if block.settings.note != blank -%}
-                      <div class="rte">{{ block.settings.note }}</div>
+              if block.settings.image_metafield_key != blank
+                assign image_mf = product.metafields[ns][block.settings.image_metafield_key]
+                if image_mf.type != blank
+                  assign chart_image = image_mf.value
+                endif
+              endif
+
+              assign chart_heading = block.settings.heading
+              if chart_heading == blank
+                assign chart_heading = product.title
+              endif
+
+              assign has_chart = false
+              if chart_content != blank or chart_image != blank
+                assign has_chart = true
+              endif
+            -%}
+
+            {%- if has_chart -%}
+              <fm-size-chart class="fm-sizechart" {{ block.shopify_attributes }}>
+                <a class="fm-pdp__size-chart" href="#" data-fm-sizechart-open>
+                  <span class="svg-wrapper">{{ 'icon-ruler.svg' | inline_asset_content }}</span>
+                  {{ block.settings.link_text }}
+                </a>
+
+                <dialog class="fm-sizechart__dialog" aria-label="{{ chart_heading | escape }}">
+                  <div class="fm-sizechart__head">
+                    <h2 class="fm-sizechart__title">{{ chart_heading }}</h2>
+                    {%- if block.settings.subheading != blank -%}
+                      <p class="fm-sizechart__subtitle">{{ block.settings.subheading }}</p>
                     {%- endif -%}
+                    <button type="button" class="fm-sizechart__close" data-fm-sizechart-close>
+                      <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
+                      <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+                    </button>
                   </div>
-                </div>
-              </dialog>
-            </fm-size-chart>
+
+                  <div class="fm-sizechart__body{% if chart_image != blank %} fm-sizechart__body--with-image{% endif %}">
+                    {%- if chart_image != blank -%}
+                      <div class="fm-sizechart__media">
+                        {{
+                          chart_image
+                          | image_url: width: 900
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '300, 500, 700, 900',
+                            sizes: '(min-width: 750px) 40vw, 90vw',
+                            alt: chart_heading
+                        }}
+                      </div>
+                    {%- endif -%}
+
+                    <div class="fm-sizechart__content">
+                      {%- if chart_content != blank -%}
+                        <div class="fm-sizechart__scroll rte">{{ chart_content }}</div>
+                      {%- endif -%}
+                      {%- if block.settings.note != blank -%}
+                        <div class="rte">{{ block.settings.note }}</div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </dialog>
+              </fm-size-chart>
+            {%- endif -%}
 
           {%- when 'custom_order' -%}
             {%- liquid
-              assign measure_lines = block.settings.fields | newline_to_br | split: '<br />'
+              comment
+                Which products offer a custom order genuinely varies — a bag or
+                a pair of earrings cannot be stitched to measure — so that is a
+                per-product boolean metafield. The field list itself is the same
+                for nearly every garment, so it stays a section setting, with an
+                optional per-product override for the odd exception.
+              endcomment
+              assign ns = block.settings.metafield_namespace | default: 'custom'
+
+              assign show_custom = true
+              if block.settings.availability == 'metafield'
+                assign show_custom = false
+                assign enabled_mf = product.metafields[ns][block.settings.enabled_metafield_key]
+                if enabled_mf.value == true
+                  assign show_custom = true
+                endif
+              endif
+
+              assign field_source = block.settings.fields
+              if block.settings.fields_metafield_key != blank
+                assign fields_mf = product.metafields[ns][block.settings.fields_metafield_key]
+                if fields_mf != blank
+                  assign field_source = fields_mf.value
+                endif
+              endif
+
+              assign measure_lines = field_source | newline_to_br | split: '<br />'
             -%}
+
+            {%- if show_custom -%}
             <fm-custom-order class="fm-custom" {{ block.shopify_attributes }}>
               <button
                 type="button"
@@ -298,6 +368,7 @@
                 </fieldset>
               </div>
             </fm-custom-order>
+            {%- endif -%}
 
           {%- when 'quantity_selector' -%}
             <div {{ block.shopify_attributes }}>
@@ -687,34 +758,71 @@
           "default": "Size Chart"
         },
         {
+          "type": "header",
+          "content": "Per-product chart"
+        },
+        {
+          "type": "paragraph",
+          "content": "The chart comes from a product metafield, so each product carries its own. Set it per product under Products → Metafields. Products without one hide the link."
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Metafield namespace",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "metafield_key",
+          "label": "Chart metafield key",
+          "info": "Rich text, a page reference, or an image file reference.",
+          "default": "size_chart"
+        },
+        {
+          "type": "text",
+          "id": "image_metafield_key",
+          "label": "Image metafield key",
+          "info": "Optional. A separate image shown beside the chart on desktop."
+        },
+        {
+          "type": "header",
+          "content": "Popup"
+        },
+        {
           "type": "text",
           "id": "heading",
-          "label": "Popup heading",
-          "default": "Size Charts"
+          "label": "Heading",
+          "info": "Defaults to the product title."
         },
         {
           "type": "text",
           "id": "subheading",
-          "label": "Popup subheading"
-        },
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Image",
-          "info": "Shown beside the chart on desktop only."
-        },
-        {
-          "type": "richtext",
-          "id": "content",
-          "label": "Chart content",
-          "info": "Paste a table here, or use an image above.",
-          "default": "<p>Add your measurement table here.</p>"
+          "label": "Subheading",
+          "default": "Size Charts"
         },
         {
           "type": "richtext",
           "id": "note",
           "label": "Note below the chart",
-          "default": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment size.</p>"
+          "default": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment (merchandise) size.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Fallback"
+        },
+        {
+          "type": "paragraph",
+          "content": "Used only for products with no metafield set. Leave empty to hide the link on those products."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Fallback image"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Fallback chart"
         }
       ]
     },
@@ -753,6 +861,45 @@
           "id": "notes_label",
           "label": "Notes label",
           "default": "Notes"
+        },
+        {
+          "type": "header",
+          "content": "Which products offer this"
+        },
+        {
+          "type": "select",
+          "id": "availability",
+          "label": "Show on",
+          "options": [
+            {
+              "value": "all",
+              "label": "Every product"
+            },
+            {
+              "value": "metafield",
+              "label": "Only products whose metafield is true"
+            }
+          ],
+          "default": "all"
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Metafield namespace",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "enabled_metafield_key",
+          "label": "Enabled metafield key",
+          "info": "A true/false product metafield.",
+          "default": "custom_order_enabled"
+        },
+        {
+          "type": "text",
+          "id": "fields_metafield_key",
+          "label": "Field list metafield key",
+          "info": "Optional. A multi-line text metafield overriding the list above for that product."
         }
       ]
     }

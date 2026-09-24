@@ -70,10 +70,13 @@
           "type": "size_chart",
           "settings": {
             "link_text": "Size Chart",
-            "heading": "Size Charts",
-            "subheading": "Women Measurement",
-            "content": "<p>Paste your measurement table here, or set an image above.</p>",
-            "note": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment (merchandise) size.</p>"
+            "metafield_namespace": "custom",
+            "metafield_key": "size_chart",
+            "image_metafield_key": "size_chart_image",
+            "heading": "",
+            "subheading": "Size Charts",
+            "note": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment (merchandise) size.</p>",
+            "content": ""
           }
         },
         "custom_order": {
@@ -83,7 +86,11 @@
             "intro": "Not finding your size? Give us your measurements in inches and we will make it to order.",
             "fields": "Shoulder\nSleeve length\nBust\nBottom length\nWaist\nCalf\nHip\nThighs\nTop length\nAnkle",
             "show_notes": true,
-            "notes_label": "Notes"
+            "notes_label": "Notes",
+            "availability": "all",
+            "metafield_namespace": "custom",
+            "enabled_metafield_key": "custom_order_enabled",
+            "fields_metafield_key": ""
           }
         }
       },
