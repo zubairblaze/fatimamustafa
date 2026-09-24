@@ -54,42 +54,7 @@
       <aside class="fm-care">
         {%- for block in section.blocks -%}
           {%- if block.type == 'care' -%}
-            <div {{ block.shopify_attributes }}>
-              {%- if block.settings.heading != blank -%}
-                <h2 class="fm-care__title">{{ block.settings.heading }}</h2>
-              {%- endif -%}
-
-              {%- if block.settings.fabric_label != blank or block.settings.fabric_text != blank -%}
-                <div class="fm-care__group">
-                  {%- if block.settings.fabric_label != blank -%}
-                    <p class="fm-care__label">{{ block.settings.fabric_label }}</p>
-                  {%- endif -%}
-                  {%- if block.settings.fabric_text != blank -%}
-                    <p class="fm-care__text">{{ block.settings.fabric_text }}</p>
-                  {%- endif -%}
-                </div>
-              {%- endif -%}
-
-              {%- assign care_lines = block.settings.care_list | newline_to_br | split: '<br />' -%}
-              {%- if care_lines.size > 0 and block.settings.care_list != blank -%}
-                <div class="fm-care__group">
-                  {%- if block.settings.care_label != blank -%}
-                    <p class="fm-care__label">{{ block.settings.care_label }}</p>
-                  {%- endif -%}
-                  <ul class="fm-care__list" role="list">
-                    {%- for line in care_lines -%}
-                      {%- assign text = line | strip -%}
-                      {%- if text != blank -%}
-                        <li class="fm-care__item">
-                          <span class="svg-wrapper">{{ 'icon-checkmark.svg' | inline_asset_content }}</span>
-                          <span>{{ text }}</span>
-                        </li>
-                      {%- endif -%}
-                    {%- endfor -%}
-                  </ul>
-                </div>
-              {%- endif -%}
-            </div>
+            {% render 'fm-product-care', block: block, product: product %}
           {%- endif -%}
         {%- endfor -%}
       </aside>
@@ -770,8 +735,52 @@
           "type": "textarea",
           "id": "care_list",
           "label": "Care instructions",
-          "info": "One per line.",
+          "info": "One per line. Used only for products with no care metafields.",
           "default": "Dry clean only\nCan be ironed on low heat\nDo not use bleach"
+        },
+        {
+          "type": "header",
+          "content": "Per-product care"
+        },
+        {
+          "type": "paragraph",
+          "content": "Set these per product under Products → Metafields. Any product with at least one care_text filled in uses its own list; the rest fall back to the instructions above."
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Metafield namespace",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "fabric_metafield_key",
+          "label": "Fabric text metafield key",
+          "info": "Single or multi-line text. Falls back to the fabric text above.",
+          "default": "care_fabric"
+        },
+        {
+          "type": "text",
+          "id": "icon_key_prefix",
+          "label": "Icon metafield prefix",
+          "info": "File metafields named care_icon_1 … care_icon_5. Optional per row.",
+          "default": "care_icon_"
+        },
+        {
+          "type": "text",
+          "id": "text_key_prefix",
+          "label": "Instruction metafield prefix",
+          "info": "Single line text metafields named care_text_1 … care_text_5.",
+          "default": "care_text_"
+        },
+        {
+          "type": "range",
+          "id": "slot_count",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "label": "Number of care rows",
+          "default": 5
         }
       ]
     },

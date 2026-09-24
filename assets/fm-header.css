@@ -6,7 +6,7 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 1.2rem;
-  padding: 1.2rem var(--fm-edge);
+  padding: 1.2rem var(--fm-page-edge);
 }
 
 .fm-header__group {
@@ -149,7 +149,7 @@
   justify-content: center;
   gap: 2.8rem;
   margin: 0;
-  padding: 1.1rem var(--fm-edge);
+  padding: 1.1rem var(--fm-page-edge);
   list-style: none;
 }
 

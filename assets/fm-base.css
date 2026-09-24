@@ -10,6 +10,10 @@
   --fm-shell: 243, 243, 243;
   --fm-gutter: 0.8rem;
   --fm-edge: 1.2rem;
+  /* The container the header and the product page share. The values are
+     Dawn's own `.header.page-width` padding, so the two line up whether the
+     header in the group is Dawn's or the FM one. */
+  --fm-page-edge: 1.5rem;
   --fm-track: 0.14em;
   --fm-peek: 1.6rem;
   --fm-scrim: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.1) 38%, rgba(0, 0, 0, 0) 62%);
@@ -17,6 +21,7 @@
 
 @media screen and (min-width: 750px) {
   :root {
+    --fm-page-edge: 3.2rem;
     --fm-edge: 1.6rem;
   }
 }

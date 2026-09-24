@@ -10,7 +10,12 @@
             "fabric_label": "Fabric",
             "fabric_text": "Mix fabric. Handle with care while cleaning.",
             "care_label": "Care",
-            "care_list": "Dry clean only\nCan be ironed on low heat\nDo not use bleach"
+            "care_list": "Dry clean only\nCan be ironed on low heat\nDo not use bleach",
+            "metafield_namespace": "custom",
+            "fabric_metafield_key": "care_fabric",
+            "icon_key_prefix": "care_icon_",
+            "text_key_prefix": "care_text_",
+            "slot_count": 5
           }
         },
         "title": {
@@ -99,7 +104,7 @@
             "name_label": "Your name",
             "email_label": "Your email",
             "submit_text": "Send custom order request",
-            "success_text": "Thank you — we have your measurements and will be in touch shortly."
+            "success_text": "Thank you \u2014 we have your measurements and will be in touch shortly."
           }
         }
       },
