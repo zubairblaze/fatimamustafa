@@ -635,3 +635,30 @@
     padding: 1.6rem;
   }
 }
+
+.fm-custom__form {
+  margin: 0;
+}
+
+.fm-custom__submit {
+  width: 100%;
+  min-height: 4.6rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fm-custom__success,
+.fm-custom__error {
+  margin: 0 0 1.2rem;
+  font-size: 1.3rem;
+}
+
+.fm-custom__success {
+  color: #2f6b4f;
+}
+
+.fm-custom__error {
+  color: #8c2b2b;
+}

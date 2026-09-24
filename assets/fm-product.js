@@ -111,6 +111,18 @@ if (!customElements.get('fm-custom-order')) {
       if (!this.toggle || !this.panel) return;
 
       this.fields = Array.from(this.panel.querySelectorAll('input, textarea'));
+
+      if (this.dataset.fmMode === 'variant') {
+        this.form = document.getElementById(this.dataset.fmForm);
+        this.variantInput = this.form?.querySelector('input[name="id"]');
+        this.submit = this.form?.querySelector('[name="add"]');
+        this.originalVariant = this.variantInput?.value;
+        this.originalLabel = this.submit?.querySelector('span')?.textContent;
+        // Remember whether the button started disabled (a sold-out product),
+        // so closing the panel restores exactly that state.
+        this.wasDisabled = this.submit?.disabled === true;
+      }
+
       this.setOpen(false);
 
       this.toggle.addEventListener('click', () => {
@@ -125,12 +137,35 @@ if (!customElements.get('fm-custom-order')) {
     setOpen(open) {
       this.toggle.setAttribute('aria-pressed', open ? 'true' : 'false');
       this.panel.hidden = !open;
+
       // Disabled fields are not submitted, so an unopened form adds no
       // empty line item properties to the cart.
       this.fields.forEach((field) => {
         field.disabled = !open;
         if (field.dataset.fmRequired !== undefined) field.required = open;
       });
+
+      // Point the product form at the always-in-stock custom order variant, so
+      // the product being sold out no longer blocks the add.
+      if (this.dataset.fmMode === 'variant' && this.variantInput) {
+        const customId = this.dataset.fmVariant;
+        if (open && customId) {
+          this.variantInput.value = customId;
+          if (this.submit) {
+            this.submit.disabled = false;
+            const label = this.submit.querySelector('span');
+            if (label && this.dataset.fmAddLabel) label.textContent = this.dataset.fmAddLabel;
+          }
+        } else {
+          this.variantInput.value = this.originalVariant ?? this.variantInput.value;
+          if (this.submit) {
+            this.submit.disabled = this.wasDisabled;
+            const label = this.submit.querySelector('span');
+            if (label && this.originalLabel) label.textContent = this.originalLabel;
+          }
+        }
+      }
+
       if (open) this.fields[0]?.focus();
     }
   }

@@ -90,7 +90,14 @@
             "availability": "all",
             "metafield_namespace": "custom",
             "enabled_metafield_key": "custom_order_enabled",
-            "fields_metafield_key": ""
+            "fields_metafield_key": "",
+            "submit_mode": "auto",
+            "variant_name": "Custom Order",
+            "add_label": "Add custom order to cart",
+            "name_label": "Your name",
+            "email_label": "Your email",
+            "submit_text": "Send custom order request",
+            "success_text": "Thank you — we have your measurements and will be in touch shortly."
           }
         }
       },

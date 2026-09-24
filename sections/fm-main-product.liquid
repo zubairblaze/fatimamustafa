@@ -314,60 +314,172 @@
               endif
 
               assign measure_lines = field_source | newline_to_br | split: '<br />'
+
+              comment
+                A sold-out product cannot be added to the cart at all — Shopify
+                rejects the line, so re-enabling the button would only fail
+                later. Two ways round it:
+                  variant - the product carries an always-in-stock custom order
+                            option value, and we switch the form to it;
+                  enquiry - the measurements go through the contact form, which
+                            works on any product whatever its stock.
+                Automatic picks the variant when the product has one, else
+                enquiry, so custom orders are never blocked by stock.
+              endcomment
+              assign co_name = block.settings.variant_name | default: 'Custom Order'
+              assign custom_variant = nil
+              for candidate in product.variants
+                if candidate.title contains co_name and candidate.available
+                  assign custom_variant = candidate
+                  break
+                endif
+              endfor
+
+              assign co_mode = block.settings.submit_mode | default: 'auto'
+              if co_mode == 'auto'
+                assign co_mode = 'enquiry'
+                if custom_variant != nil
+                  assign co_mode = 'variant'
+                endif
+              endif
+              if co_mode == 'variant' and custom_variant == nil
+                assign co_mode = 'enquiry'
+              endif
             -%}
 
             {%- if show_custom -%}
-            <fm-custom-order class="fm-custom" {{ block.shopify_attributes }}>
-              <button
-                type="button"
-                class="fm-custom__toggle"
-                data-fm-custom-toggle
-                aria-pressed="false"
-                aria-controls="fm-custom-panel-{{ section.id }}"
+              <fm-custom-order
+                class="fm-custom"
+                data-fm-mode="{{ co_mode }}"
+                data-fm-form="{{ product_form_id }}"
+                data-fm-add-label="{{ block.settings.add_label | escape }}"
+                {% if custom_variant != nil %}data-fm-variant="{{ custom_variant.id }}"{% endif %}
+                {{ block.shopify_attributes }}
               >
-                {{ block.settings.toggle_text }}
-              </button>
+                <button
+                  type="button"
+                  class="fm-custom__toggle"
+                  data-fm-custom-toggle
+                  aria-pressed="false"
+                  aria-controls="fm-custom-panel-{{ section.id }}"
+                >
+                  {{ block.settings.toggle_text }}
+                </button>
 
-              <div class="fm-custom__panel" data-fm-custom-panel id="fm-custom-panel-{{ section.id }}" hidden>
-                {%- if block.settings.intro != blank -%}
-                  <p class="fm-custom__intro">{{ block.settings.intro }}</p>
-                {%- endif -%}
-
-                <fieldset class="fm-custom__grid">
-                  <legend class="visually-hidden">{{ block.settings.toggle_text }}</legend>
-
-                  {%- for line in measure_lines -%}
-                    {%- assign field_name = line | strip -%}
-                    {%- if field_name != blank -%}
-                      {%- assign field_id = 'fm-measure-' | append: section.id | append: '-' | append: forloop.index -%}
-                      <div class="fm-custom__field">
-                        <label for="{{ field_id }}">{{ field_name }}</label>
-                        <input
-                          type="text"
-                          id="{{ field_id }}"
-                          name="properties[{{ field_name | escape }}]"
-                          form="{{ product_form_id }}"
-                          inputmode="decimal"
-                          autocomplete="off"
-                          data-fm-required
-                        >
-                      </div>
-                    {%- endif -%}
-                  {%- endfor -%}
-
-                  {%- if block.settings.show_notes -%}
-                    <div class="fm-custom__field fm-custom__field--wide">
-                      <label for="fm-measure-notes-{{ section.id }}">{{ block.settings.notes_label }}</label>
-                      <textarea
-                        id="fm-measure-notes-{{ section.id }}"
-                        name="properties[{{ block.settings.notes_label | escape }}]"
-                        form="{{ product_form_id }}"
-                      ></textarea>
-                    </div>
+                <div class="fm-custom__panel" data-fm-custom-panel id="fm-custom-panel-{{ section.id }}" hidden>
+                  {%- if block.settings.intro != blank -%}
+                    <p class="fm-custom__intro">{{ block.settings.intro }}</p>
                   {%- endif -%}
-                </fieldset>
-              </div>
-            </fm-custom-order>
+
+                  {%- if co_mode == 'variant' -%}
+                    {%- comment -%}
+                      Fields ride the product form and post as line item
+                      properties; the script points the form at the custom
+                      variant so a sold-out product can still be ordered.
+                    {%- endcomment -%}
+                    <fieldset class="fm-custom__grid">
+                      <legend class="visually-hidden">{{ block.settings.toggle_text }}</legend>
+                      {%- for line in measure_lines -%}
+                        {%- assign field_name = line | strip -%}
+                        {%- if field_name != blank -%}
+                          {%- assign field_id = 'fm-measure-' | append: section.id | append: '-' | append: forloop.index -%}
+                          <div class="fm-custom__field">
+                            <label for="{{ field_id }}">{{ field_name }}</label>
+                            <input
+                              type="text"
+                              id="{{ field_id }}"
+                              name="properties[{{ field_name | escape }}]"
+                              form="{{ product_form_id }}"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              data-fm-required
+                            >
+                          </div>
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {%- if block.settings.show_notes -%}
+                        <div class="fm-custom__field fm-custom__field--wide">
+                          <label for="fm-measure-notes-{{ section.id }}">{{ block.settings.notes_label }}</label>
+                          <textarea
+                            id="fm-measure-notes-{{ section.id }}"
+                            name="properties[{{ block.settings.notes_label | escape }}]"
+                            form="{{ product_form_id }}"
+                          ></textarea>
+                        </div>
+                      {%- endif -%}
+                    </fieldset>
+                  {%- else -%}
+                    {%- comment -%}
+                      Enquiry mode: a contact form, so it works on any product
+                      regardless of stock.
+                    {%- endcomment -%}
+                    {%- assign co_form_id = 'fm-custom-form-' | append: section.id -%}
+                    {%- form 'contact', id: co_form_id, class: 'fm-custom__form' -%}
+                      {%- if form.posted_successfully? -%}
+                        <p class="fm-custom__success">{{ block.settings.success_text }}</p>
+                      {%- else -%}
+                        {%- if form.errors -%}
+                          <p class="fm-custom__error">
+                            {{ form.errors.translated_fields.email | capitalize }}
+                            {{ form.errors.messages.email }}
+                          </p>
+                        {%- endif -%}
+
+                        <input
+                          type="hidden"
+                          name="contact[Product]"
+                          value="{{ product.title | escape }} — {{ shop.url }}{{ product.url }}"
+                        >
+
+                        <fieldset class="fm-custom__grid">
+                          <legend class="visually-hidden">{{ block.settings.toggle_text }}</legend>
+
+                          <div class="fm-custom__field">
+                            <label for="fm-co-name-{{ section.id }}">{{ block.settings.name_label }}</label>
+                            <input type="text" id="fm-co-name-{{ section.id }}" name="contact[name]" autocomplete="name" data-fm-required>
+                          </div>
+                          <div class="fm-custom__field">
+                            <label for="fm-co-email-{{ section.id }}">{{ block.settings.email_label }}</label>
+                            <input type="email" id="fm-co-email-{{ section.id }}" name="contact[email]" autocomplete="email" data-fm-required>
+                          </div>
+
+                          {%- for line in measure_lines -%}
+                            {%- assign field_name = line | strip -%}
+                            {%- if field_name != blank -%}
+                              {%- assign field_id = 'fm-co-' | append: section.id | append: '-' | append: forloop.index -%}
+                              <div class="fm-custom__field">
+                                <label for="{{ field_id }}">{{ field_name }}</label>
+                                <input
+                                  type="text"
+                                  id="{{ field_id }}"
+                                  name="contact[{{ field_name | escape }}]"
+                                  inputmode="decimal"
+                                  autocomplete="off"
+                                  data-fm-required
+                                >
+                              </div>
+                            {%- endif -%}
+                          {%- endfor -%}
+
+                          {%- if block.settings.show_notes -%}
+                            <div class="fm-custom__field fm-custom__field--wide">
+                              <label for="fm-co-notes-{{ section.id }}">{{ block.settings.notes_label }}</label>
+                              <textarea id="fm-co-notes-{{ section.id }}" name="contact[body]"></textarea>
+                            </div>
+                          {%- endif -%}
+
+                          <div class="fm-custom__field fm-custom__field--wide">
+                            <button type="submit" class="fm-custom__submit button button--primary">
+                              {{ block.settings.submit_text }}
+                            </button>
+                          </div>
+                        </fieldset>
+                      {%- endif -%}
+                    {%- endform -%}
+                  {%- endif -%}
+                </div>
+              </fm-custom-order>
             {%- endif -%}
 
           {%- when 'quantity_selector' -%}
@@ -847,7 +959,7 @@
           "type": "textarea",
           "id": "fields",
           "label": "Measurement fields",
-          "info": "One per line. Each becomes a line item property on the order.",
+          "info": "One per line. Each becomes a line item property, or a line in the enquiry email.",
           "default": "Shoulder\nSleeve length\nBust\nBottom length\nWaist\nCalf\nHip\nThighs\nTop length\nAnkle"
         },
         {
@@ -861,6 +973,75 @@
           "id": "notes_label",
           "label": "Notes label",
           "default": "Notes"
+        },
+        {
+          "type": "header",
+          "content": "How the order is placed"
+        },
+        {
+          "type": "paragraph",
+          "content": "A sold-out product cannot be added to the cart, so custom orders need one of these. Automatic uses the variant when the product has one and falls back to an enquiry, which works on every product."
+        },
+        {
+          "type": "select",
+          "id": "submit_mode",
+          "label": "Submit as",
+          "options": [
+            {
+              "value": "auto",
+              "label": "Automatic"
+            },
+            {
+              "value": "variant",
+              "label": "Add to cart (custom order variant)"
+            },
+            {
+              "value": "enquiry",
+              "label": "Enquiry email"
+            }
+          ],
+          "default": "auto"
+        },
+        {
+          "type": "text",
+          "id": "variant_name",
+          "label": "Custom order variant name",
+          "info": "An always-in-stock option value on the product, e.g. a Size called \"Custom Order\".",
+          "default": "Custom Order"
+        },
+        {
+          "type": "text",
+          "id": "add_label",
+          "label": "Add to cart label for custom orders",
+          "default": "Add custom order to cart"
+        },
+        {
+          "type": "header",
+          "content": "Enquiry form"
+        },
+        {
+          "type": "text",
+          "id": "name_label",
+          "label": "Name label",
+          "default": "Your name"
+        },
+        {
+          "type": "text",
+          "id": "email_label",
+          "label": "Email label",
+          "default": "Your email"
+        },
+        {
+          "type": "text",
+          "id": "submit_text",
+          "label": "Submit button",
+          "default": "Send custom order request"
+        },
+        {
+          "type": "text",
+          "id": "success_text",
+          "label": "Success message",
+          "default": "Thank you — we have your measurements and will be in touch shortly."
         },
         {
           "type": "header",
