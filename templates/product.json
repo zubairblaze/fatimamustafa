@@ -15,7 +15,9 @@
             "fabric_metafield_key": "care_fabric",
             "icon_key_prefix": "care_icon_",
             "text_key_prefix": "care_text_",
-            "slot_count": 5
+            "slot_count": 5,
+            "image_key_prefix": "care_image_",
+            "fontawesome_url": ""
           }
         },
         "title": {

@@ -762,9 +762,22 @@
         {
           "type": "text",
           "id": "icon_key_prefix",
-          "label": "Icon metafield prefix",
-          "info": "File metafields named care_icon_1 … care_icon_5. Optional per row.",
+          "label": "Icon name metafield prefix",
+          "info": "Single line text metafields named care_icon_1 … care_icon_5. Holds a built-in icon name (water, iron, hanger, no-bleach …) or a Font Awesome class list. Optional per row.",
           "default": "care_icon_"
+        },
+        {
+          "type": "text",
+          "id": "image_key_prefix",
+          "label": "Icon image metafield prefix",
+          "info": "Optional. File metafields named care_image_1 … care_image_5, for an uploaded glyph. Wins over the icon name.",
+          "default": "care_image_"
+        },
+        {
+          "type": "text",
+          "id": "fontawesome_url",
+          "label": "Font Awesome stylesheet URL",
+          "info": "Only needed for Font Awesome class names. Paste your Font Awesome kit or CDN link; leave empty to use the theme's built-in icons."
         },
         {
           "type": "text",

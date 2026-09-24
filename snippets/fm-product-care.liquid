@@ -25,6 +25,7 @@
   endif
 
   assign icon_prefix = block.settings.icon_key_prefix | default: 'care_icon_'
+  assign image_prefix = block.settings.image_key_prefix | default: 'care_image_'
   assign text_prefix = block.settings.text_key_prefix | default: 'care_text_'
   assign slots = block.settings.slot_count
   if slots == nil
@@ -43,6 +44,11 @@
     endif
   endfor
 -%}
+
+{%- if block.settings.fontawesome_url != blank -%}
+  <link rel="stylesheet" href="{{ block.settings.fontawesome_url }}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ block.settings.fontawesome_url }}"></noscript>
+{%- endif -%}
 
 <div {{ block.shopify_attributes }}>
   {%- if block.settings.heading != blank -%}
@@ -70,29 +76,15 @@
           {%- liquid
             assign text_key = text_prefix | append: i
             assign icon_key = icon_prefix | append: i
+            assign image_key = image_prefix | append: i
             assign care_text = product.metafields[ns][text_key].value
             assign care_icon = product.metafields[ns][icon_key].value
+            assign care_image = product.metafields[ns][image_key].value
           -%}
           {%- if care_text != blank -%}
             <li class="fm-care__item">
               <span class="fm-care__icon">
-                {%- comment -%}
-                  A file metafield can hold an image Shopify will resize, or a
-                  generic file such as an SVG that it will not. The first gets
-                  a responsive tag, the second its own url, and a slot with no
-                  icon falls back to the tick.
-                {%- endcomment -%}
-                {%- if care_icon.width > 0 -%}
-                  {{
-                    care_icon
-                    | image_url: width: 96
-                    | image_tag: loading: 'lazy', widths: '36, 72, 96', alt: ''
-                  }}
-                {%- elsif care_icon.url != blank -%}
-                  <img src="{{ care_icon.url }}" alt="" loading="lazy" width="36" height="36">
-                {%- else -%}
-                  {{ 'icon-checkmark.svg' | inline_asset_content }}
-                {%- endif -%}
+                {% render 'fm-care-icon', name: care_icon, image: care_image %}
               </span>
               <span>{{ care_text }}</span>
             </li>
@@ -113,7 +105,7 @@
             {%- if text != blank -%}
               <li class="fm-care__item">
                 <span class="fm-care__icon">
-                  {{- 'icon-checkmark.svg' | inline_asset_content -}}
+                  {% render 'fm-care-icon' %}
                 </span>
                 <span>{{ text }}</span>
               </li>
