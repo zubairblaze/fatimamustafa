@@ -200,170 +200,7 @@
             </div>
 
           {%- when 'size_chart' -%}
-            {%- liquid
-              comment
-                The chart is per-product data, held in a product metafield, so
-                each product can carry its own. The block settings are only a
-                fallback for products that have none.
-              endcomment
-              assign ns = block.settings.metafield_namespace | default: 'custom'
-              assign chart = product.metafields[ns][block.settings.metafield_key]
-
-              assign chart_content = block.settings.content
-              assign chart_richtext = nil
-              assign chart_image = block.settings.image
-
-              comment
-                Each metafield type needs its own handling. A rich_text_field
-                holds a JSON document, so assigning the drop and printing it
-                emits that JSON verbatim - it has to go through metafield_tag.
-                Text types are printed as .value so a pasted HTML table renders
-                as markup rather than as escaped text.
-              endcomment
-              if chart.type == 'page_reference'
-                assign chart_content = chart.value.content
-              elsif chart.type == 'file_reference'
-                assign chart_image = chart.value
-              elsif chart.type == 'rich_text_field'
-                assign chart_richtext = chart
-              elsif chart.type != blank
-                assign chart_content = chart.value
-              endif
-
-              if block.settings.image_metafield_key != blank
-                assign image_mf = product.metafields[ns][block.settings.image_metafield_key]
-                if image_mf.type != blank
-                  assign chart_image = image_mf.value
-                endif
-              endif
-
-              assign chart_heading = block.settings.heading
-              if chart_heading == blank
-                assign chart_heading = product.title
-              endif
-
-              assign has_chart = false
-              if chart_content != blank or chart_image != blank or chart_richtext != nil
-                assign has_chart = true
-              endif
-
-              assign media_count = 0
-              for media in product.media
-                if media.media_type == 'image'
-                  assign media_count = media_count | plus: 1
-                endif
-              endfor
-              if chart_image != blank
-                assign media_count = media_count | plus: 1
-              endif
-
-              assign show_gallery = true
-              if block.settings.show_gallery == false
-                assign show_gallery = false
-              endif
-
-              assign rotate_secs = block.settings.autorotate_speed
-              if rotate_secs == nil
-                assign rotate_secs = 4
-              endif
-
-              assign has_media = false
-              if media_count > 0 and show_gallery
-                assign has_media = true
-              endif
-            -%}
-
-            {%- if has_chart -%}
-              <fm-size-chart class="fm-sizechart" {{ block.shopify_attributes }}>
-                <a class="fm-pdp__size-chart" href="#" data-fm-sizechart-open>
-                  <span class="svg-wrapper">{{ 'icon-ruler.svg' | inline_asset_content }}</span>
-                  {{ block.settings.link_text }}
-                </a>
-
-                <dialog class="fm-sizechart__dialog" aria-label="{{ chart_heading | escape }}">
-                  <div class="fm-sizechart__head">
-                    <h2 class="fm-sizechart__title">{{ chart_heading }}</h2>
-                    {%- if block.settings.subheading != blank -%}
-                      <p class="fm-sizechart__subtitle">{{ block.settings.subheading }}</p>
-                    {%- endif -%}
-                    <button type="button" class="fm-sizechart__close" data-fm-sizechart-close>
-                      <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
-                      <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
-                    </button>
-                  </div>
-
-                  <div class="fm-sizechart__body{% if has_media %} fm-sizechart__body--with-image{% endif %}">
-                    {%- if has_media -%}
-                      {%- comment -%}
-                        The product's own images, as a swipeable auto-rotating
-                        carousel. Hidden below 750px, where the reference shows
-                        the table alone.
-                      {%- endcomment -%}
-                      <div class="fm-sizechart__media">
-                        <fm-scroller
-                          class="fm-sizechart__gallery"
-                          {% if rotate_secs > 0 %}
-                            data-fm-autoplay="{{ rotate_secs | times: 1000 }}"
-                          {% endif %}
-                        >
-                          <ul class="fm-scroller fm-sizechart__slides" data-fm-track role="list">
-                            {%- if chart_image != blank -%}
-                              <li class="fm-sizechart__slide">
-                                {{
-                                  chart_image
-                                  | image_url: width: 900
-                                  | image_tag:
-                                    loading: 'lazy',
-                                    widths: '300, 500, 700, 900',
-                                    sizes: '40vw',
-                                    alt: chart_heading
-                                }}
-                              </li>
-                            {%- endif -%}
-
-                            {%- for media in product.media -%}
-                              {%- if media.media_type == 'image' -%}
-                                <li class="fm-sizechart__slide">
-                                  {{
-                                    media.preview_image
-                                    | image_url: width: 900
-                                    | image_tag:
-                                      loading: 'lazy',
-                                      widths: '300, 500, 700, 900',
-                                      sizes: '40vw',
-                                      alt: media.alt
-                                  }}
-                                </li>
-                              {%- endif -%}
-                            {%- endfor -%}
-                          </ul>
-
-                          {%- if media_count > 1 -%}
-                            <button type="button" class="fm-sizechart__nav fm-sizechart__nav--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
-                              {% render 'fm-arrow-icon' %}
-                            </button>
-                            <button type="button" class="fm-sizechart__nav fm-sizechart__nav--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
-                              {% render 'fm-arrow-icon' %}
-                            </button>
-                          {%- endif -%}
-                        </fm-scroller>
-                      </div>
-                    {%- endif -%}
-
-                    <div class="fm-sizechart__content">
-                      {%- if chart_richtext != nil -%}
-                        <div class="fm-sizechart__scroll rte">{{ chart_richtext | metafield_tag }}</div>
-                      {%- elsif chart_content != blank -%}
-                        <div class="fm-sizechart__scroll rte">{{ chart_content }}</div>
-                      {%- endif -%}
-                      {%- if block.settings.note != blank -%}
-                        <div class="rte">{{ block.settings.note }}</div>
-                      {%- endif -%}
-                    </div>
-                  </div>
-                </dialog>
-              </fm-size-chart>
-            {%- endif -%}
+            {% render 'fm-size-chart', block: block, product: product %}
 
           {%- when 'custom_order' -%}
             {%- liquid
@@ -958,6 +795,10 @@
           "content": "The chart comes from a product metafield, so each product carries its own. Set it per product under Products → Metafields. Products without one hide the link."
         },
         {
+          "type": "paragraph",
+          "content": "Type the chart as one row per line, cells separated by | (or tabs pasted from a spreadsheet). The first line becomes the heading if it has no separators, the next line becomes the column headers. No HTML needed."
+        },
+        {
           "type": "text",
           "id": "metafield_namespace",
           "label": "Metafield namespace",
@@ -967,7 +808,7 @@
           "type": "text",
           "id": "metafield_key",
           "label": "Chart metafield key",
-          "info": "Rich text, a page reference, or an image file reference.",
+          "info": "Rich text, multi-line text, a page reference, or an image file reference.",
           "default": "size_chart"
         },
         {

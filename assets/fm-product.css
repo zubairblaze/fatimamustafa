@@ -511,8 +511,8 @@
 /* --- Size chart modal ------------------------------------------------------ */
 
 .fm-sizechart__dialog {
-  width: min(96vw, 110rem);
-  max-height: 90vh;
+  width: min(96vw, 120rem);
+  max-height: min(92vh, 76rem);
   padding: 0;
   border: 0;
   background-color: #fff;
@@ -567,8 +567,8 @@
 .fm-sizechart__body {
   display: grid;
   grid-template-columns: 1fr;
-  max-height: calc(90vh - 8rem);
-  overflow-y: auto;
+  max-height: calc(min(92vh, 76rem) - 7.6rem);
+  overflow: hidden;
 }
 
 @media screen and (min-width: 750px) {
@@ -585,6 +585,12 @@
   .fm-sizechart__media {
     display: block;
     position: relative;
+    align-self: stretch;
+    /* A floor in absolute units, not a ratio: a percentage or aspect-ratio
+       here would have to be resolved against a grid track that is itself
+       being sized from this item, and collapses to nothing. */
+    min-height: 60rem;
+    overflow: hidden;
     background-color: rgb(var(--fm-shell));
   }
 }
@@ -595,6 +601,7 @@
   position: relative;
   display: block;
   height: 100%;
+  max-height: 100%;
 }
 
 .fm-sizechart__slides {
@@ -612,8 +619,8 @@
 .fm-sizechart__slide img {
   width: 100%;
   height: 100%;
-  min-height: 40rem;
   object-fit: cover;
+  object-position: center top;
   display: block;
 }
 
@@ -664,12 +671,32 @@
   padding: 2.4rem;
   font-size: 1.3rem;
   line-height: 1.7;
+  min-height: 0;
+  max-height: calc(min(92vh, 76rem) - 7.6rem);
+  overflow-y: auto;
+}
+
+/* A first line with no delimiter becomes the chart's own heading. */
+.fm-sizechart__caption {
+  margin: 0 0 1.2rem;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .fm-sizechart__content table {
   width: 100%;
   border-collapse: collapse;
   margin: 0 0 1.6rem;
+}
+
+/* The measurement names are the long cells; giving them the width the
+   reference does keeps them on one line while the size columns stay even. */
+.fm-sizechart__content table th:first-child,
+.fm-sizechart__content table td:first-child {
+  width: 40%;
 }
 
 /* Dawn's base.css styles bare tables through `table:not([class]) td`, which

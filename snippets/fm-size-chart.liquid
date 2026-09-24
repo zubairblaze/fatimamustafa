@@ -1,0 +1,324 @@
+{%- comment -%}
+  Renders the size chart link and its popup for one product.
+
+  Accepts:
+  - block: {Object} the size_chart block, for its settings
+  - product: {Object} the product whose metafield holds the chart
+
+  Usage:
+  {% render 'fm-size-chart', block: block, product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  comment
+    The chart is per-product data, held in a product metafield, so
+    each product can carry its own. The block settings are only a
+    fallback for products that have none.
+  endcomment
+  assign ns = block.settings.metafield_namespace | default: 'custom'
+  assign chart = product.metafields[ns][block.settings.metafield_key]
+
+  assign chart_content = block.settings.content
+  assign chart_richtext = nil
+  assign chart_image = block.settings.image
+
+  comment
+    Each metafield type needs its own handling. A rich_text_field
+    holds a JSON document, so assigning the drop and printing it
+    emits that JSON verbatim - it has to go through metafield_tag.
+    Text types are printed as .value so a pasted HTML table renders
+    as markup rather than as escaped text.
+  endcomment
+  assign chart_trusted = false
+  if block.settings.content != blank
+    assign chart_trusted = true
+  endif
+
+  if chart.type == 'page_reference'
+    assign chart_content = chart.value.content
+    assign chart_trusted = true
+  elsif chart.type == 'file_reference'
+    assign chart_image = chart.value
+  elsif chart.type == 'rich_text_field'
+    assign chart_richtext = chart
+    assign chart_trusted = true
+  elsif chart.type != blank
+    assign chart_content = chart.value
+    assign chart_trusted = false
+  endif
+
+  if block.settings.image_metafield_key != blank
+    assign image_mf = product.metafields[ns][block.settings.image_metafield_key]
+    if image_mf.type != blank
+      assign chart_image = image_mf.value
+    endif
+  endif
+
+  assign chart_heading = block.settings.heading
+  if chart_heading == blank
+    assign chart_heading = product.title
+  endif
+
+  comment
+    Shopify's rich text editor has no table control, so a chart
+    typed into one arrives as plain rows of text. Rather than make
+    the merchant hand-write HTML, the block reads delimited rows
+    and builds the table itself. Markup is only passed through
+    when it comes from a source that is meant to carry it, or when
+    it already holds a table; anything else is stripped, so a
+    pasted answer full of style and script tags cannot reach
+    the page.
+  endcomment
+  assign nlmark = '@@FMNL@@'
+  assign chart_html = ''
+  assign chart_plain = ''
+
+  if chart_richtext != nil
+    assign chart_html = chart_richtext | metafield_tag
+  elsif chart_content != blank
+    assign chart_html = chart_content
+  endif
+
+  if chart_html contains '<table'
+    assign chart_trusted = true
+  endif
+
+  comment
+    One pass turns every source into newline-marked plain text:
+    paragraph and line breaks become the marker, then strip_html
+    removes what is left. Splitting on the marker avoids needing a
+    literal newline inside a liquid tag.
+  endcomment
+  if chart_html != blank
+    assign chart_plain = chart_html | newline_to_br | replace: '</p>', nlmark | replace: '</div>', nlmark | replace: '</li>', nlmark | replace: '<br />', nlmark | replace: '<br>', nlmark | strip_html
+  endif
+
+  assign chart_lines = ''
+  assign chart_delim = ''
+  assign chart_caption = ''
+  comment
+    A flag rather than a test on chart_delim: liquid counts any
+    whitespace-only string as blank, so a tab delimiter would
+    read as "no delimiter found".
+  endcomment
+  assign chart_is_rows = false
+
+  if chart_plain != blank
+    assign raw_lines = chart_plain | split: nlmark
+    assign joined = ''
+    comment
+      Blank lines are dropped, but a line that survives is kept
+      exactly as typed. Stripping it here would eat the leading
+      tab of a spreadsheet row whose first header cell is empty,
+      and that row would then be one cell short of the rest.
+    endcomment
+    for raw_line in raw_lines
+      assign probe = raw_line | strip
+      if probe != blank
+        assign joined = joined | append: raw_line | append: nlmark
+      endif
+    endfor
+    assign chart_lines = joined | split: nlmark
+
+    comment
+      A pipe, a tab and a comma, in that order of preference. A
+      candidate only wins when every line splits into the same
+      number of cells, which is what keeps ordinary prose - where
+      commas fall wherever they like - from being mistaken for a
+      table. A first line with no delimiter is the caption.
+    endcomment
+    assign fm_delims = '|:::DELIM:::,' | replace: 'DELIM', '	' | split: ':::'
+
+    for candidate in fm_delims
+      assign cols = 0
+      assign body_rows = 0
+      assign uniform = true
+      assign caption_try = ''
+      for line in chart_lines
+        assign cells = line | split: candidate
+        if cells.size < 2
+          if forloop.first
+            assign caption_try = line
+            continue
+          endif
+          assign uniform = false
+          break
+        endif
+        if cols == 0
+          assign cols = cells.size
+        elsif cells.size != cols
+          assign uniform = false
+          break
+        endif
+        assign body_rows = body_rows | plus: 1
+      endfor
+
+      if uniform and body_rows > 1 and cols > 1
+        assign chart_delim = candidate
+        assign chart_caption = caption_try
+        assign chart_is_rows = true
+        break
+      endif
+    endfor
+  endif
+
+  assign has_chart = false
+  if chart_html != blank or chart_image != blank
+    assign has_chart = true
+  endif
+
+  assign media_count = 0
+  for media in product.media
+    if media.media_type == 'image'
+      assign media_count = media_count | plus: 1
+    endif
+  endfor
+  if chart_image != blank
+    assign media_count = media_count | plus: 1
+  endif
+
+  assign show_gallery = true
+  if block.settings.show_gallery == false
+    assign show_gallery = false
+  endif
+
+  assign rotate_secs = block.settings.autorotate_speed
+  if rotate_secs == nil
+    assign rotate_secs = 4
+  endif
+
+  assign has_media = false
+  if media_count > 0 and show_gallery
+    assign has_media = true
+  endif
+-%}
+
+{%- if has_chart -%}
+  <fm-size-chart class="fm-sizechart" {{ block.shopify_attributes }}>
+    <a class="fm-pdp__size-chart" href="#" data-fm-sizechart-open>
+      <span class="svg-wrapper">{{ 'icon-ruler.svg' | inline_asset_content }}</span>
+      {{ block.settings.link_text }}
+    </a>
+
+    <dialog class="fm-sizechart__dialog" aria-label="{{ chart_heading | escape }}">
+      <div class="fm-sizechart__head">
+        <h2 class="fm-sizechart__title">{{ chart_heading }}</h2>
+        {%- if block.settings.subheading != blank -%}
+          <p class="fm-sizechart__subtitle">{{ block.settings.subheading }}</p>
+        {%- endif -%}
+        <button type="button" class="fm-sizechart__close" data-fm-sizechart-close>
+          <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
+          <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+        </button>
+      </div>
+
+      <div class="fm-sizechart__body{% if has_media %} fm-sizechart__body--with-image{% endif %}">
+        {%- if has_media -%}
+          {%- comment -%}
+            The product's own images, as a swipeable auto-rotating
+            carousel. Hidden below 750px, where the reference shows
+            the table alone.
+          {%- endcomment -%}
+          <div class="fm-sizechart__media">
+            <fm-scroller
+              class="fm-sizechart__gallery"
+              {% if rotate_secs > 0 %}
+                data-fm-autoplay="{{ rotate_secs | times: 1000 }}"
+              {% endif %}
+            >
+              <ul class="fm-scroller fm-sizechart__slides" data-fm-track role="list">
+                {%- if chart_image != blank -%}
+                  <li class="fm-sizechart__slide">
+                    {{
+                      chart_image
+                      | image_url: width: 900
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '300, 500, 700, 900',
+                        sizes: '40vw',
+                        alt: chart_heading
+                    }}
+                  </li>
+                {%- endif -%}
+
+                {%- for media in product.media -%}
+                  {%- if media.media_type == 'image' -%}
+                    <li class="fm-sizechart__slide">
+                      {{
+                        media.preview_image
+                        | image_url: width: 900
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '300, 500, 700, 900',
+                          sizes: '40vw',
+                          alt: media.alt
+                      }}
+                    </li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+
+              {%- if media_count > 1 -%}
+                <button type="button" class="fm-sizechart__nav fm-sizechart__nav--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
+                  {% render 'fm-arrow-icon' %}
+                </button>
+                <button type="button" class="fm-sizechart__nav fm-sizechart__nav--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
+                  {% render 'fm-arrow-icon' %}
+                </button>
+              {%- endif -%}
+            </fm-scroller>
+          </div>
+        {%- endif -%}
+
+        <div class="fm-sizechart__content">
+          {%- if chart_is_rows -%}
+            {%- if chart_caption != blank -%}
+              <p class="fm-sizechart__caption">{{ chart_caption | strip }}</p>
+            {%- endif -%}
+            <div class="fm-sizechart__scroll">
+              <table>
+                {%- for line in chart_lines -%}
+                  {%- if forloop.first and chart_caption != blank -%}
+                    {%- continue -%}
+                  {%- endif -%}
+                  {%- liquid
+                    assign is_head = false
+                    if chart_caption != blank and forloop.index == 2
+                      assign is_head = true
+                    elsif chart_caption == blank and forloop.first
+                      assign is_head = true
+                    endif
+                    assign cells = line | split: chart_delim
+                  -%}
+                  <tr>
+                    {%- for cell in cells -%}
+                      {%- if is_head -%}
+                        <th>{{ cell | strip }}</th>
+                      {%- else -%}
+                        <td>{{ cell | strip }}</td>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </tr>
+                {%- endfor -%}
+              </table>
+            </div>
+          {%- elsif chart_trusted -%}
+            <div class="fm-sizechart__scroll rte">{{ chart_html }}</div>
+          {%- elsif chart_plain != blank -%}
+            {%- comment -%}
+              Text that is neither a table nor a source we trust
+              with markup, so it goes out escaped, a paragraph
+              per line.
+            {%- endcomment -%}
+            <div class="fm-sizechart__scroll rte">
+              <p>{{ chart_plain | escape | strip | replace: nlmark, '</p><p>' }}</p>
+            </div>
+          {%- endif -%}
+          {%- if block.settings.note != blank -%}
+            <div class="rte">{{ block.settings.note }}</div>
+          {%- endif -%}
+        </div>
+      </div>
+    </dialog>
+  </fm-size-chart>
+{%- endif -%}
