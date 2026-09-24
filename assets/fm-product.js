@@ -100,3 +100,73 @@ if (!customElements.get('fm-recently-viewed')) {
 
   customElements.define('fm-recently-viewed', FmRecentlyViewed);
 }
+
+/* ----------------------------------------------------------- custom order */
+
+if (!customElements.get('fm-custom-order')) {
+  class FmCustomOrder extends HTMLElement {
+    connectedCallback() {
+      this.toggle = this.querySelector('[data-fm-custom-toggle]');
+      this.panel = this.querySelector('[data-fm-custom-panel]');
+      if (!this.toggle || !this.panel) return;
+
+      this.fields = Array.from(this.panel.querySelectorAll('input, textarea'));
+      this.setOpen(false);
+
+      this.toggle.addEventListener('click', () => {
+        this.setOpen(this.toggle.getAttribute('aria-pressed') !== 'true');
+      });
+
+      // Picking a stocked size means they no longer want a custom order.
+      const picker = this.closest('.fm-pdp__info')?.querySelector('variant-selects');
+      if (picker) picker.addEventListener('change', () => this.setOpen(false));
+    }
+
+    setOpen(open) {
+      this.toggle.setAttribute('aria-pressed', open ? 'true' : 'false');
+      this.panel.hidden = !open;
+      // Disabled fields are not submitted, so an unopened form adds no
+      // empty line item properties to the cart.
+      this.fields.forEach((field) => {
+        field.disabled = !open;
+        if (field.dataset.fmRequired !== undefined) field.required = open;
+      });
+      if (open) this.fields[0]?.focus();
+    }
+  }
+
+  customElements.define('fm-custom-order', FmCustomOrder);
+}
+
+/* -------------------------------------------------------- size chart modal */
+
+if (!customElements.get('fm-size-chart')) {
+  class FmSizeChart extends HTMLElement {
+    connectedCallback() {
+      this.dialog = this.querySelector('dialog');
+      const opener = this.querySelector('[data-fm-sizechart-open]');
+      if (!this.dialog || !opener) return;
+
+      opener.addEventListener('click', (event) => {
+        event.preventDefault();
+        // showModal gives focus trapping and Esc for free.
+        if (typeof this.dialog.showModal === 'function') this.dialog.showModal();
+        else this.dialog.setAttribute('open', '');
+      });
+
+      this.querySelector('[data-fm-sizechart-close]')?.addEventListener('click', () => this.close());
+
+      // Click outside the panel closes it; the dialog element itself is the backdrop.
+      this.dialog.addEventListener('click', (event) => {
+        if (event.target === this.dialog) this.close();
+      });
+    }
+
+    close() {
+      if (typeof this.dialog.close === 'function') this.dialog.close();
+      else this.dialog.removeAttribute('open');
+    }
+  }
+
+  customElements.define('fm-size-chart', FmSizeChart);
+}

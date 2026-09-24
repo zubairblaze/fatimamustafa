@@ -409,3 +409,229 @@
 .fm-pdp__info .quantity {
   max-width: 14rem;
 }
+
+/* --- Custom order ----------------------------------------------------------
+   A "Custom Order" pill sits beside the size pills. Choosing it reveals a
+   measurement form whose fields post as line item properties. */
+
+.fm-custom__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4rem;
+  padding: 0 1.8rem;
+  margin-top: 0.8rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: rgb(var(--fm-ink));
+  background: none;
+  border: 1px solid rgba(var(--fm-ink), 0.35);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fm-custom__toggle:hover {
+  border-color: rgb(var(--fm-ink));
+}
+
+.fm-custom__toggle[aria-pressed='true'] {
+  background-color: rgb(var(--fm-ink));
+  border-color: rgb(var(--fm-ink));
+  color: #fff;
+}
+
+.fm-custom__panel[hidden] {
+  display: none;
+}
+
+.fm-custom__panel {
+  margin-top: 1.6rem;
+}
+
+.fm-custom__intro {
+  margin: 0 0 1.4rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: rgba(var(--fm-ink), 0.65);
+}
+
+.fm-custom__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem 1.6rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media screen and (min-width: 600px) {
+  .fm-custom__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fm-custom__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fm-custom__field--wide {
+  grid-column: 1 / -1;
+}
+
+.fm-custom__field label {
+  font-size: 1.2rem;
+  color: rgb(var(--fm-ink));
+}
+
+.fm-custom__field input,
+.fm-custom__field textarea {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  font-size: 1.3rem;
+  font-family: inherit;
+  color: rgb(var(--fm-ink));
+  background-color: #fff;
+  border: 1px solid rgba(var(--fm-ink), 0.3);
+  border-radius: 0;
+}
+
+.fm-custom__field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.fm-custom__field input:focus,
+.fm-custom__field textarea:focus {
+  outline: 2px solid rgba(var(--fm-ink), 0.5);
+  outline-offset: -2px;
+}
+
+/* --- Size chart modal ------------------------------------------------------ */
+
+.fm-sizechart__dialog {
+  width: min(96vw, 110rem);
+  max-height: 90vh;
+  padding: 0;
+  border: 0;
+  background-color: #fff;
+  color: rgb(var(--fm-ink));
+  overflow: hidden;
+}
+
+.fm-sizechart__dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+.fm-sizechart__head {
+  position: relative;
+  padding: 1.6rem 5.6rem;
+  text-align: center;
+  background-color: rgb(var(--fm-shell));
+}
+
+.fm-sizechart__title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.fm-sizechart__subtitle {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  color: rgba(var(--fm-ink), 0.6);
+}
+
+.fm-sizechart__close {
+  position: absolute;
+  top: 50%;
+  right: 1.6rem;
+  transform: translateY(-50%);
+  width: 4rem;
+  height: 4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.fm-sizechart__close svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+.fm-sizechart__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-height: calc(90vh - 8rem);
+  overflow-y: auto;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-sizechart__body--with-image {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+}
+
+.fm-sizechart__media {
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-sizechart__media {
+    display: block;
+    position: relative;
+    background-color: rgb(var(--fm-shell));
+  }
+
+  .fm-sizechart__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.fm-sizechart__content {
+  padding: 2.4rem;
+  font-size: 1.3rem;
+  line-height: 1.7;
+}
+
+.fm-sizechart__content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.6rem;
+}
+
+.fm-sizechart__content th,
+.fm-sizechart__content td {
+  border: 1px solid rgba(var(--fm-ink), 0.25);
+  padding: 0.8rem 1rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.fm-sizechart__content th {
+  font-weight: 600;
+}
+
+/* The table is the widest thing in here; let it scroll rather than clip. */
+.fm-sizechart__scroll {
+  overflow-x: auto;
+}
+
+@media screen and (max-width: 749px) {
+  .fm-sizechart__dialog {
+    width: 94vw;
+  }
+
+  .fm-sizechart__content {
+    padding: 1.6rem;
+  }
+}

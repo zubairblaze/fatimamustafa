@@ -199,6 +199,106 @@
               %}
             </div>
 
+          {%- when 'size_chart' -%}
+            <fm-size-chart class="fm-sizechart" {{ block.shopify_attributes }}>
+              <a class="fm-pdp__size-chart" href="#" data-fm-sizechart-open>
+                <span class="svg-wrapper">{{ 'icon-ruler.svg' | inline_asset_content }}</span>
+                {{ block.settings.link_text }}
+              </a>
+
+              <dialog class="fm-sizechart__dialog" aria-label="{{ block.settings.heading | escape }}">
+                <div class="fm-sizechart__head">
+                  <h2 class="fm-sizechart__title">{{ block.settings.heading }}</h2>
+                  {%- if block.settings.subheading != blank -%}
+                    <p class="fm-sizechart__subtitle">{{ block.settings.subheading }}</p>
+                  {%- endif -%}
+                  <button type="button" class="fm-sizechart__close" data-fm-sizechart-close>
+                    <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
+                    <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+                  </button>
+                </div>
+
+                <div class="fm-sizechart__body{% if block.settings.image != blank %} fm-sizechart__body--with-image{% endif %}">
+                  {%- if block.settings.image != blank -%}
+                    <div class="fm-sizechart__media">
+                      {{
+                        block.settings.image
+                        | image_url: width: 900
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '300, 500, 700, 900',
+                          sizes: '(min-width: 750px) 40vw, 90vw',
+                          alt: block.settings.image.alt
+                      }}
+                    </div>
+                  {%- endif -%}
+
+                  <div class="fm-sizechart__content">
+                    <div class="fm-sizechart__scroll rte">{{ block.settings.content }}</div>
+                    {%- if block.settings.note != blank -%}
+                      <div class="rte">{{ block.settings.note }}</div>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </dialog>
+            </fm-size-chart>
+
+          {%- when 'custom_order' -%}
+            {%- liquid
+              assign measure_lines = block.settings.fields | newline_to_br | split: '<br />'
+            -%}
+            <fm-custom-order class="fm-custom" {{ block.shopify_attributes }}>
+              <button
+                type="button"
+                class="fm-custom__toggle"
+                data-fm-custom-toggle
+                aria-pressed="false"
+                aria-controls="fm-custom-panel-{{ section.id }}"
+              >
+                {{ block.settings.toggle_text }}
+              </button>
+
+              <div class="fm-custom__panel" data-fm-custom-panel id="fm-custom-panel-{{ section.id }}" hidden>
+                {%- if block.settings.intro != blank -%}
+                  <p class="fm-custom__intro">{{ block.settings.intro }}</p>
+                {%- endif -%}
+
+                <fieldset class="fm-custom__grid">
+                  <legend class="visually-hidden">{{ block.settings.toggle_text }}</legend>
+
+                  {%- for line in measure_lines -%}
+                    {%- assign field_name = line | strip -%}
+                    {%- if field_name != blank -%}
+                      {%- assign field_id = 'fm-measure-' | append: section.id | append: '-' | append: forloop.index -%}
+                      <div class="fm-custom__field">
+                        <label for="{{ field_id }}">{{ field_name }}</label>
+                        <input
+                          type="text"
+                          id="{{ field_id }}"
+                          name="properties[{{ field_name | escape }}]"
+                          form="{{ product_form_id }}"
+                          inputmode="decimal"
+                          autocomplete="off"
+                          data-fm-required
+                        >
+                      </div>
+                    {%- endif -%}
+                  {%- endfor -%}
+
+                  {%- if block.settings.show_notes -%}
+                    <div class="fm-custom__field fm-custom__field--wide">
+                      <label for="fm-measure-notes-{{ section.id }}">{{ block.settings.notes_label }}</label>
+                      <textarea
+                        id="fm-measure-notes-{{ section.id }}"
+                        name="properties[{{ block.settings.notes_label | escape }}]"
+                        form="{{ product_form_id }}"
+                      ></textarea>
+                    </div>
+                  {%- endif -%}
+                </fieldset>
+              </div>
+            </fm-custom-order>
+
           {%- when 'quantity_selector' -%}
             <div {{ block.shopify_attributes }}>
               <label class="fm-pdp__row-label" for="Quantity-{{ section.id }}">
@@ -281,7 +381,11 @@
   "name": "FM Product",
   "tag": "section",
   "class": "fm-main-product-section",
-  "enabled_on": { "templates": ["product"] },
+  "enabled_on": {
+    "templates": [
+      "product"
+    ]
+  },
   "settings": [
     {
       "type": "checkbox",
@@ -294,8 +398,14 @@
       "id": "image_fit",
       "label": "Image fit",
       "options": [
-        { "value": "cover", "label": "Cover (fill and crop)" },
-        { "value": "contain", "label": "Contain (fit whole image)" }
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
       ],
       "default": "cover"
     },
@@ -326,9 +436,24 @@
       "name": "Title and stock",
       "limit": 1,
       "settings": [
-        { "type": "checkbox", "id": "show_stock", "label": "Show stock badge", "default": true },
-        { "type": "text", "id": "in_stock_text", "label": "In stock text", "default": "In Stock" },
-        { "type": "checkbox", "id": "show_sku", "label": "Show SKU", "default": true }
+        {
+          "type": "checkbox",
+          "id": "show_stock",
+          "label": "Show stock badge",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "in_stock_text",
+          "label": "In stock text",
+          "default": "In Stock"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sku",
+          "label": "Show SKU",
+          "default": true
+        }
       ]
     },
     {
@@ -336,16 +461,36 @@
       "name": "Price",
       "limit": 1,
       "settings": [
-        { "type": "text", "id": "label", "label": "Label", "default": "Price" },
-        { "type": "text", "id": "note", "label": "Note below price", "default": "Shipping calculated at checkout." }
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Price"
+        },
+        {
+          "type": "text",
+          "id": "note",
+          "label": "Note below price",
+          "default": "Shipping calculated at checkout."
+        }
       ]
     },
     {
       "type": "info_row",
       "name": "Info row",
       "settings": [
-        { "type": "text", "id": "label", "label": "Label", "default": "Shipping time" },
-        { "type": "text", "id": "value", "label": "Value", "default": "7-10 business days" }
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Shipping time"
+        },
+        {
+          "type": "text",
+          "id": "value",
+          "label": "Value",
+          "default": "7-10 business days"
+        }
       ]
     },
     {
@@ -358,8 +503,14 @@
           "id": "picker_type",
           "label": "Style",
           "options": [
-            { "value": "dropdown", "label": "Dropdown" },
-            { "value": "button", "label": "Pills" }
+            {
+              "value": "dropdown",
+              "label": "Dropdown"
+            },
+            {
+              "value": "button",
+              "label": "Pills"
+            }
           ],
           "default": "button"
         },
@@ -368,15 +519,38 @@
           "id": "swatch_shape",
           "label": "Swatch shape",
           "options": [
-            { "value": "circle", "label": "Circle" },
-            { "value": "square", "label": "Square" },
-            { "value": "none", "label": "None" }
+            {
+              "value": "circle",
+              "label": "Circle"
+            },
+            {
+              "value": "square",
+              "label": "Square"
+            },
+            {
+              "value": "none",
+              "label": "None"
+            }
           ],
           "default": "circle"
         },
-        { "type": "text", "id": "size_label", "label": "Size label", "default": "Size" },
-        { "type": "text", "id": "size_chart_text", "label": "Size chart link text", "default": "Size chart" },
-        { "type": "url", "id": "size_chart_url", "label": "Size chart link" }
+        {
+          "type": "text",
+          "id": "size_label",
+          "label": "Size label",
+          "default": "Size"
+        },
+        {
+          "type": "text",
+          "id": "size_chart_text",
+          "label": "Size chart link text",
+          "default": "Size chart"
+        },
+        {
+          "type": "url",
+          "id": "size_chart_url",
+          "label": "Size chart link"
+        }
       ]
     },
     {
@@ -390,11 +564,35 @@
       "name": "Buy buttons",
       "limit": 1,
       "settings": [
-        { "type": "checkbox", "id": "show_wishlist", "label": "Show wishlist button", "default": true },
-        { "type": "text", "id": "wishlist_text", "label": "Wishlist text", "default": "Add to wishlist" },
-        { "type": "url", "id": "wishlist_url", "label": "Wishlist link" },
-        { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout buttons", "default": false },
-        { "type": "checkbox", "id": "show_gift_card_recipient", "label": "Show gift card recipient form", "default": true }
+        {
+          "type": "checkbox",
+          "id": "show_wishlist",
+          "label": "Show wishlist button",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "wishlist_text",
+          "label": "Wishlist text",
+          "default": "Add to wishlist"
+        },
+        {
+          "type": "url",
+          "id": "wishlist_url",
+          "label": "Wishlist link"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Show dynamic checkout buttons",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "label": "Show gift card recipient form",
+          "default": true
+        }
       ]
     },
     {
@@ -402,17 +600,41 @@
       "name": "Description",
       "limit": 1,
       "settings": [
-        { "type": "text", "id": "label", "label": "Label", "default": "Description" },
-        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Description"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open by default",
+          "default": false
+        }
       ]
     },
     {
       "type": "collapsible",
       "name": "Collapsible row",
       "settings": [
-        { "type": "text", "id": "label", "label": "Label", "default": "Shipping and returns" },
-        { "type": "richtext", "id": "content", "label": "Content" },
-        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Shipping and returns"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open by default",
+          "default": false
+        }
       ]
     },
     {
@@ -420,10 +642,30 @@
       "name": "Product care panel",
       "limit": 1,
       "settings": [
-        { "type": "text", "id": "heading", "label": "Heading", "default": "Product Care" },
-        { "type": "text", "id": "fabric_label", "label": "Fabric label", "default": "Fabric" },
-        { "type": "text", "id": "fabric_text", "label": "Fabric text", "default": "Mix fabric. Handle with care while cleaning." },
-        { "type": "text", "id": "care_label", "label": "Care label", "default": "Care" },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Product Care"
+        },
+        {
+          "type": "text",
+          "id": "fabric_label",
+          "label": "Fabric label",
+          "default": "Fabric"
+        },
+        {
+          "type": "text",
+          "id": "fabric_text",
+          "label": "Fabric text",
+          "default": "Mix fabric. Handle with care while cleaning."
+        },
+        {
+          "type": "text",
+          "id": "care_label",
+          "label": "Care label",
+          "default": "Care"
+        },
         {
           "type": "textarea",
           "id": "care_list",
@@ -432,20 +674,117 @@
           "default": "Dry clean only\nCan be ironed on low heat\nDo not use bleach"
         }
       ]
+    },
+    {
+      "type": "size_chart",
+      "name": "Size chart",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link text",
+          "default": "Size Chart"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Popup heading",
+          "default": "Size Charts"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Popup subheading"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Shown beside the chart on desktop only."
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Chart content",
+          "info": "Paste a table here, or use an image above.",
+          "default": "<p>Add your measurement table here.</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "note",
+          "label": "Note below the chart",
+          "default": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment size.</p>"
+        }
+      ]
+    },
+    {
+      "type": "custom_order",
+      "name": "Custom order",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "toggle_text",
+          "label": "Button text",
+          "default": "Custom Order"
+        },
+        {
+          "type": "text",
+          "id": "intro",
+          "label": "Intro text",
+          "default": "Not finding your size? Give us your measurements in inches and we will make it to order."
+        },
+        {
+          "type": "textarea",
+          "id": "fields",
+          "label": "Measurement fields",
+          "info": "One per line. Each becomes a line item property on the order.",
+          "default": "Shoulder\nSleeve length\nBust\nBottom length\nWaist\nCalf\nHip\nThighs\nTop length\nAnkle"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_notes",
+          "label": "Show a notes field",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "notes_label",
+          "label": "Notes label",
+          "default": "Notes"
+        }
+      ]
     }
   ],
   "presets": [
     {
       "name": "FM Product",
       "blocks": [
-        { "type": "care" },
-        { "type": "title" },
-        { "type": "price" },
-        { "type": "info_row" },
-        { "type": "variant_picker" },
-        { "type": "quantity_selector" },
-        { "type": "buy_buttons" },
-        { "type": "description" }
+        {
+          "type": "care"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "info_row"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "quantity_selector"
+        },
+        {
+          "type": "buy_buttons"
+        },
+        {
+          "type": "description"
+        }
       ]
     }
   ]

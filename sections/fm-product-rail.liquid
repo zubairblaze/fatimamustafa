@@ -23,11 +23,26 @@
 {%- liquid
   assign limit = section.settings.products_to_show
 
+  comment
+    The product's own collection: prefer the one the shopper arrived through,
+    else the product's first. Shopify's recommendations need an index that a
+    new or small catalogue may not have yet, so this is the dependable source.
+  endcomment
+  assign own_collection = collection
+  if own_collection == blank or own_collection.products.size == 0
+    assign own_collection = product.collections.first
+  endif
+
   case section.settings.source
     when 'collection'
       assign rail_products = section.settings.collection.products
+    when 'product_collection'
+      assign rail_products = own_collection.products
     when 'recommendations'
       assign rail_products = recommendations.products
+      if rail_products.size == 0 and section.settings.fallback_to_collection
+        assign rail_products = own_collection.products
+      endif
     when 'recently_viewed'
       assign rail_products = search.results
     else
@@ -43,17 +58,22 @@
 
 {%- capture rail_items -%}
   {%- if rail_products != blank -%}
-    {%- for product in rail_products limit: limit -%}
-      <li class="fm-trending__item">
-        {% render 'fm-product-card',
-          product: product,
-          image_ratio: section.settings.image_ratio,
-          show_vendor: section.settings.show_vendor,
-          show_secondary: section.settings.show_secondary_image,
-          new_badge_label: section.settings.new_badge_label,
-          index: forloop.index
-        %}
-      </li>
+    {%- assign current_id = product.id -%}
+    {%- assign shown = 0 -%}
+    {%- for rail_product in rail_products -%}
+      {%- if rail_product.id != current_id and shown < limit -%}
+        {%- assign shown = shown | plus: 1 -%}
+        <li class="fm-trending__item">
+          {% render 'fm-product-card',
+            product: rail_product,
+            image_ratio: section.settings.image_ratio,
+            show_vendor: section.settings.show_vendor,
+            show_secondary: section.settings.show_secondary_image,
+            new_badge_label: section.settings.new_badge_label,
+            index: forloop.index
+          %}
+        </li>
+      {%- endif -%}
     {%- endfor -%}
   {%- endif -%}
 {%- endcapture -%}
@@ -130,7 +150,12 @@
   "name": "FM Product Rail",
   "tag": "section",
   "class": "fm-product-rail-section",
-  "disabled_on": { "groups": ["header", "footer"] },
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
   "settings": [
     {
       "type": "text",
@@ -143,11 +168,24 @@
       "id": "source",
       "label": "Products from",
       "options": [
-        { "value": "recommendations", "label": "Shopify recommendations" },
-        { "value": "collection", "label": "A collection" },
-        { "value": "recently_viewed", "label": "Recently viewed" }
+        {
+          "value": "product_collection",
+          "label": "This product's collection"
+        },
+        {
+          "value": "recommendations",
+          "label": "Shopify recommendations"
+        },
+        {
+          "value": "collection",
+          "label": "A specific collection"
+        },
+        {
+          "value": "recently_viewed",
+          "label": "Recently viewed"
+        }
       ],
-      "default": "recommendations"
+      "default": "product_collection"
     },
     {
       "type": "select",
@@ -155,10 +193,23 @@
       "label": "Recommendation type",
       "info": "Used when the source is Shopify recommendations.",
       "options": [
-        { "value": "related", "label": "Related products" },
-        { "value": "complementary", "label": "Often bought together" }
+        {
+          "value": "related",
+          "label": "Related products"
+        },
+        {
+          "value": "complementary",
+          "label": "Often bought together"
+        }
       ],
       "default": "related"
+    },
+    {
+      "type": "checkbox",
+      "id": "fallback_to_collection",
+      "label": "Fall back to this product's collection",
+      "info": "Used when Shopify returns no recommendations.",
+      "default": true
     },
     {
       "type": "collection",
@@ -180,9 +231,18 @@
       "id": "image_ratio",
       "label": "Image shape",
       "options": [
-        { "value": "square", "label": "Square" },
-        { "value": "portrait", "label": "Portrait" },
-        { "value": "tall", "label": "Tall" }
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "tall",
+          "label": "Tall"
+        }
       ],
       "default": "portrait"
     },
@@ -191,8 +251,14 @@
       "id": "image_fit",
       "label": "Image fit",
       "options": [
-        { "value": "cover", "label": "Cover (fill and crop)" },
-        { "value": "contain", "label": "Contain (fit whole image)" }
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
       ],
       "default": "cover"
     },
