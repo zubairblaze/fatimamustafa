@@ -587,13 +587,77 @@
     position: relative;
     background-color: rgb(var(--fm-shell));
   }
+}
 
-  .fm-sizechart__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+/* --- Chart gallery: the product's own images, desktop only ----------------- */
+
+.fm-sizechart__gallery {
+  position: relative;
+  display: block;
+  height: 100%;
+}
+
+.fm-sizechart__slides {
+  height: 100%;
+  gap: 0;
+  scroll-snap-type: x mandatory;
+}
+
+.fm-sizechart__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: start;
+}
+
+.fm-sizechart__slide img {
+  width: 100%;
+  height: 100%;
+  min-height: 40rem;
+  object-fit: cover;
+  display: block;
+}
+
+.fm-sizechart__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3.6rem;
+  height: 4.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.fm-sizechart__nav:hover:not([disabled]) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.fm-sizechart__nav[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.fm-sizechart__nav svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.fm-sizechart__nav--prev {
+  left: 0;
+}
+
+.fm-sizechart__nav--prev svg {
+  transform: rotate(180deg);
+}
+
+.fm-sizechart__nav--next {
+  right: 0;
 }
 
 .fm-sizechart__content {
@@ -608,8 +672,11 @@
   margin: 0 0 1.6rem;
 }
 
-.fm-sizechart__content th,
-.fm-sizechart__content td {
+/* Dawn's base.css styles bare tables through `table:not([class]) td`, which
+   outweighs a single class plus an element. Qualifying with `table` matches
+   that weight, and this sheet loads later, so the chart keeps its own grid. */
+.fm-sizechart__content table th,
+.fm-sizechart__content table td {
   border: 1px solid rgba(var(--fm-ink), 0.25);
   padding: 0.8rem 1rem;
   text-align: center;
@@ -617,8 +684,9 @@
   font-weight: 400;
 }
 
-.fm-sizechart__content th {
+.fm-sizechart__content table th {
   font-weight: 600;
+  background-color: rgba(var(--fm-ink), 0.04);
 }
 
 /* The table is the widest thing in here; let it scroll rather than clip. */

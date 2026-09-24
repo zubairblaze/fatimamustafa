@@ -28,6 +28,7 @@ if (!customElements.get('fm-scroller')) {
       if (this.next) this.next.addEventListener('click', () => this.scrollByPage(1));
 
       this.bindDrag();
+      this.bindAutoplay();
 
       this.resizeObserver = new ResizeObserver(() => this.syncArrows());
       this.resizeObserver.observe(this.track);
@@ -38,6 +39,37 @@ if (!customElements.get('fm-scroller')) {
     disconnectedCallback() {
       if (this.track) this.track.removeEventListener('scroll', this.onScroll);
       if (this.resizeObserver) this.resizeObserver.disconnect();
+      this.stopAutoplay();
+    }
+
+    /** Opt-in rotation, for scrollers used as a slideshow rather than a rail. */
+    bindAutoplay() {
+      this.autoplayMs = parseInt(this.dataset.fmAutoplay, 10) || 0;
+      if (!this.autoplayMs) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      this.addEventListener('mouseenter', () => this.stopAutoplay());
+      this.addEventListener('mouseleave', () => this.startAutoplay());
+      this.addEventListener('focusin', () => this.stopAutoplay());
+      this.addEventListener('focusout', () => this.startAutoplay());
+      this.startAutoplay();
+    }
+
+    startAutoplay() {
+      if (!this.autoplayMs || this.autoplayTimer) return;
+      this.autoplayTimer = setInterval(() => {
+        const max = this.track.scrollWidth - this.track.clientWidth;
+        if (max <= 1) return;
+        // Wrap round rather than stalling at the end.
+        if (this.track.scrollLeft >= max - 1) this.track.scrollTo({ left: 0, behavior: 'smooth' });
+        else this.scrollByPage(1);
+      }, this.autoplayMs);
+    }
+
+    stopAutoplay() {
+      if (!this.autoplayTimer) return;
+      clearInterval(this.autoplayTimer);
+      this.autoplayTimer = null;
     }
 
     /**

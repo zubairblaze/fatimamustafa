@@ -76,7 +76,9 @@
             "heading": "",
             "subheading": "Size Charts",
             "note": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment (merchandise) size.</p>",
-            "content": ""
+            "content": "",
+            "show_gallery": true,
+            "autorotate_speed": 4
           }
         },
         "custom_order": {

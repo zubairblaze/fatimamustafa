@@ -210,14 +210,24 @@
               assign chart = product.metafields[ns][block.settings.metafield_key]
 
               assign chart_content = block.settings.content
+              assign chart_richtext = nil
               assign chart_image = block.settings.image
 
+              comment
+                Each metafield type needs its own handling. A rich_text_field
+                holds a JSON document, so assigning the drop and printing it
+                emits that JSON verbatim - it has to go through metafield_tag.
+                Text types are printed as .value so a pasted HTML table renders
+                as markup rather than as escaped text.
+              endcomment
               if chart.type == 'page_reference'
                 assign chart_content = chart.value.content
               elsif chart.type == 'file_reference'
                 assign chart_image = chart.value
+              elsif chart.type == 'rich_text_field'
+                assign chart_richtext = chart
               elsif chart.type != blank
-                assign chart_content = chart
+                assign chart_content = chart.value
               endif
 
               if block.settings.image_metafield_key != blank
@@ -233,8 +243,33 @@
               endif
 
               assign has_chart = false
-              if chart_content != blank or chart_image != blank
+              if chart_content != blank or chart_image != blank or chart_richtext != nil
                 assign has_chart = true
+              endif
+
+              assign media_count = 0
+              for media in product.media
+                if media.media_type == 'image'
+                  assign media_count = media_count | plus: 1
+                endif
+              endfor
+              if chart_image != blank
+                assign media_count = media_count | plus: 1
+              endif
+
+              assign show_gallery = true
+              if block.settings.show_gallery == false
+                assign show_gallery = false
+              endif
+
+              assign rotate_secs = block.settings.autorotate_speed
+              if rotate_secs == nil
+                assign rotate_secs = 4
+              endif
+
+              assign has_media = false
+              if media_count > 0 and show_gallery
+                assign has_media = true
               endif
             -%}
 
@@ -257,23 +292,68 @@
                     </button>
                   </div>
 
-                  <div class="fm-sizechart__body{% if chart_image != blank %} fm-sizechart__body--with-image{% endif %}">
-                    {%- if chart_image != blank -%}
+                  <div class="fm-sizechart__body{% if has_media %} fm-sizechart__body--with-image{% endif %}">
+                    {%- if has_media -%}
+                      {%- comment -%}
+                        The product's own images, as a swipeable auto-rotating
+                        carousel. Hidden below 750px, where the reference shows
+                        the table alone.
+                      {%- endcomment -%}
                       <div class="fm-sizechart__media">
-                        {{
-                          chart_image
-                          | image_url: width: 900
-                          | image_tag:
-                            loading: 'lazy',
-                            widths: '300, 500, 700, 900',
-                            sizes: '(min-width: 750px) 40vw, 90vw',
-                            alt: chart_heading
-                        }}
+                        <fm-scroller
+                          class="fm-sizechart__gallery"
+                          {% if rotate_secs > 0 %}
+                            data-fm-autoplay="{{ rotate_secs | times: 1000 }}"
+                          {% endif %}
+                        >
+                          <ul class="fm-scroller fm-sizechart__slides" data-fm-track role="list">
+                            {%- if chart_image != blank -%}
+                              <li class="fm-sizechart__slide">
+                                {{
+                                  chart_image
+                                  | image_url: width: 900
+                                  | image_tag:
+                                    loading: 'lazy',
+                                    widths: '300, 500, 700, 900',
+                                    sizes: '40vw',
+                                    alt: chart_heading
+                                }}
+                              </li>
+                            {%- endif -%}
+
+                            {%- for media in product.media -%}
+                              {%- if media.media_type == 'image' -%}
+                                <li class="fm-sizechart__slide">
+                                  {{
+                                    media.preview_image
+                                    | image_url: width: 900
+                                    | image_tag:
+                                      loading: 'lazy',
+                                      widths: '300, 500, 700, 900',
+                                      sizes: '40vw',
+                                      alt: media.alt
+                                  }}
+                                </li>
+                              {%- endif -%}
+                            {%- endfor -%}
+                          </ul>
+
+                          {%- if media_count > 1 -%}
+                            <button type="button" class="fm-sizechart__nav fm-sizechart__nav--prev" data-fm-prev aria-label="{{ 'general.slider.previous_slide' | t }}">
+                              {% render 'fm-arrow-icon' %}
+                            </button>
+                            <button type="button" class="fm-sizechart__nav fm-sizechart__nav--next" data-fm-next aria-label="{{ 'general.slider.next_slide' | t }}">
+                              {% render 'fm-arrow-icon' %}
+                            </button>
+                          {%- endif -%}
+                        </fm-scroller>
                       </div>
                     {%- endif -%}
 
                     <div class="fm-sizechart__content">
-                      {%- if chart_content != blank -%}
+                      {%- if chart_richtext != nil -%}
+                        <div class="fm-sizechart__scroll rte">{{ chart_richtext | metafield_tag }}</div>
+                      {%- elsif chart_content != blank -%}
                         <div class="fm-sizechart__scroll rte">{{ chart_content }}</div>
                       {%- endif -%}
                       {%- if block.settings.note != blank -%}
@@ -927,9 +1007,28 @@
           "content": "Used only for products with no metafield set. Leave empty to hide the link on those products."
         },
         {
+          "type": "checkbox",
+          "id": "show_gallery",
+          "label": "Show product images beside the chart",
+          "info": "Desktop only.",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "autorotate_speed",
+          "min": 0,
+          "max": 12,
+          "step": 1,
+          "unit": "s",
+          "label": "Auto-rotate every",
+          "info": "0 turns rotation off.",
+          "default": 4
+        },
+        {
           "type": "image_picker",
           "id": "image",
-          "label": "Fallback image"
+          "label": "Extra image",
+          "info": "Optional. Shown first in the carousel, before the product's own images."
         },
         {
           "type": "richtext",
