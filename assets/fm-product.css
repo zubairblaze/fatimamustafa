@@ -156,23 +156,29 @@ body:has(.fm-header) .fm-crumbs {
 /* --- Gallery --------------------------------------------------------------- */
 
 .fm-gallery__main {
-  position: relative;
-  overflow: hidden;
-  background-color: rgba(var(--fm-ink), 0.03);
-  aspect-ratio: 3 / 4;
+  display: flex;
 }
 
-/* Every image stacked in one frame-sized scroller; the wheel or a swipe moves
-   one image at a time. Once the last image is reached, the page carries on
-   scrolling as usual. */
+/* Every image stacked in one frame-sized scroller. fm-product.js glides one
+   image per wheel notch; touch swipes snap. Once the last image is reached,
+   the page carries on scrolling as usual. */
 .fm-gallery__track {
   position: relative;
-  height: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  aspect-ratio: 3 / 4;
   overflow-y: auto;
   overscroll-behavior-y: auto;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  background-color: rgba(var(--fm-ink), 0.03);
+}
+
+/* Switched off while the script animates a scroll, so snapping doesn't fight
+   the glide. */
+.fm-gallery__track.is-gliding {
+  scroll-snap-type: none;
 }
 
 .fm-gallery__track::-webkit-scrollbar {
@@ -198,18 +204,23 @@ body:has(.fm-header) .fm-crumbs {
   display: block;
 }
 
+.fm-gallery__main > svg {
+  aspect-ratio: 3 / 4;
+  background-color: rgba(var(--fm-ink), 0.03);
+}
+
 .fm-gallery--contain .fm-gallery__main img {
   object-fit: contain;
 }
 
-/* Scroll progress: a thin black bar on the right edge, sized to one image and
-   moved with the scroller by fm-product.js. */
+/* Scroll progress: a black bar in its own strip beside the images, one
+   image's share of the strip tall, moved with the scroller by fm-product.js.
+   Kept off the photo so it reads on dark and light images alike. */
 .fm-gallery__progress {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 0.3rem;
+  position: relative;
+  flex: 0 0 0.6rem;
+  overflow: hidden;
+  background-color: rgba(var(--fm-ink), 0.08);
   pointer-events: none;
 }
 
