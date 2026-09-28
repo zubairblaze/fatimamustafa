@@ -1,0 +1,72 @@
+{%- comment -%}
+  FM add-ons checklist: paid extras (dupattas and the like) a customer can tick
+  before adding the product to the cart. Shared by the Add-ons block in the FM
+  Product section and the standalone Product add-ons section.
+
+  Add-ons are real product variants, so their price reaches the cart total and
+  the order. Each product lists the variants it offers in a "List of product
+  variants" metafield; the price shown is the variant's own. product-form.js
+  finds ticked add-ons by product id and adds each as its own cart line.
+
+  Accepts:
+  - product {Object}: the product being viewed
+  - namespace {String}: metafield namespace (default 'custom')
+  - key {String}: metafield key (default 'addons')
+  - heading {String}: optional heading above the checklist
+  - columns {Number}: optional fixed column count on desktop (default: fit)
+  - attributes {String}: optional extra attributes (theme editor hooks)
+
+  Usage:
+  {% render 'fm-product-addons', product: product, heading: block.settings.heading %}
+{%- endcomment -%}
+
+{%- liquid
+  assign ns = namespace | default: 'custom'
+  assign addons_key = key | default: 'addons'
+  assign addon_variants = product.metafields[ns][addons_key].value
+-%}
+
+{%- if addon_variants != blank -%}
+  <fieldset
+    class="fm-addons{% if columns %} fm-addons--cols-{{ columns }}{% endif %}"
+    data-fm-addons-product="{{ product.id }}"
+    data-fm-addons-for="{{ product.title | escape }}"
+    {{ attributes }}
+  >
+    {%- if heading != blank -%}
+      <legend class="fm-addons__heading">{{ heading | escape }}</legend>
+    {%- endif -%}
+    <div class="fm-addons__list">
+      {%- for addon in addon_variants -%}
+        {%- liquid
+          if addon.product.has_only_default_variant
+            assign addon_label = addon.product.title
+          else
+            assign addon_label = addon.title
+          endif
+        -%}
+        <label class="fm-addons__option{% unless addon.available %} fm-addons__option--unavailable{% endunless %}">
+          <input
+            type="checkbox"
+            class="fm-addons__input"
+            value="{{ addon.id }}"
+            data-fm-addon
+            {% unless addon.available %}
+              disabled
+            {% endunless %}
+          >
+          <span class="fm-addons__text">
+            {{ addon_label | escape }}
+            <span class="fm-addons__price">
+              {%- if addon.available -%}
+                (+{{ addon.price | money }})
+              {%- else -%}
+                ({{ 'products.product.sold_out' | t }})
+              {%- endif -%}
+            </span>
+          </span>
+        </label>
+      {%- endfor -%}
+    </div>
+  </fieldset>
+{%- endif -%}

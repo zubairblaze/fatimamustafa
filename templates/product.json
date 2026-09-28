@@ -108,14 +108,6 @@
             "submit_text": "Send custom order request",
             "success_text": "Thank you — we have your measurements and will be in touch shortly."
           }
-        },
-        "addons": {
-          "type": "addons",
-          "settings": {
-            "heading": "Include an Add-on of:",
-            "metafield_namespace": "custom",
-            "metafield_key": "addons"
-          }
         }
       },
       "block_order": [
@@ -126,7 +118,6 @@
         "size_chart",
         "variants",
         "custom_order",
-        "addons",
         "quantity",
         "buy",
         "description"
@@ -135,6 +126,19 @@
         "show_breadcrumbs": true,
         "image_fit": "cover",
         "padding_top": 12,
+        "padding_bottom": 24
+      }
+    },
+    "fm_addons": {
+      "type": "fm-product-addons",
+      "settings": {
+        "heading": "Include an Add-on of:",
+        "columns": "auto",
+        "width": "medium",
+        "alignment": "right",
+        "metafield_namespace": "custom",
+        "metafield_key": "addons",
+        "padding_top": 0,
         "padding_bottom": 24
       }
     },
@@ -160,6 +164,7 @@
   },
   "order": [
     "fm_product",
+    "fm_addons",
     "fm_similar"
   ]
 }

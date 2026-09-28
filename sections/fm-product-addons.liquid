@@ -1,0 +1,162 @@
+{%- comment -%}
+  FM Product add-ons: the paid add-ons checklist as a section of its own, so it
+  can be placed, moved or removed on the product template from the theme
+  editor. Ticked add-ons are added to the cart with the product by the page's
+  Add to cart button (product-form.js matches them by product id).
+{%- endcomment -%}
+
+{{ 'fm-product.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign ns = section.settings.metafield_namespace | default: 'custom'
+  assign addons_key = section.settings.metafield_key | default: 'addons'
+  assign has_addons = false
+  if product.metafields[ns][addons_key].value != blank
+    assign has_addons = true
+  endif
+
+  assign columns = nil
+  if section.settings.columns != 'auto'
+    assign columns = section.settings.columns
+  endif
+-%}
+
+{%- if has_addons or request.design_mode -%}
+  <div class="fm-addons-section">
+    <div class="fm-addons-section__inner fm-addons-section__inner--{{ section.settings.width }} fm-addons-section__inner--{{ section.settings.alignment }}">
+      {%- if has_addons -%}
+        {% render 'fm-product-addons',
+          product: product,
+          namespace: ns,
+          key: addons_key,
+          heading: section.settings.heading,
+          columns: columns
+        %}
+      {%- else -%}
+        <p class="fm-addons-section__empty">
+          No add-ons for this product yet. Pick them in the product's
+          "{{ ns }}.{{ addons_key }}" metafield in the Shopify admin. Customers
+          don't see this note.
+        </p>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "FM Product add-ons",
+  "tag": "section",
+  "class": "section fm-addons-shell",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "A checklist of paid add-ons for the product. Each add-on is a product variant with its own price, picked per product in a 'List of product variants' metafield. Ticked add-ons go into the cart with the product when the customer clicks Add to cart. Hidden on products with no add-ons."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Include an Add-on of:"
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Columns on desktop",
+      "options": [
+        { "value": "auto", "label": "Fit to width" },
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "options": [
+        { "value": "narrow", "label": "Narrow" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "full", "label": "Full page width" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Centre" },
+        { "value": "right", "label": "Right (under the buy column)" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "header",
+      "content": "Data source"
+    },
+    {
+      "type": "text",
+      "id": "metafield_namespace",
+      "label": "Metafield namespace",
+      "default": "custom"
+    },
+    {
+      "type": "text",
+      "id": "metafield_key",
+      "label": "Add-ons metafield key",
+      "info": "A 'List of product variants' product metafield.",
+      "default": "addons"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Product add-ons"
+    }
+  ]
+}
+{% endschema %}
