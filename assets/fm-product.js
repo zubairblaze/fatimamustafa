@@ -7,29 +7,133 @@
 
 /* ----------------------------------------------------------------- gallery */
 
+/*
+ * The main image is a vertical scroller with one image per frame. Scrolling
+ * it (wheel, swipe, keyboard) moves the progress bar and highlights the
+ * matching thumbnail; clicking a thumbnail scrolls to its image.
+ */
 if (!customElements.get('fm-gallery')) {
   class FmGallery extends HTMLElement {
     connectedCallback() {
-      this.main = this.querySelector('.fm-gallery__main img');
+      if (this.bound) return;
+
+      this.track = this.querySelector('[data-fm-track]');
+      this.slides = Array.from(this.querySelectorAll('[data-fm-slide]'));
+      this.bar = this.querySelector('[data-fm-progress]');
+      this.thumbList = this.querySelector('[data-fm-thumbs]');
       this.thumbs = Array.from(this.querySelectorAll('[data-fm-thumb]'));
-      if (!this.main || this.thumbs.length < 2) return;
+      if (!this.track || this.slides.length < 2) return;
+
+      this.bound = true;
+      this.current = 0;
+      this.target = null;
+      this.frame = null;
 
       this.thumbs.forEach((thumb, index) => {
         thumb.addEventListener('click', () => this.show(index));
       });
+
+      this.track.addEventListener('scroll', () => this.schedule(), { passive: true });
+      this.track.addEventListener('wheel', (event) => this.onWheel(event), { passive: false });
+
+      // The frame height follows the column width, so recompute on resize.
+      if ('ResizeObserver' in window) {
+        new ResizeObserver(() => this.schedule()).observe(this.track);
+      }
+
+      this.update();
+    }
+
+    schedule() {
+      if (this.frame) return;
+      this.frame = requestAnimationFrame(() => {
+        this.frame = null;
+        this.update();
+      });
+    }
+
+    update() {
+      const { scrollTop, scrollHeight, clientHeight } = this.track;
+      if (!scrollHeight || !clientHeight) return;
+
+      // Bar length is one frame's share of the whole strip; it travels the
+      // track's full height as the strip scrolls.
+      if (this.bar) {
+        const size = clientHeight / scrollHeight;
+        const offset = scrollTop / clientHeight;
+        this.bar.style.setProperty('--fm-progress-size', `${size * 100}%`);
+        this.bar.style.setProperty('--fm-progress-offset', `${offset * 100}%`);
+      }
+
+      const index = Math.min(this.slides.length - 1, Math.max(0, Math.round(scrollTop / clientHeight)));
+
+      // While a thumbnail click is scrolling, keep its thumbnail lit rather
+      // than flicking through every image on the way.
+      if (this.target !== null) {
+        if (index !== this.target) return;
+        this.target = null;
+      }
+      if (index !== this.current) this.setCurrent(index);
+    }
+
+    /**
+     * One wheel gesture moves exactly one image. Left to the browser, a short
+     * wheel turn can snap straight back to the same image. On the first or
+     * last image the event is left alone, so the page scrolls on as normal.
+     */
+    onWheel(event) {
+      if (event.ctrlKey || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+      const next = this.current + Math.sign(event.deltaY);
+      if (next < 0 || next >= this.slides.length) return;
+
+      event.preventDefault();
+
+      // A trackpad swipe fires a long burst of wheel events and keeps going
+      // with momentum. Count the burst once: stay locked until the wheel has
+      // been quiet for a moment, and for at least one image's scroll.
+      const locked = this.wheelLocked;
+      this.wheelLocked = true;
+      clearTimeout(this.wheelTimer);
+      this.wheelTimer = setTimeout(() => {
+        this.wheelLocked = false;
+      }, locked ? 200 : 450);
+      if (locked) return;
+
+      this.show(next);
     }
 
     show(index) {
-      const thumb = this.thumbs[index];
-      const full = thumb.dataset.full;
-      if (!full) return;
+      const slide = this.slides[index];
+      if (!slide) return;
 
-      // srcset would otherwise keep winning over the new src.
-      this.main.removeAttribute('srcset');
-      this.main.src = full;
-      this.main.alt = thumb.dataset.alt || '';
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.target = index;
+      clearTimeout(this.targetTimer);
+      // If the scroll is interrupted short of the image, stop waiting for it.
+      this.targetTimer = setTimeout(() => {
+        this.target = null;
+        this.schedule();
+      }, 1000);
 
+      this.track.scrollTo({ top: slide.offsetTop, behavior: reduceMotion ? 'auto' : 'smooth' });
+      this.setCurrent(index);
+    }
+
+    setCurrent(index) {
+      this.current = index;
       this.thumbs.forEach((t, i) => t.setAttribute('aria-current', i === index ? 'true' : 'false'));
+
+      // Keep the active thumbnail in view without scrolling the page itself.
+      const thumb = this.thumbs[index];
+      if (!thumb || !this.thumbList) return;
+      const item = thumb.parentElement;
+      const list = this.thumbList;
+      if (item.offsetLeft < list.scrollLeft) {
+        list.scrollLeft = item.offsetLeft;
+      } else if (item.offsetLeft + item.offsetWidth > list.scrollLeft + list.clientWidth) {
+        list.scrollLeft = item.offsetLeft + item.offsetWidth - list.clientWidth;
+      }
     }
   }
 

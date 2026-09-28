@@ -162,7 +162,36 @@ body:has(.fm-header) .fm-crumbs {
   aspect-ratio: 3 / 4;
 }
 
-.fm-gallery__main img {
+/* Every image stacked in one frame-sized scroller; the wheel or a swipe moves
+   one image at a time. Once the last image is reached, the page carries on
+   scrolling as usual. */
+.fm-gallery__track {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fm-gallery__track::-webkit-scrollbar {
+  display: none;
+}
+
+.fm-gallery__track:focus-visible {
+  outline: 2px solid rgb(var(--fm-ink));
+  outline-offset: -2px;
+}
+
+.fm-gallery__slide {
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.fm-gallery__main img,
+.fm-gallery__main svg {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -173,7 +202,29 @@ body:has(.fm-header) .fm-crumbs {
   object-fit: contain;
 }
 
+/* Scroll progress: a thin black bar on the right edge, sized to one image and
+   moved with the scroller by fm-product.js. */
+.fm-gallery__progress {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0.3rem;
+  pointer-events: none;
+}
+
+.fm-gallery__progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--fm-progress-size, 100%);
+  background-color: rgb(var(--fm-ink));
+  transform: translateY(var(--fm-progress-offset, 0%));
+}
+
 .fm-gallery__thumbs {
+  position: relative;
   display: flex;
   gap: 0.8rem;
   margin-top: 0.8rem;
