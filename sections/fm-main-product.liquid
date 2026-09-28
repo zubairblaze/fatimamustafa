@@ -394,6 +394,63 @@
               </fm-custom-order>
             {%- endif -%}
 
+          {%- when 'addons' -%}
+            {%- liquid
+              comment
+                Add-ons are real product variants, so their price reaches the
+                cart total and the order. Each product lists the variants it
+                offers in a variant-list metafield; the price shown is the
+                variant's own. Ticked add-ons go into the cart as their own
+                lines alongside the product (see product-form.js).
+              endcomment
+              assign ns = block.settings.metafield_namespace | default: 'custom'
+              assign addons_key = block.settings.metafield_key | default: 'addons'
+              assign addon_variants = product.metafields[ns][addons_key].value
+            -%}
+
+            {%- if addon_variants != blank -%}
+              <fieldset
+                class="fm-addons"
+                data-fm-addons="{{ product_form_id }}"
+                data-fm-addons-for="{{ product.title | escape }}"
+                {{ block.shopify_attributes }}
+              >
+                <legend class="fm-addons__heading">{{ block.settings.heading }}</legend>
+                <div class="fm-addons__list">
+                  {%- for addon in addon_variants -%}
+                    {%- liquid
+                      if addon.product.has_only_default_variant
+                        assign addon_label = addon.product.title
+                      else
+                        assign addon_label = addon.title
+                      endif
+                    -%}
+                    <label class="fm-addons__option{% unless addon.available %} fm-addons__option--unavailable{% endunless %}">
+                      <input
+                        type="checkbox"
+                        class="fm-addons__input"
+                        value="{{ addon.id }}"
+                        data-fm-addon
+                        {% unless addon.available %}
+                          disabled
+                        {% endunless %}
+                      >
+                      <span class="fm-addons__text">
+                        {{ addon_label | escape }}
+                        <span class="fm-addons__price">
+                          {%- if addon.available -%}
+                            (+{{ addon.price | money }})
+                          {%- else -%}
+                            ({{ 'products.product.sold_out' | t }})
+                          {%- endif -%}
+                        </span>
+                      </span>
+                    </label>
+                  {%- endfor -%}
+                </div>
+              </fieldset>
+            {%- endif -%}
+
           {%- when 'quantity_selector' -%}
             <div {{ block.shopify_attributes }}>
               <label class="fm-pdp__row-label" for="Quantity-{{ section.id }}">
@@ -1073,6 +1130,36 @@
           "id": "fields_metafield_key",
           "label": "Field list metafield key",
           "info": "Optional. A multi-line text metafield overriding the list above for that product."
+        }
+      ]
+    },
+    {
+      "type": "addons",
+      "name": "Add-ons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Shows a checklist of paid add-ons. Each add-on is a product variant and carries its own price. List the variants a product offers in a 'List of product variants' product metafield. The block stays hidden on products whose metafield is empty."
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Include an Add-on of:"
+        },
+        {
+          "type": "text",
+          "id": "metafield_namespace",
+          "label": "Metafield namespace",
+          "default": "custom"
+        },
+        {
+          "type": "text",
+          "id": "metafield_key",
+          "label": "Add-ons metafield key",
+          "info": "A 'List of product variants' product metafield.",
+          "default": "addons"
         }
       ]
     }

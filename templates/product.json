@@ -106,7 +106,15 @@
             "name_label": "Your name",
             "email_label": "Your email",
             "submit_text": "Send custom order request",
-            "success_text": "Thank you \u2014 we have your measurements and will be in touch shortly."
+            "success_text": "Thank you — we have your measurements and will be in touch shortly."
+          }
+        },
+        "addons": {
+          "type": "addons",
+          "settings": {
+            "heading": "Include an Add-on of:",
+            "metafield_namespace": "custom",
+            "metafield_key": "addons"
           }
         }
       },
@@ -118,6 +126,7 @@
         "size_chart",
         "variants",
         "custom_order",
+        "addons",
         "quantity",
         "buy",
         "description"
