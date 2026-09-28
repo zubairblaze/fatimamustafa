@@ -872,3 +872,63 @@ body:has(.fm-header) .fm-crumbs {
 .fm-custom__error {
   color: #8c2b2b;
 }
+
+/* --- Add-ons ------------------------------------------------------------------
+   A checklist of paid extras (dupattas and the like). Several can be ticked;
+   product-form.js adds each ticked one to the cart as its own line. */
+
+.fm-addons {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.fm-addons__heading {
+  padding: 0;
+  margin-bottom: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+  color: rgb(var(--fm-ink));
+}
+
+.fm-addons__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1.2rem 2rem;
+}
+
+.fm-addons__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: rgb(var(--fm-ink));
+  cursor: pointer;
+}
+
+.fm-addons__input {
+  flex: 0 0 auto;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: 0.25rem 0 0;
+  accent-color: rgb(var(--fm-ink));
+  cursor: pointer;
+}
+
+.fm-addons__price {
+  white-space: nowrap;
+  color: rgba(var(--fm-ink), 0.7);
+}
+
+.fm-addons__option--unavailable {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.fm-addons__option--unavailable .fm-addons__input {
+  cursor: not-allowed;
+}
