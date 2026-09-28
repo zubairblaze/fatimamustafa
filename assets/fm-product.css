@@ -932,3 +932,42 @@ body:has(.fm-header) .fm-crumbs {
 .fm-addons__option--unavailable .fm-addons__input {
   cursor: not-allowed;
 }
+
+/* Fixed column counts, set from the Product add-ons section. */
+@media screen and (min-width: 750px) {
+  .fm-addons--cols-1 .fm-addons__list { grid-template-columns: minmax(0, 1fr); }
+  .fm-addons--cols-2 .fm-addons__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fm-addons--cols-3 .fm-addons__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fm-addons--cols-4 .fm-addons__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* --- Product add-ons section ---------------------------------------------- */
+
+/* Lines up with the header and the product page, like .fm-pdp above. */
+.fm-addons-section {
+  max-width: var(--page-width);
+  margin-inline: auto;
+  padding-inline: var(--fm-page-edge);
+}
+
+body:has(.section-header .drawer-menu) .fm-addons-section,
+body:has(.fm-header) .fm-addons-section {
+  max-width: 100%;
+}
+
+.fm-addons-section__inner {
+  width: 100%;
+}
+
+.fm-addons-section__inner--narrow { max-width: 48rem; }
+.fm-addons-section__inner--medium { max-width: 64rem; }
+.fm-addons-section__inner--center { margin-inline: auto; }
+.fm-addons-section__inner--right { margin-left: auto; }
+
+.fm-addons-section__empty {
+  margin: 0;
+  padding: 1.2rem 1.6rem;
+  border: 1px dashed rgba(var(--fm-ink), 0.3);
+  font-size: 1.3rem;
+  color: rgba(var(--fm-ink), 0.7);
+}

@@ -138,6 +138,19 @@
         "padding_bottom": 24
       }
     },
+    "fm_addons": {
+      "type": "fm-product-addons",
+      "settings": {
+        "heading": "Include an Add-on of:",
+        "columns": "auto",
+        "width": "medium",
+        "alignment": "right",
+        "metafield_namespace": "custom",
+        "metafield_key": "addons",
+        "padding_top": 0,
+        "padding_bottom": 24
+      }
+    },
     "fm_similar": {
       "type": "fm-product-rail",
       "settings": {
@@ -160,6 +173,7 @@
   },
   "order": [
     "fm_product",
+    "fm_addons",
     "fm_similar"
   ]
 }

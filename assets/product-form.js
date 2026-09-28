@@ -140,14 +140,21 @@ if (!customElements.get('product-form')) {
        * (and size) it belongs to, so the order can be made up correctly.
        */
       getAddonItems(quantity) {
-        // getAttribute, not form.id: the form's <input name="id"> shadows that property.
-        const group = document.querySelector(`[data-fm-addons="${this.form.getAttribute('id')}"]`);
-        if (!group) return [];
+        // Add-on checklists for this product, wherever they sit on the page: in
+        // the product section's Add-ons block or in the Product add-ons section.
+        const productId = this.dataset.productId;
+        if (!productId) return [];
+        const groups = Array.from(document.querySelectorAll(`[data-fm-addons-product="${productId}"]`));
+        if (!groups.length) return [];
 
-        const checked = Array.from(group.querySelectorAll('[data-fm-addon]:checked:not(:disabled)'));
-        if (!checked.length) return [];
+        // If the checklist appears twice (block and section), count each add-on once.
+        const ids = new Set();
+        groups.forEach((group) =>
+          group.querySelectorAll('[data-fm-addon]:checked:not(:disabled)').forEach((input) => ids.add(input.value))
+        );
+        if (!ids.size) return [];
 
-        let forLabel = group.dataset.fmAddonsFor || '';
+        let forLabel = groups[0].dataset.fmAddonsFor || '';
         const selected = document
           .querySelector(`[data-section="${this.dataset.sectionId}"] [data-selected-variant]`)
           ?.textContent;
@@ -158,8 +165,8 @@ if (!customElements.get('product-form')) {
           /* the product title alone is enough */
         }
 
-        return checked.map((input) => ({
-          id: Number(input.value),
+        return Array.from(ids).map((id) => ({
+          id: Number(id),
           quantity,
           properties: forLabel ? { For: forLabel } : {},
         }));
