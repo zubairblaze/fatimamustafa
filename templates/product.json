@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "fm_product": {
@@ -14,10 +23,10 @@
             "metafield_namespace": "custom",
             "fabric_metafield_key": "care_fabric",
             "icon_key_prefix": "care_icon_",
-            "text_key_prefix": "care_text_",
-            "slot_count": 5,
             "image_key_prefix": "care_image_",
-            "fontawesome_url": ""
+            "fontawesome_url": "",
+            "text_key_prefix": "care_text_",
+            "slot_count": 5
           }
         },
         "title": {
@@ -42,6 +51,21 @@
             "value": "7-10 business days"
           }
         },
+        "size_chart": {
+          "type": "size_chart",
+          "settings": {
+            "link_text": "Size Chart",
+            "metafield_namespace": "custom",
+            "metafield_key": "size_chart",
+            "image_metafield_key": "size_chart_image",
+            "heading": "",
+            "subheading": "Size Charts",
+            "note": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment (merchandise) size.</p>",
+            "show_gallery": true,
+            "autorotate_speed": 4,
+            "content": ""
+          }
+        },
         "variants": {
           "type": "variant_picker",
           "settings": {
@@ -50,6 +74,27 @@
             "size_label": "Size",
             "size_chart_text": "Size chart",
             "size_chart_url": ""
+          }
+        },
+        "custom_order": {
+          "type": "custom_order",
+          "settings": {
+            "toggle_text": "Custom Order",
+            "intro": "Not finding your size? Give us your measurements in inches and we will make it to order.",
+            "fields": "Shoulder\nSleeve length\nBust\nBottom length\nWaist\nCalf\nHip\nThighs\nTop length\nAnkle",
+            "show_notes": true,
+            "notes_label": "Notes",
+            "submit_mode": "auto",
+            "variant_name": "Custom Order",
+            "add_label": "Add custom order to cart",
+            "name_label": "Your name",
+            "email_label": "Your email",
+            "submit_text": "Send custom order request",
+            "success_text": "Thank you — we have your measurements and will be in touch shortly.",
+            "availability": "all",
+            "metafield_namespace": "custom",
+            "enabled_metafield_key": "custom_order_enabled",
+            "fields_metafield_key": ""
           }
         },
         "quantity": {
@@ -72,50 +117,6 @@
             "label": "Description",
             "open_by_default": false
           }
-        },
-        "size_chart": {
-          "type": "size_chart",
-          "settings": {
-            "link_text": "Size Chart",
-            "metafield_namespace": "custom",
-            "metafield_key": "size_chart",
-            "image_metafield_key": "size_chart_image",
-            "heading": "",
-            "subheading": "Size Charts",
-            "note": "<p><strong>Note:</strong> All measurements are in inches and refer to the finished garment (merchandise) size.</p>",
-            "content": "",
-            "show_gallery": true,
-            "autorotate_speed": 4
-          }
-        },
-        "custom_order": {
-          "type": "custom_order",
-          "settings": {
-            "toggle_text": "Custom Order",
-            "intro": "Not finding your size? Give us your measurements in inches and we will make it to order.",
-            "fields": "Shoulder\nSleeve length\nBust\nBottom length\nWaist\nCalf\nHip\nThighs\nTop length\nAnkle",
-            "show_notes": true,
-            "notes_label": "Notes",
-            "availability": "all",
-            "metafield_namespace": "custom",
-            "enabled_metafield_key": "custom_order_enabled",
-            "fields_metafield_key": "",
-            "submit_mode": "auto",
-            "variant_name": "Custom Order",
-            "add_label": "Add custom order to cart",
-            "name_label": "Your name",
-            "email_label": "Your email",
-            "submit_text": "Send custom order request",
-            "success_text": "Thank you — we have your measurements and will be in touch shortly."
-          }
-        },
-        "addons": {
-          "type": "addons",
-          "settings": {
-            "heading": "Include an Add-on of:",
-            "metafield_namespace": "custom",
-            "metafield_key": "addons"
-          }
         }
       },
       "block_order": [
@@ -126,7 +127,6 @@
         "size_chart",
         "variants",
         "custom_order",
-        "addons",
         "quantity",
         "buy",
         "description"
@@ -144,6 +144,7 @@
         "title": "Similar Products",
         "source": "product_collection",
         "intent": "related",
+        "fallback_to_collection": true,
         "collection": "bestsellers",
         "products_to_show": 5,
         "image_ratio": "portrait",
@@ -153,8 +154,7 @@
         "new_badge_label": "New",
         "background": "#ffffff",
         "padding_top": 28,
-        "padding_bottom": 28,
-        "fallback_to_collection": true
+        "padding_bottom": 28
       }
     }
   },
