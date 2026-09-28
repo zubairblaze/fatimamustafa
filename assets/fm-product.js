@@ -8,11 +8,17 @@
 /* ----------------------------------------------------------------- gallery */
 
 /*
- * The main image is a vertical scroller with one image per frame. Scrolling
- * it (wheel, swipe, keyboard) moves the progress bar and highlights the
- * matching thumbnail; clicking a thumbnail scrolls to its image.
+ * The main image is a vertical scroller with one image per frame. A wheel
+ * notch or a thumbnail click glides to the next image with an ease-in-out
+ * curve; touch swipes use the browser's own snapping. Scrolling moves the
+ * progress bar and highlights the matching thumbnail.
  */
 if (!customElements.get('fm-gallery')) {
+  const GLIDE_MS = 700;
+
+  // Slow start, slow finish: the image eases out of view and the next eases in.
+  const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
   class FmGallery extends HTMLElement {
     connectedCallback() {
       if (this.bound) return;
@@ -26,8 +32,8 @@ if (!customElements.get('fm-gallery')) {
 
       this.bound = true;
       this.current = 0;
-      this.target = null;
       this.frame = null;
+      this.glide = null;
 
       this.thumbs.forEach((thumb, index) => {
         thumb.addEventListener('click', () => this.show(index));
@@ -35,6 +41,9 @@ if (!customElements.get('fm-gallery')) {
 
       this.track.addEventListener('scroll', () => this.schedule(), { passive: true });
       this.track.addEventListener('wheel', (event) => this.onWheel(event), { passive: false });
+
+      // A finger on the images takes over from any glide in progress.
+      this.track.addEventListener('touchstart', () => this.stopGlide(), { passive: true });
 
       // The frame height follows the column width, so recompute on resize.
       if ('ResizeObserver' in window) {
@@ -57,7 +66,7 @@ if (!customElements.get('fm-gallery')) {
       if (!scrollHeight || !clientHeight) return;
 
       // Bar length is one frame's share of the whole strip; it travels the
-      // track's full height as the strip scrolls.
+      // strip's full height as the images scroll.
       if (this.bar) {
         const size = clientHeight / scrollHeight;
         const offset = scrollTop / clientHeight;
@@ -65,41 +74,37 @@ if (!customElements.get('fm-gallery')) {
         this.bar.style.setProperty('--fm-progress-offset', `${offset * 100}%`);
       }
 
-      const index = Math.min(this.slides.length - 1, Math.max(0, Math.round(scrollTop / clientHeight)));
+      // During a glide the destination's thumbnail is already lit; don't
+      // flick through every image on the way.
+      if (this.glide) return;
 
-      // While a thumbnail click is scrolling, keep its thumbnail lit rather
-      // than flicking through every image on the way.
-      if (this.target !== null) {
-        if (index !== this.target) return;
-        this.target = null;
-      }
+      const index = Math.min(this.slides.length - 1, Math.max(0, Math.round(scrollTop / clientHeight)));
       if (index !== this.current) this.setCurrent(index);
     }
 
     /**
-     * One wheel gesture moves exactly one image. Left to the browser, a short
-     * wheel turn can snap straight back to the same image. On the first or
-     * last image the event is left alone, so the page scrolls on as normal.
+     * One wheel gesture moves exactly one image. A trackpad swipe fires a long
+     * burst of wheel events with momentum, so further events are swallowed
+     * until the glide has finished and the wheel has been quiet for a moment.
+     * On the first or last image the wheel is left alone and the page scrolls
+     * on as normal.
      */
     onWheel(event) {
       if (event.ctrlKey || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
 
+      const busy = Boolean(this.glide) || this.wheelLocked;
       const next = this.current + Math.sign(event.deltaY);
-      if (next < 0 || next >= this.slides.length) return;
+      if (!busy && (next < 0 || next >= this.slides.length)) return;
 
       event.preventDefault();
 
-      // A trackpad swipe fires a long burst of wheel events and keeps going
-      // with momentum. Count the burst once: stay locked until the wheel has
-      // been quiet for a moment, and for at least one image's scroll.
-      const locked = this.wheelLocked;
       this.wheelLocked = true;
       clearTimeout(this.wheelTimer);
       this.wheelTimer = setTimeout(() => {
         this.wheelLocked = false;
-      }, locked ? 200 : 450);
-      if (locked) return;
+      }, 200);
 
+      if (busy || next < 0 || next >= this.slides.length) return;
       this.show(next);
     }
 
@@ -107,17 +112,43 @@ if (!customElements.get('fm-gallery')) {
       const slide = this.slides[index];
       if (!slide) return;
 
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      this.target = index;
-      clearTimeout(this.targetTimer);
-      // If the scroll is interrupted short of the image, stop waiting for it.
-      this.targetTimer = setTimeout(() => {
-        this.target = null;
-        this.schedule();
-      }, 1000);
-
-      this.track.scrollTo({ top: slide.offsetTop, behavior: reduceMotion ? 'auto' : 'smooth' });
       this.setCurrent(index);
+      this.glideTo(slide.offsetTop);
+    }
+
+    glideTo(top) {
+      this.stopGlide();
+
+      const start = this.track.scrollTop;
+      const distance = top - start;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!distance || reduceMotion) {
+        this.track.scrollTop = top;
+        return;
+      }
+
+      // Snapping would pull against the animation, so pause it for the glide.
+      this.track.classList.add('is-gliding');
+      const began = performance.now();
+
+      const step = (now) => {
+        const progress = Math.min(1, (now - began) / GLIDE_MS);
+        this.track.scrollTop = start + distance * easeInOutCubic(progress);
+        if (progress < 1) {
+          this.glide = requestAnimationFrame(step);
+        } else {
+          this.stopGlide();
+        }
+      };
+      this.glide = requestAnimationFrame(step);
+    }
+
+    stopGlide() {
+      if (!this.glide) return;
+      cancelAnimationFrame(this.glide);
+      this.glide = null;
+      this.track.classList.remove('is-gliding');
+      this.schedule();
     }
 
     setCurrent(index) {
