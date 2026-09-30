@@ -22,15 +22,19 @@ if (!customElements.get('fm-gallery')) {
   class FmGallery extends HTMLElement {
     connectedCallback() {
       if (this.bound) return;
+      this.bound = true;
 
       this.track = this.querySelector('[data-fm-track]');
       this.slides = Array.from(this.querySelectorAll('[data-fm-slide]'));
       this.bar = this.querySelector('[data-fm-progress]');
       this.thumbList = this.querySelector('[data-fm-thumbs]');
       this.thumbs = Array.from(this.querySelectorAll('[data-fm-thumb]'));
-      if (!this.track || this.slides.length < 2) return;
 
-      this.bound = true;
+      // Before the slide-count check below: a product whose only media is a
+      // video still needs that video to play.
+      this.setupVideos();
+
+      if (!this.track || this.slides.length < 2) return;
       this.current = 0;
       this.frame = null;
       this.glide = null;
@@ -51,6 +55,110 @@ if (!customElements.get('fm-gallery')) {
       }
 
       this.update();
+    }
+
+    /**
+     * Product videos play silently while their frame is the one on screen.
+     * An observer against the viewport is enough for that on its own: the
+     * track clips the frames it is not showing, so a slide scrolled out of
+     * view reports no intersection even though the page has not moved.
+     */
+    setupVideos() {
+      this.videos = Array.from(this.querySelectorAll('[data-fm-video]'));
+      this.embeds = Array.from(this.querySelectorAll('[data-fm-embed]'));
+
+      // The button stays as the way in when autoplay is unavailable, and as
+      // the control a keyboard reaches.
+      this.embeds.forEach((holder) => {
+        const button = holder.querySelector('[data-fm-embed-play]');
+        if (!button) return;
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.mountEmbed(holder);
+        });
+      });
+
+      const targets = this.videos.concat(this.embeds);
+      if (!targets.length || !('IntersectionObserver' in window)) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      this.videoObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const target = entry.target;
+
+            if (target.hasAttribute('data-fm-embed')) {
+              if (entry.isIntersecting) {
+                // Mounting only on arrival keeps YouTube off the page until
+                // its frame is actually looked at.
+                if (target.querySelector('iframe')) this.commandEmbed(target, 'play');
+                else this.mountEmbed(target);
+              } else {
+                this.commandEmbed(target, 'pause');
+              }
+              return;
+            }
+
+            if (!entry.isIntersecting) {
+              target.pause();
+              return;
+            }
+            // Muted is the only state a browser will autoplay, and the
+            // property matters as well as the attribute in Safari.
+            target.muted = true;
+            const started = target.play();
+            // A refused autoplay simply leaves the poster up, which is a
+            // reasonable outcome rather than an error worth reporting.
+            if (started && typeof started.catch === 'function') started.catch(() => {});
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      targets.forEach((target) => this.videoObserver.observe(target));
+    }
+
+    /** YouTube and Vimeo load only once their frame is reached. */
+    mountEmbed(holder) {
+      const src = holder.getAttribute('data-fm-embed');
+      if (!src || holder.querySelector('iframe')) return;
+
+      const frame = document.createElement('iframe');
+      frame.setAttribute('src', src);
+      frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+      frame.setAttribute('allowfullscreen', '');
+      frame.setAttribute('title', holder.querySelector('img')?.alt || 'Video');
+      holder.appendChild(frame);
+      holder.classList.add('is-playing');
+    }
+
+    /**
+     * Players in an iframe cannot be paused directly, so the instruction goes
+     * over postMessage. Both hosts ignore anything they do not understand,
+     * and the video is muted either way, so a message that does not land
+     * costs nothing.
+     */
+    commandEmbed(holder, action) {
+      const frame = holder.querySelector('iframe');
+      if (!frame || !frame.contentWindow) return;
+
+      const vimeo = (frame.getAttribute('src') || '').indexOf('vimeo') !== -1;
+      const message = vimeo
+        ? JSON.stringify({ method: action })
+        : JSON.stringify({ event: 'command', func: action === 'play' ? 'playVideo' : 'pauseVideo', args: '' });
+
+      try {
+        frame.contentWindow.postMessage(message, '*');
+      } catch (error) {
+        // Cross-origin refusal; nothing to recover, the player stays as it is.
+      }
+    }
+
+    disconnectedCallback() {
+      if (this.videoObserver) {
+        this.videoObserver.disconnect();
+        this.videoObserver = null;
+      }
     }
 
     schedule() {

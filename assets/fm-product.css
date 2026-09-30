@@ -197,11 +197,77 @@ body:has(.fm-header) .fm-crumbs {
 }
 
 .fm-gallery__main img,
-.fm-gallery__main svg {
+.fm-gallery__main svg,
+.fm-gallery__main video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* An external video waits behind its poster until the play button is used. */
+.fm-gallery__embed {
+  position: relative;
+  height: 100%;
+}
+
+.fm-gallery__embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.fm-gallery__embed-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6rem;
+  height: 6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+}
+
+.fm-gallery__embed-play svg {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.fm-gallery__embed.is-playing .fm-gallery__embed-play {
+  display: none;
+}
+
+/* Marks which thumbnails are videos. */
+.fm-gallery__thumb {
+  position: relative;
+}
+
+.fm-gallery__thumb-play {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.4rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  pointer-events: none;
+}
+
+.fm-gallery__thumb-play svg {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .fm-gallery__main > svg {
@@ -209,7 +275,8 @@ body:has(.fm-header) .fm-crumbs {
   background-color: rgba(var(--fm-ink), 0.03);
 }
 
-.fm-gallery--contain .fm-gallery__main img {
+.fm-gallery--contain .fm-gallery__main img,
+.fm-gallery--contain .fm-gallery__main video {
   object-fit: contain;
 }
 

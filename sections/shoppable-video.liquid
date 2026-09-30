@@ -447,11 +447,56 @@
             assign card_url = linked.url
           endif
 
+          comment
+            The link is parsed here rather than by a video_url setting, whose
+            validator turns away forms merchants actually have - a Shorts
+            link most of all, which is exactly what a reel tends to be. Every
+            YouTube shape resolves to the same eleven character id, and Vimeo
+            to the first all-numeric path segment.
+          endcomment
           assign embed_url = ''
-          if external.type == 'youtube'
-            assign embed_url = 'https://www.youtube.com/embed/' | append: external.id | append: '?autoplay=1&playsinline=1&rel=0'
-          elsif external.type == 'vimeo'
-            assign embed_url = 'https://player.vimeo.com/video/' | append: external.id | append: '?autoplay=1'
+          assign link = external | strip
+          assign vid = ''
+
+          if link contains 'youtu'
+            if link contains '/shorts/'
+              assign vid = link | split: '/shorts/' | last
+            elsif link contains 'v='
+              assign vid = link | split: 'v=' | last
+            elsif link contains '/embed/'
+              assign vid = link | split: '/embed/' | last
+            elsif link contains '/live/'
+              assign vid = link | split: '/live/' | last
+            elsif link contains 'youtu.be/'
+              assign vid = link | split: 'youtu.be/' | last
+            endif
+            assign vid = vid | split: '?' | first | split: '&' | first | split: '#' | first | split: '/' | first
+            if vid != blank
+              assign embed_url = 'https://www.youtube.com/embed/' | append: vid | append: '?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1'
+            endif
+
+          elsif link contains 'vimeo'
+            comment
+              A number times one round-trips through a string unchanged, which
+              is the cheapest way liquid can ask whether a segment is numeric.
+              It skips vimeo.com and any channel name to find the real id.
+            endcomment
+            assign path = link | split: '?' | first | split: '#' | first
+            assign segments = path | split: '/'
+            for segment in segments
+              assign numeric = segment | times: 1 | append: ''
+              if segment == numeric and segment != blank
+                assign vid = segment
+                break
+              endif
+            endfor
+            if vid != blank
+              assign embed_url = 'https://player.vimeo.com/video/' | append: vid | append: '?autoplay=1&muted=1'
+              if link contains 'h='
+                assign vimeo_hash = link | split: 'h=' | last | split: '&' | first
+                assign embed_url = embed_url | append: '&h=' | append: vimeo_hash
+              endif
+            endif
           endif
         -%}
 
@@ -504,7 +549,13 @@
 
             {%- else -%}
               <span class="svid__placeholder">
-                Pick a video for this block, or paste a YouTube or Vimeo link.
+                {%- if external != blank -%}
+                  That link was not recognised. Paste a link to the video
+                  itself, such as youtube.com/shorts/..., youtu.be/...,
+                  youtube.com/watch?v=... or vimeo.com/...
+                {%- else -%}
+                  Pick a video for this block, or paste a YouTube or Vimeo link.
+                {%- endif -%}
               </span>
             {%- endif -%}
 
@@ -639,7 +690,21 @@
               entries.forEach((entry) => {
                 var media = entry.target;
                 var video = media.querySelector('[data-svid-video]');
-                if (!video) return;
+
+                if (!video) {
+                  // A card backed by YouTube or Vimeo. The iframe is built on
+                  // arrival rather than on load, so nothing third-party is
+                  // fetched for a card no one scrolls to.
+                  if (!media.getAttribute('data-svid-embed')) return;
+                  if (entry.isIntersecting) {
+                    if (!this.autoplay) return;
+                    if (media.querySelector('.svid__embed')) this.commandEmbed(media, 'play');
+                    else this.mountEmbed(media);
+                  } else {
+                    this.commandEmbed(media, 'pause');
+                  }
+                  return;
+                }
 
                 if (entry.isIntersecting) {
                   if (this.autoplay) this.play(media);
@@ -708,6 +773,32 @@
           frame.setAttribute('title', media.getAttribute('data-svid-label') || 'Video');
           media.appendChild(frame);
           media.classList.add('is-playing');
+        }
+
+        /**
+         * A player inside an iframe cannot be paused directly, so the
+         * instruction goes over postMessage. Both hosts ignore what they do
+         * not understand, and the video is muted either way, so a message
+         * that does not land costs nothing.
+         */
+        commandEmbed(media, action) {
+          var frame = media.querySelector('.svid__embed');
+          if (!frame || !frame.contentWindow) return;
+
+          var vimeo = (frame.getAttribute('src') || '').indexOf('vimeo') !== -1;
+          var message = vimeo
+            ? JSON.stringify({ method: action })
+            : JSON.stringify({
+                event: 'command',
+                func: action === 'play' ? 'playVideo' : 'pauseVideo',
+                args: '',
+              });
+
+          try {
+            frame.contentWindow.postMessage(message, '*');
+          } catch (error) {
+            // Cross-origin refusal; the player simply stays as it is.
+          }
         }
 
         bindControls() {
@@ -1067,14 +1158,10 @@
           "info": "Upload a vertical video for the reel look. Leave empty to use a YouTube or Vimeo link instead."
         },
         {
-          "type": "video_url",
+          "type": "text",
           "id": "video_url",
           "label": "Or a YouTube or Vimeo link",
-          "accept": [
-            "youtube",
-            "vimeo"
-          ],
-          "info": "Hosted videos autoplay muted; a YouTube or Vimeo link loads only when the visitor presses play."
+          "info": "Any form works, including a Shorts link: youtube.com/shorts/..., youtu.be/..., watch?v=..., or vimeo.com/... An uploaded video above wins over this, and a link loads only when the visitor presses play."
         },
         {
           "type": "image_picker",
