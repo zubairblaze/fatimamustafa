@@ -1,0 +1,112 @@
+{% comment %}
+  Renders the FM product card.
+
+  Accepts:
+  - product:        {Object}  Product object. Renders a placeholder when blank.
+  - image_ratio:    {String}  portrait (default) | square | tall
+  - show_vendor:    {Boolean} Show the vendor above the title.
+  - show_secondary: {Boolean} Cross-fade to the second image on hover.
+  - index:          {Number}  Used to vary the placeholder art.
+  - new_badge_label:{String}  Text for the "new" badge. Defaults to "New".
+
+  Usage:
+  {% render 'fm-product-card', product: product, image_ratio: 'portrait' %}
+{% endcomment %}
+
+{%- liquid
+  assign ratio = image_ratio | default: 'portrait'
+  assign placeholder_index = index | default: 1 | modulo: 4 | plus: 1
+  assign new_label = new_badge_label | default: 'New'
+-%}
+
+{%- if product == blank -%}
+  <div class="fm-card fm-card--{{ ratio }}">
+    <div class="fm-card__media">
+      <div class="fm-card__placeholder">
+        {{ 'product-apparel-' | append: placeholder_index | placeholder_svg_tag }}
+      </div>
+    </div>
+    <div class="fm-card__info">
+      <h3 class="fm-card__title">{{ 'onboarding.product_title' | t }}</h3>
+      <p class="fm-card__price">{{ 1999 | money }}</p>
+    </div>
+  </div>
+{%- else -%}
+  {%- liquid
+    assign on_sale = false
+    if product.compare_at_price > product.price and product.available
+      assign on_sale = true
+    endif
+
+    assign is_new = false
+    if product.tags contains 'new' or product.tags contains 'New'
+      assign is_new = true
+    endif
+
+    assign secondary = product.media[1]
+    assign alt_text = product.featured_media.alt | default: product.title | escape
+  -%}
+  <a href="{{ product.url }}" class="fm-card fm-card--{{ ratio }}">
+    <div class="fm-card__media">
+      {%- if product.featured_media -%}
+        {{
+          product.featured_media
+          | image_url: width: 900
+          | image_tag:
+            class: 'fm-card__image',
+            loading: 'lazy',
+            widths: '200, 300, 400, 500, 700, 900',
+            sizes: '(min-width: 990px) 20vw, (min-width: 750px) 30vw, 46vw',
+            alt: alt_text
+        }}
+      {%- else -%}
+        <div class="fm-card__placeholder">
+          {{ 'product-apparel-' | append: placeholder_index | placeholder_svg_tag }}
+        </div>
+      {%- endif -%}
+
+      {%- if show_secondary and secondary != blank -%}
+        {{
+          secondary
+          | image_url: width: 900
+          | image_tag:
+            class: 'fm-card__image fm-card__image--secondary',
+            loading: 'lazy',
+            widths: '200, 300, 400, 500, 700, 900',
+            sizes: '(min-width: 990px) 20vw, (min-width: 750px) 30vw, 46vw',
+            alt: ''
+        }}
+      {%- endif -%}
+
+      <div class="fm-card__badges">
+        {%- unless product.available -%}
+          <span class="fm-card__badge fm-card__badge--sold-out">
+            {{- 'products.product.sold_out' | t -}}
+          </span>
+        {%- else -%}
+          {%- if is_new -%}
+            <span class="fm-card__badge fm-card__badge--new">{{ new_label }}</span>
+          {%- endif -%}
+          {%- if on_sale -%}
+            <span class="fm-card__badge fm-card__badge--sale">{{ 'products.product.on_sale' | t }}</span>
+          {%- endif -%}
+        {%- endunless -%}
+      </div>
+    </div>
+
+    <div class="fm-card__info">
+      {%- if show_vendor and product.vendor != blank -%}
+        <p class="fm-card__vendor">{{ product.vendor }}</p>
+      {%- endif -%}
+      <h3 class="fm-card__title">{{ product.title }}</h3>
+      <p class="fm-card__price">
+        {%- if on_sale -%}
+          <span class="fm-card__price--sale">{{ product.price | money }}</span>
+          <s class="fm-card__price--compare">{{ product.compare_at_price | money }}</s>
+        {%- else -%}
+          <span>{{ product.price | money }}</span>
+        {%- endif -%}
+      </p>
+    </div>
+  </a>
+{%- endif -%}

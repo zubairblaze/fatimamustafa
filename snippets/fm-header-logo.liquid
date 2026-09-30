@@ -1,0 +1,38 @@
+{% comment %}
+  Renders the header logo link.
+
+  Lives in a snippet so fm-header can render it inside a fully-formed <h1> on
+  the homepage and a fully-formed <div> elsewhere, without opening a tag in one
+  branch and closing it in another, and without a dynamic tag name. Both leave
+  the markup unresolvable to anything parsing the template as HTML.
+
+  Accepts:
+  - logo:        {Object}  Image. Falls back to the shop name as a wordmark.
+  - logo_width:  {Number}  Intrinsic width in px.
+
+  Usage:
+  {% render 'fm-header-logo', logo: section.settings.logo, logo_width: 160 %}
+{% endcomment %}
+
+{%- liquid
+  assign alt_text = logo.alt | default: shop.name | escape
+  assign sizes_attr = logo_width | append: 'px'
+-%}
+
+<a href="{{ routes.root_url }}" class="fm-header__logo">
+  {%- if logo != blank -%}
+    {{
+      logo
+      | image_url: width: 600
+      | image_tag:
+        loading: 'eager',
+        fetchpriority: 'high',
+        widths: '100, 150, 200, 300, 400, 600',
+        width: logo_width,
+        sizes: sizes_attr,
+        alt: alt_text
+    }}
+  {%- else -%}
+    <span class="fm-header__wordmark">{{ shop.name }}</span>
+  {%- endif -%}
+</a>

@@ -1,0 +1,134 @@
+/* FM — product card used by the trending / bridal carousels */
+
+.fm-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: rgb(var(--fm-ink));
+}
+
+.fm-card__media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-color: rgba(var(--fm-ink), 0.04);
+  aspect-ratio: 3 / 4;
+}
+
+.fm-card--square .fm-card__media {
+  aspect-ratio: 1 / 1;
+}
+
+.fm-card--tall .fm-card__media {
+  aspect-ratio: 2 / 3;
+}
+
+.fm-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.4s ease;
+}
+
+.fm-card__image--secondary {
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .fm-card:hover .fm-card__image--secondary {
+    opacity: 1;
+  }
+}
+
+.fm-card__placeholder {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(var(--fm-ink), 0.06);
+}
+
+.fm-card__placeholder svg {
+  width: 100%;
+  height: 100%;
+  fill: rgba(var(--fm-ink), 0.14);
+}
+
+.fm-card__badges {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.fm-card__badge {
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.8rem;
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.fm-card__badge--new {
+  background-color: #2f6b4f;
+}
+
+.fm-card__badge--sale {
+  background-color: #8c2b2b;
+}
+
+.fm-card__badge--sold-out {
+  background-color: #6b6b6b;
+}
+
+.fm-card__info {
+  padding: 1rem 0.2rem 0;
+}
+
+.fm-card__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: rgb(var(--fm-ink));
+  /* Two lines keeps every card in a row the same height. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fm-card__vendor {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--fm-ink), 0.5);
+}
+
+.fm-card__price {
+  margin: 0.5rem 0 0;
+  font-size: 1.2rem;
+  color: rgb(var(--fm-ink));
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.fm-card__price--compare {
+  color: rgba(var(--fm-ink), 0.45);
+  text-decoration: line-through;
+}
+
+.fm-card__price--sale {
+  color: #8c2b2b;
+}

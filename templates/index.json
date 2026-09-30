@@ -1,75 +1,479 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
-    "image_banner": {
-      "type": "image-banner",
+    "fm_hero": {
+      "type": "fm-hero",
       "blocks": {
-        "heading": {
-          "type": "heading",
+        "slide_KB88tR": {
+          "type": "slide",
           "settings": {
-            "heading": "Browse our latest products",
-            "heading_size": "h0"
+            "image": "shopify://shop_images/FM-Banner-1_jpg.jpg",
+            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-1_jpg.jpg",
+            "heading": "",
+            "subheading": "",
+            "link": "",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
+            "overlay_opacity": 10,
+            "position_vertical": "bottom",
+            "position_horizontal": "center"
           }
         },
-        "button": {
-          "type": "buttons",
+        "slide_LzKA9E": {
+          "type": "slide",
           "settings": {
-            "button_label_1": "Shop all",
-            "button_link_1": "shopify://collections/all",
-            "button_style_secondary_1": true,
-            "button_label_2": "",
-            "button_link_2": "",
-            "button_style_secondary_2": false
+            "image": "shopify://shop_images/FM-Banner-2_jpg.jpg",
+            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-2_jpg.jpg",
+            "heading": "",
+            "subheading": "",
+            "link": "",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
+            "overlay_opacity": 10,
+            "position_vertical": "bottom",
+            "position_horizontal": "center"
+          }
+        },
+        "slide_Upbm4m": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/FM-Banner-3_jpg.jpg",
+            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-3_jpg.jpg",
+            "heading": "",
+            "subheading": "",
+            "link": "",
+            "button_label": "",
+            "button_link": "",
+            "text_color": "#ffffff",
+            "overlay_opacity": 10,
+            "position_vertical": "bottom",
+            "position_horizontal": "center"
           }
         }
       },
       "block_order": [
-        "heading",
-        "button"
+        "slide_KB88tR",
+        "slide_LzKA9E",
+        "slide_Upbm4m"
       ],
       "settings": {
-        "image_overlay_opacity": 40,
-        "image_height": "large",
-        "desktop_content_position": "bottom-center",
-        "show_text_box": false,
-        "image_behavior": "none",
-        "desktop_content_alignment": "center",
-        "color_scheme": "scheme-3",
-        "mobile_content_alignment": "center",
-        "stack_images_on_mobile": false,
-        "show_text_below": false
+        "height": "full",
+        "height_mobile": 70,
+        "image_fit": "cover",
+        "autoplay": true,
+        "autoplay_speed": 6,
+        "accessibility_label": "Featured collections"
       }
     },
-    "featured_collection": {
-      "type": "featured-collection",
+    "fm_new_arrivals": {
+      "type": "fm-scroll-collections",
+      "blocks": {
+        "tile_1": {
+          "type": "tile",
+          "settings": {
+            "collection": "bestsellers",
+            "label": "Accessories",
+            "link": ""
+          }
+        },
+        "tile_2": {
+          "type": "tile",
+          "settings": {
+            "collection": "festive-luxe",
+            "label": "Kids",
+            "link": ""
+          }
+        },
+        "tile_3": {
+          "type": "tile",
+          "settings": {
+            "collection": "festive-luxe-2026",
+            "label": "Unstitched",
+            "link": ""
+          }
+        },
+        "tile_4": {
+          "type": "tile",
+          "settings": {
+            "collection": "festive-luxe-edit",
+            "label": "Luxury Formals",
+            "link": ""
+          }
+        },
+        "tile_5": {
+          "type": "tile",
+          "settings": {
+            "collection": "summer-edit",
+            "label": "Luxury Pret",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "tile_1",
+        "tile_2",
+        "tile_3",
+        "tile_4",
+        "tile_5"
+      ],
       "settings": {
-        "title": "Featured products",
-        "heading_size": "h2",
-        "description": "",
-        "show_description": false,
-        "description_style": "body",
-        "collection": "all",
-        "products_to_show": 8,
+        "title": "New Arrivals",
+        "subtitle": "Shop the latest arrivals across every category",
         "columns_desktop": 4,
-        "color_scheme": "scheme-1",
-        "full_width": false,
+        "columns_mobile": 2,
+        "show_arrows": true,
+        "image_ratio": "tall",
+        "image_fit": "cover",
+        "background": "#ffffff",
+        "padding_top": 36,
+        "padding_bottom": 28
+      }
+    },
+    "fm_duo": {
+      "type": "fm-collection-grid",
+      "blocks": {
+        "tile_1": {
+          "type": "tile",
+          "settings": {
+            "collection": "festive-luxe-edit",
+            "label": "Luxury Pret",
+            "link": ""
+          }
+        },
+        "tile_2": {
+          "type": "tile",
+          "settings": {
+            "collection": "festive-luxe",
+            "label": "Luxury Formals",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "tile_1",
+        "tile_2"
+      ],
+      "settings": {
+        "title": "",
+        "columns": "2",
+        "weighted": true,
+        "image_ratio": "portrait",
+        "image_fit": "cover",
+        "label_alignment": "left",
+        "full_bleed": false,
+        "background": "#ffffff",
+        "padding_top": 8,
+        "padding_bottom": 8
+      }
+    },
+    "fm_trio": {
+      "type": "fm-collection-grid",
+      "blocks": {
+        "tile_1": {
+          "type": "tile",
+          "settings": {
+            "collection": "summer-edit",
+            "label": "Chiffon",
+            "link": ""
+          }
+        },
+        "tile_2": {
+          "type": "tile",
+          "settings": {
+            "collection": "festive-luxe-2026",
+            "label": "Jewellery",
+            "link": ""
+          }
+        },
+        "tile_3": {
+          "type": "tile",
+          "settings": {
+            "collection": "bestsellers",
+            "label": "Accessories",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "tile_1",
+        "tile_2",
+        "tile_3"
+      ],
+      "settings": {
+        "title": "",
+        "columns": "3",
+        "weighted": false,
+        "image_ratio": "tall",
+        "image_fit": "cover",
+        "label_alignment": "left",
+        "full_bleed": false,
+        "background": "#ffffff",
+        "padding_top": 8,
+        "padding_bottom": 28
+      }
+    },
+    "fm_trending": {
+      "type": "fm-trending",
+      "blocks": {
+        "tab_1": {
+          "type": "tab",
+          "settings": {
+            "collection": "bestsellers",
+            "label": "New Arrivals"
+          }
+        },
+        "tab_2": {
+          "type": "tab",
+          "settings": {
+            "collection": "festive-luxe-edit",
+            "label": "Luxury Pret"
+          }
+        },
+        "tab_3": {
+          "type": "tab",
+          "settings": {
+            "collection": "festive-luxe-2026",
+            "label": "Luxury Formals"
+          }
+        },
+        "tab_4": {
+          "type": "tab",
+          "settings": {
+            "collection": "festive-luxe-edit",
+            "label": "Festive"
+          }
+        },
+        "tab_5": {
+          "type": "tab",
+          "settings": {
+            "collection": "summer-edit",
+            "label": "Pret Solo"
+          }
+        }
+      },
+      "block_order": [
+        "tab_1",
+        "tab_2",
+        "tab_3",
+        "tab_4",
+        "tab_5"
+      ],
+      "settings": {
+        "title": "Most Trending",
         "show_view_all": true,
-        "view_all_style": "solid",
-        "enable_desktop_slider": false,
-        "swipe_on_mobile": false,
-        "image_ratio": "adapt",
-        "image_shape": "default",
-        "show_secondary_image": true,
+        "view_all_link": "",
+        "products_to_show": 10,
+        "image_ratio": "portrait",
+        "image_fit": "cover",
         "show_vendor": false,
-        "show_rating": false,
-        "quick_add": "none",
-        "columns_mobile": "2",
-        "padding_top": 44,
-        "padding_bottom": 36
+        "show_secondary_image": true,
+        "new_badge_label": "New",
+        "background": "#ffffff",
+        "padding_top": 40,
+        "padding_bottom": 32
+      }
+    },
+    "fm_split": {
+      "type": "fm-split-editorial",
+      "settings": {
+        "eyebrow": "New Collection",
+        "heading": "Shop By Collection",
+        "text": "<p>Explore the newest suits we sell in store and online. Every piece is made in premium fabrics and finished by hand.</p>",
+        "button_label": "Shop the look",
+        "button_link": "",
+        "image": "shopify://shop_images/image_a61a6d6e-b5a4-41b1-b38a-4699f685aeff.jpg",
+        "image_link": "",
+        "wordmark": "Stitched For You",
+        "wordmark_color": "#ffffff",
+        "image_position": "right",
+        "full_bleed": true,
+        "background": "#ffffff",
+        "panel_background": "#ffffff",
+        "padding_top": 8,
+        "padding_bottom": 8,
+        "image_fit": "cover"
+      }
+    },
+    "fm_bridal": {
+      "type": "fm-bridal",
+      "blocks": {
+        "tile_1": {
+          "type": "tile",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/ECF95A52-0DC8-456E-B4C0-AE976FE10D69.jpg",
+            "label": "Dholki",
+            "link": ""
+          }
+        },
+        "tile_2": {
+          "type": "tile",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/7A0D0CAA-0B78-4BDC-8353-1CDAA52FAEA7.jpg",
+            "label": "Mehendi",
+            "link": ""
+          }
+        },
+        "tile_3": {
+          "type": "tile",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/EBEA8A82-688E-4E90-A0EC-3AB6A148D218.jpg",
+            "label": "Mehendi",
+            "link": ""
+          }
+        },
+        "tile_4": {
+          "type": "tile",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/Skinnyshalwara.jpg",
+            "label": "Nikkah",
+            "link": ""
+          }
+        },
+        "tile_5": {
+          "type": "tile",
+          "settings": {
+            "collection": "",
+            "image": "shopify://shop_images/08_23f45681-a537-4196-b32d-b56acc4bf4fd.jpg",
+            "label": "Barat",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "tile_1",
+        "tile_2",
+        "tile_3",
+        "tile_4",
+        "tile_5"
+      ],
+      "settings": {
+        "title": "Bridal",
+        "show_view_all": true,
+        "view_all_link": "",
+        "image": "shopify://shop_images/AAD36CA2-408A-46A9-8155-A49E239E608B.jpg",
+        "image_link": "",
+        "full_bleed": false,
+        "background": "#ffffff",
+        "padding_top": 8,
+        "padding_bottom": 40,
+        "image_fit": "cover"
+      }
+    },
+    "fm_worn_loved": {
+      "type": "fm-worn-loved",
+      "blocks": {
+        "post_1": {
+          "type": "post",
+          "settings": {
+            "image": "shopify://shop_images/image_25f4955f-45b5-463b-8cf5-343edf18f3a6.jpg",
+            "handle": "@customer1",
+            "profile_url": "",
+            "product": "",
+            "link": ""
+          }
+        },
+        "post_2": {
+          "type": "post",
+          "settings": {
+            "image": "shopify://shop_images/image_de5ce01c-ac0d-4516-927d-212b17683576.jpg",
+            "handle": "@customer2",
+            "profile_url": "",
+            "product": "",
+            "link": ""
+          }
+        },
+        "post_3": {
+          "type": "post",
+          "settings": {
+            "image": "shopify://shop_images/97E69439-A046-460B-AD3C-BF308EDCEE7A.jpg",
+            "handle": "@customer3",
+            "profile_url": "",
+            "product": "",
+            "link": ""
+          }
+        },
+        "post_4": {
+          "type": "post",
+          "settings": {
+            "image": "shopify://shop_images/IMG-8408.jpg",
+            "handle": "@customer4",
+            "profile_url": "",
+            "product": "",
+            "link": ""
+          }
+        },
+        "post_5": {
+          "type": "post",
+          "settings": {
+            "image": "shopify://shop_images/175ED9ED-E6E0-4341-946F-B48CBD665F89.jpg",
+            "handle": "@customer5",
+            "profile_url": "",
+            "product": "",
+            "link": ""
+          }
+        },
+        "post_6": {
+          "type": "post",
+          "settings": {
+            "image": "shopify://shop_images/DB5FA31B-7DDF-4799-92E2-352EBCFD2DFB.jpg",
+            "handle": "@customer6",
+            "profile_url": "",
+            "product": "",
+            "link": ""
+          }
+        },
+        "post_7": {
+          "type": "post",
+          "settings": {
+            "image": "shopify://shop_images/2A3680CE-95A1-470B-A74D-166931328428.jpg",
+            "handle": "@customer7",
+            "profile_url": "",
+            "product": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "post_1",
+        "post_2",
+        "post_3",
+        "post_4",
+        "post_5",
+        "post_6",
+        "post_7"
+      ],
+      "settings": {
+        "title": "Worn & Loved ❤️",
+        "shop_label": "Shop this look",
+        "background": "#ffffff",
+        "padding_top": 40,
+        "padding_bottom": 48,
+        "image_fit": "cover"
       }
     }
   },
   "order": [
-    "image_banner",
-    "featured_collection"
+    "fm_hero",
+    "fm_new_arrivals",
+    "fm_duo",
+    "fm_trio",
+    "fm_trending",
+    "fm_split",
+    "fm_bridal",
+    "fm_worn_loved"
   ]
 }

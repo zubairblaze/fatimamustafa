@@ -1,0 +1,229 @@
+{{ 'fm-split-editorial.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.7 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round: 0 }}px;
+    background-color: {{ section.settings.background }};
+  }
+
+  #shopify-section-{{ section.id }} .fm-split__panel {
+    background-color: {{ section.settings.panel_background }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %} fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
+  <div class="fm-split{% if section.settings.image_position == 'left' %} fm-split--image-first{% endif %}">
+    <div class="fm-split__panel">
+      {%- if section.settings.eyebrow != blank -%}
+        <span class="fm-eyebrow">{{ section.settings.eyebrow }}</span>
+      {%- endif -%}
+
+      {%- if section.settings.heading != blank -%}
+        <h2 class="fm-split__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.text != blank -%}
+        <div class="fm-split__text">{{ section.settings.text }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank -%}
+        <a class="fm-split__cta" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+          {{ section.settings.button_label }}
+          {% render 'fm-arrow-icon' %}
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- liquid
+      assign media_url = section.settings.image_link
+      assign media_tag = 'div'
+      if media_url != blank
+        assign media_tag = 'a'
+      endif
+      assign image_alt = section.settings.image.alt | default: section.settings.wordmark | escape
+    -%}
+    <{{ media_tag }}
+      class="fm-split__media"
+      {% if media_url != blank %}href="{{ media_url }}"{% endif %}
+    >
+      {%- if section.settings.image != blank -%}
+        {{
+          section.settings.image
+          | image_url: width: 2000
+          | image_tag:
+            class: 'fm-split__image',
+            loading: 'lazy',
+            widths: '600, 900, 1200, 1600, 2000',
+            sizes: '(min-width: 750px) 65vw, 100vw',
+            alt: image_alt
+        }}
+      {%- else -%}
+        <div class="fm-split__placeholder">{{ 'lifestyle-1' | placeholder_svg_tag }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.wordmark != blank -%}
+        <span class="fm-split__wordmark" style="color: {{ section.settings.wordmark_color }};">
+          {{- section.settings.wordmark -}}
+        </span>
+      {%- endif -%}
+    </{{ media_tag }}>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FM Split Editorial",
+  "tag": "section",
+  "class": "fm-split-section",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "New Collection"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop By Collection"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Explore the newest suits we sell in store, made in premium fabrics and finished by hand.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop the look"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "image_link",
+      "label": "Image link"
+    },
+    {
+      "type": "text",
+      "id": "wordmark",
+      "label": "Overlay wordmark",
+      "default": "Stitched For You"
+    },
+    {
+      "type": "color",
+      "id": "wordmark_color",
+      "label": "Wordmark color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position on desktop",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_bleed",
+      "label": "Run edge to edge",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Section background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "panel_background",
+      "label": "Text panel background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 8
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (fill and crop)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (fit whole image)"
+        }
+      ],
+      "default": "cover"
+    }
+  ],
+  "presets": [
+    {
+      "name": "FM Split Editorial"
+    }
+  ]
+}
+{% endschema %}

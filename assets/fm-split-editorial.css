@@ -1,0 +1,132 @@
+/* FM — text panel beside a full-height editorial image */
+
+.fm-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--fm-gutter);
+  align-items: stretch;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr);
+  }
+
+  .fm-split--image-first {
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+  }
+
+  .fm-split--image-first .fm-split__panel {
+    order: 2;
+  }
+
+  .fm-split--image-first .fm-split__media {
+    order: 1;
+  }
+}
+
+.fm-split__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.2rem 2.4rem;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-split__panel {
+    padding: 4rem 3.6rem;
+  }
+}
+
+.fm-split__heading {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.4vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.fm-split__text {
+  margin: 1.2rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.7;
+  color: rgba(var(--fm-ink), 0.65);
+  max-width: 40ch;
+}
+
+.fm-split__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  align-self: flex-start;
+  margin-top: 2.4rem;
+  padding: 1.1rem 2.2rem;
+  font-size: 1.1rem;
+  letter-spacing: var(--fm-track);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgb(var(--fm-ink));
+  border: 1px solid rgba(var(--fm-ink), 0.35);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fm-split__cta:hover {
+  background-color: rgb(var(--fm-ink));
+  border-color: rgb(var(--fm-ink));
+  color: #fff;
+}
+
+.fm-split__cta svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.fm-split__media {
+  position: relative;
+  overflow: hidden;
+  min-height: 34rem;
+  display: block;
+  text-decoration: none;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-split__media {
+    min-height: 46rem;
+  }
+}
+
+.fm-split__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fm-split__placeholder {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(var(--fm-ink), 0.08);
+}
+
+.fm-split__placeholder svg {
+  width: 100%;
+  height: 100%;
+  fill: rgba(var(--fm-ink), 0.16);
+}
+
+.fm-split__wordmark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-size: clamp(1.8rem, 3.4vw, 3.6rem);
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}

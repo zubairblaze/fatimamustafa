@@ -46,9 +46,23 @@ if (!customElements.get('product-form')) {
         const quantity = parseInt(formData.get('quantity')) || 1;
         const linesUpdateDeferred = this.createCartLinesUpdateEvent(variantId, quantity);
 
+        // FM add-ons: ticked add-on variants go into the cart as their own lines
+        // in the same request, so their prices reach the cart total and the order.
+        const addonItems = this.getAddonItems(quantity);
+        if (addonItems.length) {
+          config.headers['Content-Type'] = 'application/json';
+          config.body = JSON.stringify(this.buildItemsPayload(formData, addonItems));
+        }
+
         fetch(`${routes.cart_add_url}`, config)
           .then((response) => response.json())
           .then((response) => {
+            // A multi-item add answers with { items, sections }. The cart
+            // notification and subscribers expect a single line, so point them
+            // at the product line, which is always first.
+            if (Array.isArray(response.items) && !response.status && !response.key) {
+              Object.assign(response, response.items[0]);
+            }
             if (response.status) {
               publish(PUB_SUB_EVENTS.cartError, {
                 source: 'product-form',
@@ -118,6 +132,70 @@ if (!customElements.get('product-form')) {
 
             CartPerformance.measureFromEvent("add:user-action", evt);
           });
+      }
+
+      /**
+       * FM add-ons ticked for this form, as cart items. Each one is added once
+       * per garment ordered, and carries a "For" property naming the product
+       * (and size) it belongs to, so the order can be made up correctly.
+       */
+      getAddonItems(quantity) {
+        // Add-on checklists for this product, wherever they sit on the page: in
+        // the product section's Add-ons block or in the Product add-ons section.
+        const productId = this.dataset.productId;
+        if (!productId) return [];
+        const groups = Array.from(document.querySelectorAll(`[data-fm-addons-product="${productId}"]`));
+        if (!groups.length) return [];
+
+        // If the checklist appears twice (block and section), count each add-on once.
+        const ids = new Set();
+        groups.forEach((group) =>
+          group.querySelectorAll('[data-fm-addon]:checked:not(:disabled)').forEach((input) => ids.add(input.value))
+        );
+        if (!ids.size) return [];
+
+        let forLabel = groups[0].dataset.fmAddonsFor || '';
+        const selected = document
+          .querySelector(`[data-section="${this.dataset.sectionId}"] [data-selected-variant]`)
+          ?.textContent;
+        try {
+          const variant = selected ? JSON.parse(selected) : null;
+          if (variant && variant.title && variant.title !== 'Default Title') forLabel += ` - ${variant.title}`;
+        } catch {
+          /* the product title alone is enough */
+        }
+
+        return Array.from(ids).map((id) => ({
+          id: Number(id),
+          quantity,
+          properties: forLabel ? { For: forLabel } : {},
+        }));
+      }
+
+      /**
+       * The same request the form would send, as a multi-item JSON body: the
+       * product line first (with its line item properties and selling plan),
+       * then the add-on lines.
+       */
+      buildItemsPayload(formData, addonItems) {
+        const main = {
+          id: Number(formData.get('id')),
+          quantity: parseInt(formData.get('quantity')) || 1,
+          properties: {},
+        };
+
+        for (const [name, value] of formData.entries()) {
+          const match = name.match(/^properties\[(.+)\]$/);
+          if (match && typeof value === 'string') main.properties[match[1]] = value;
+        }
+        if (formData.get('selling_plan')) main.selling_plan = formData.get('selling_plan');
+
+        const payload = { items: [main, ...addonItems] };
+        if (formData.get('sections')) {
+          payload.sections = formData.get('sections');
+          payload.sections_url = formData.get('sections_url');
+        }
+        return payload;
       }
 
       handleErrorMessage(errorMessage = false) {

@@ -1,0 +1,98 @@
+/* FM — editorial image beside a captioned collection carousel ("Bridal") */
+
+.fm-bridal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--fm-gutter);
+  align-items: stretch;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-bridal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+  }
+}
+
+.fm-bridal__aside {
+  position: relative;
+  overflow: hidden;
+  min-height: 32rem;
+  display: block;
+  text-decoration: none;
+}
+
+.fm-bridal__aside img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fm-bridal__aside .fm-tile__placeholder {
+  position: absolute;
+  inset: 0;
+}
+
+.fm-bridal__main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 0 0;
+}
+
+@media screen and (min-width: 990px) {
+  .fm-bridal__main {
+    padding: 1.6rem 0 0 1.6rem;
+  }
+}
+
+.fm-bridal__item {
+  width: 52vw;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-bridal__item {
+    width: 30vw;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .fm-bridal__item {
+    width: calc((100% - 3 * var(--fm-gutter)) / 4);
+  }
+}
+
+.fm-bridal__frame {
+  aspect-ratio: 25 / 32;
+}
+
+.fm-bridal__caption {
+  display: block;
+  margin-top: 0.9rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--fm-ink));
+}
+
+/* Scroll position indicator under the row. */
+.fm-bridal__progress {
+  position: relative;
+  height: 2px;
+  margin-top: 1.6rem;
+  background-color: rgb(var(--fm-rule));
+  overflow: hidden;
+}
+
+.fm-bridal__progress span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 25%;
+  background-color: rgb(var(--fm-ink));
+  transition: transform 0.2s ease;
+}
+
+fm-scroller[data-fm-static] .fm-bridal__progress {
+  visibility: hidden;
+}

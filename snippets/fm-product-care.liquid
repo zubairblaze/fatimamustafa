@@ -1,0 +1,118 @@
+{%- comment -%}
+  Renders the product care panel for one product.
+
+  The fabric line and the care list come from product metafields so each
+  product can carry its own; the block's settings are the fallback for
+  products that have none. Only populated slots are shown.
+
+  Accepts:
+  - block: {Object} the care block, for its settings
+  - product: {Object} the product whose metafields hold the care copy
+
+  Usage:
+  {% render 'fm-product-care', block: block, product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign ns = block.settings.metafield_namespace | default: 'custom'
+
+  assign fabric_text = block.settings.fabric_text
+  if block.settings.fabric_metafield_key != blank
+    assign fabric_mf = product.metafields[ns][block.settings.fabric_metafield_key]
+    if fabric_mf.type != blank
+      assign fabric_text = fabric_mf.value
+    endif
+  endif
+
+  assign icon_prefix = block.settings.icon_key_prefix | default: 'care_icon_'
+  assign image_prefix = block.settings.image_key_prefix | default: 'care_image_'
+  assign text_prefix = block.settings.text_key_prefix | default: 'care_text_'
+  assign slots = block.settings.slot_count
+  if slots == nil
+    assign slots = 5
+  endif
+
+  comment
+    A first pass only to decide between the metafield list and the fallback:
+    one populated text slot is enough to hand the whole list to the product.
+  endcomment
+  assign mf_lines = 0
+  for i in (1..slots)
+    assign text_key = text_prefix | append: i
+    if product.metafields[ns][text_key].value != blank
+      assign mf_lines = mf_lines | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if block.settings.fontawesome_url != blank -%}
+  <link rel="stylesheet" href="{{ block.settings.fontawesome_url }}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ block.settings.fontawesome_url }}"></noscript>
+{%- endif -%}
+
+<div {{ block.shopify_attributes }}>
+  {%- if block.settings.heading != blank -%}
+    <h2 class="fm-care__title">{{ block.settings.heading }}</h2>
+  {%- endif -%}
+
+  {%- if block.settings.fabric_label != blank or fabric_text != blank -%}
+    <div class="fm-care__group">
+      {%- if block.settings.fabric_label != blank -%}
+        <p class="fm-care__label">{{ block.settings.fabric_label }}</p>
+      {%- endif -%}
+      {%- if fabric_text != blank -%}
+        <p class="fm-care__text">{{ fabric_text }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if mf_lines > 0 -%}
+    <div class="fm-care__group">
+      {%- if block.settings.care_label != blank -%}
+        <p class="fm-care__label">{{ block.settings.care_label }}</p>
+      {%- endif -%}
+      <ul class="fm-care__list" role="list">
+        {%- for i in (1..slots) -%}
+          {%- liquid
+            assign text_key = text_prefix | append: i
+            assign icon_key = icon_prefix | append: i
+            assign image_key = image_prefix | append: i
+            assign care_text = product.metafields[ns][text_key].value
+            assign care_icon = product.metafields[ns][icon_key].value
+            assign care_image = product.metafields[ns][image_key].value
+          -%}
+          {%- if care_text != blank -%}
+            <li class="fm-care__item">
+              <span class="fm-care__icon">
+                {% render 'fm-care-icon', name: care_icon, image: care_image %}
+              </span>
+              <span>{{ care_text }}</span>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </div>
+  {%- else -%}
+    {%- assign care_lines = block.settings.care_list | newline_to_br | split: '<br />' -%}
+    {%- if block.settings.care_list != blank -%}
+      <div class="fm-care__group">
+        {%- if block.settings.care_label != blank -%}
+          <p class="fm-care__label">{{ block.settings.care_label }}</p>
+        {%- endif -%}
+        <ul class="fm-care__list" role="list">
+          {%- for line in care_lines -%}
+            {%- assign text = line | strip -%}
+            {%- if text != blank -%}
+              <li class="fm-care__item">
+                <span class="fm-care__icon">
+                  {% render 'fm-care-icon' %}
+                </span>
+                <span>{{ text }}</span>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+</div>

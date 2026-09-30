@@ -1,0 +1,112 @@
+/* FM — tabbed product carousel ("Most Trending") */
+
+.fm-trending .fm-head {
+  align-items: flex-start;
+  margin-bottom: 0.8rem;
+}
+
+.fm-trending__tabs {
+  display: flex;
+  gap: 1.8rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin: 0 0 1.6rem;
+  padding: 0 0 0.4rem;
+  list-style: none;
+  border-bottom: 1px solid rgb(var(--fm-rule));
+}
+
+.fm-trending__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.fm-trending__tab {
+  flex: 0 0 auto;
+  background: none;
+  border: 0;
+  padding: 0 0 0.8rem;
+  font-size: 1.1rem;
+  letter-spacing: var(--fm-track);
+  text-transform: uppercase;
+  color: rgba(var(--fm-ink), 0.5);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.fm-trending__tab:hover {
+  color: rgb(var(--fm-ink));
+}
+
+.fm-trending__tab[aria-selected='true'] {
+  color: rgb(var(--fm-ink));
+}
+
+.fm-trending__tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background-color: rgb(var(--fm-ink));
+}
+
+.fm-trending__panel[hidden] {
+  display: none;
+}
+
+.fm-trending__item {
+  width: 46vw;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-trending__item {
+    width: 30vw;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .fm-trending__item {
+    width: calc((100% - 4 * var(--fm-gutter)) / 5);
+  }
+}
+
+/* The arrows sit at the top right of the panel, level with "View all".
+   They belong to the active panel's scroller, so they are positioned out of
+   the panel rather than living in the shared section header. */
+.fm-trending__scroller {
+  position: relative;
+}
+
+.fm-trending .fm-head__aside {
+  /* Leave room for the arrows, which overlay this row from the panel below. */
+  padding-right: 7.4rem;
+}
+
+.fm-trending__arrows {
+  position: absolute;
+  top: -6rem;
+  right: 0;
+  z-index: 1;
+}
+
+@media screen and (max-width: 749px) {
+  .fm-trending__arrows {
+    display: none;
+  }
+}
+
+/* With everything visible there is nothing to scroll, so drop the arrows. */
+fm-scroller[data-fm-static] .fm-arrows {
+  display: none;
+}
+
+.fm-trending__empty {
+  margin: 0;
+  padding: 3rem 0;
+  color: rgba(var(--fm-ink), 0.55);
+  font-size: 1.3rem;
+}

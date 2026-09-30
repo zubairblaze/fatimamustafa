@@ -1,0 +1,75 @@
+/* FM — large collection tile grids (the 2-up and 3-up banner rows) */
+
+.fm-grid {
+  display: grid;
+  /* Equal rows so a wider tile doesn't also become a taller one when the
+     tiles share a fixed aspect ratio. */
+  grid-auto-rows: 1fr;
+  gap: var(--fm-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media screen and (min-width: 750px) {
+  .fm-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fm-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .fm-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  /* The reference gives the first 2-up tile a little more width. */
+  .fm-grid--2.fm-grid--weighted {
+    grid-template-columns: minmax(0, 1.16fr) minmax(0, 1fr);
+  }
+}
+
+.fm-grid > li {
+  display: flex;
+  min-height: 0;
+}
+
+.fm-grid__tile {
+  width: 100%;
+  height: 100%;
+}
+
+.fm-grid__frame {
+  aspect-ratio: 5 / 6;
+}
+
+.fm-grid--ratio-square .fm-grid__frame {
+  aspect-ratio: 1 / 1;
+}
+
+.fm-grid--ratio-landscape .fm-grid__frame {
+  aspect-ratio: 25 / 18;
+}
+
+.fm-grid--ratio-portrait .fm-grid__frame {
+  aspect-ratio: 5 / 6;
+}
+
+.fm-grid--ratio-tall .fm-grid__frame {
+  aspect-ratio: 7 / 10;
+}
+
+.fm-grid .fm-tile__label {
+  left: 2rem;
+  bottom: 1.8rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+}
+
+@media screen and (min-width: 750px) {
+  .fm-grid .fm-tile__label {
+    font-size: 1.5rem;
+  }
+}
