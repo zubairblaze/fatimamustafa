@@ -1,6 +1,7 @@
 {%- comment -%}
   Shoppable video — an Instagram-reel style carousel where each video can be
-  tied to a product.
+  tied to a product. The videos are silent by design: they play muted to draw
+  the eye, and the section carries no sound control at all.
 
   This section is deliberately self-contained: all of its CSS, JavaScript and
   markup live in this one file, and it renders no theme snippets and reads no
@@ -37,11 +38,6 @@
   assign show_card = true
   if section.settings.show_product_card == false
     assign show_card = false
-  endif
-
-  assign show_sound = true
-  if section.settings.show_sound_toggle == false
-    assign show_sound = false
   endif
 
   assign show_arrows = true
@@ -232,11 +228,6 @@
     pointer-events: none;
   }
 
-  #shopify-section-{{ section.id }} .svid__sound {
-    top: 12px;
-    right: 12px;
-  }
-
   #shopify-section-{{ section.id }} .svid__play {
     top: 50%;
     left: 50%;
@@ -253,16 +244,6 @@
   #shopify-section-{{ section.id }} .svid__media.is-playing .svid__play {
     opacity: 0;
     pointer-events: none;
-  }
-
-  /* The muted glyph is the one shown while muted, and vice versa. */
-  #shopify-section-{{ section.id }} .svid__icon--on,
-  #shopify-section-{{ section.id }} .svid__media.is-muted .svid__icon--off {
-    display: none;
-  }
-
-  #shopify-section-{{ section.id }} .svid__media.is-muted .svid__icon--on {
-    display: block;
   }
 
   /* --- Product card ------------------------------------------------------ */
@@ -476,7 +457,7 @@
 
         <li class="svid__item" {{ block.shopify_attributes }}>
           <div
-            class="svid__media is-muted"
+            class="svid__media"
             data-svid-media
             {% if embed_url != blank %}data-svid-embed="{{ embed_url | escape }}"{% endif %}
           >
@@ -531,18 +512,6 @@
               <button type="button" class="svid__btn svid__play" data-svid-play>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
                 <span class="svid__a11y">Play</span>
-              </button>
-            {%- endif -%}
-
-            {%- if show_sound and video != blank -%}
-              <button type="button" class="svid__btn svid__sound" data-svid-sound aria-pressed="true">
-                <svg class="svid__icon--on" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 4 7 8H3v8h4l5 4V4zm4.5 8a3.5 3.5 0 0 0-1.6-2.9v5.8A3.5 3.5 0 0 0 16.5 12zM19 21.4l1.4-1.4L4 3.6 2.6 5l4 4H3v6h4l5 4v-6.2l4.3 4.3A7 7 0 0 1 14 18v2a9 9 0 0 0 4.7-1.6l.3.4z"/>
-                </svg>
-                <svg class="svid__icon--off" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 4 7 8H3v8h4l5 4V4zm4.5 8a3.5 3.5 0 0 0-1.6-2.9v5.8A3.5 3.5 0 0 0 16.5 12zM14 4.5v2a5.5 5.5 0 0 1 0 11v2a7.5 7.5 0 0 0 0-15z"/>
-                </svg>
-                <span class="svid__a11y">Turn sound on</span>
               </button>
             {%- endif -%}
 
@@ -690,6 +659,12 @@
           var video = media.querySelector('[data-svid-video]');
           if (!video) return;
 
+          /* This section has no sound at all, and muted is the only state a
+             browser will autoplay. The attribute alone is not always enough -
+             Safari checks the property - so both are set before every play. */
+          video.muted = true;
+          video.defaultMuted = true;
+
           var started = video.play();
           if (started && typeof started.catch === 'function') {
             // A rejected play is normal when the tab is hidden or the browser
@@ -745,46 +720,11 @@
               });
             }
 
-            var soundBtn = media.querySelector('[data-svid-sound]');
-            if (soundBtn) {
-              soundBtn.addEventListener('click', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                this.setSound(media);
-              });
-            }
-
             media.addEventListener('click', (event) => {
               if (event.target.closest('a') || event.target.closest('button')) return;
               this.toggle(media);
             });
           });
-        }
-
-        /* Only one card may have sound. Unmuting one mutes the rest, the way
-           a feed of reels behaves. */
-        setSound(media) {
-          var video = media.querySelector('[data-svid-video]');
-          if (!video) return;
-
-          var unmuting = video.muted;
-
-          this.medias.forEach((other) => {
-            var otherVideo = other.querySelector('[data-svid-video]');
-            if (!otherVideo) return;
-            otherVideo.muted = true;
-            other.classList.add('is-muted');
-            var btn = other.querySelector('[data-svid-sound]');
-            if (btn) btn.setAttribute('aria-pressed', 'true');
-          });
-
-          if (unmuting) {
-            video.muted = false;
-            media.classList.remove('is-muted');
-            var btn = media.querySelector('[data-svid-sound]');
-            if (btn) btn.setAttribute('aria-pressed', 'false');
-            this.play(media);
-          }
         }
 
         bindArrows() {
@@ -1028,18 +968,12 @@
       "id": "autoplay",
       "label": "Play videos automatically",
       "default": true,
-      "info": "Videos start muted and play only while on screen. Visitors who ask their device to reduce motion always get a play button instead."
+      "info": "Videos are always silent, and play only while on screen. Visitors who ask their device to reduce motion get a play button instead."
     },
     {
       "type": "checkbox",
       "id": "loop_videos",
       "label": "Loop videos",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_sound_toggle",
-      "label": "Show sound button",
       "default": true
     },
     {
