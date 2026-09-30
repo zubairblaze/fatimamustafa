@@ -529,7 +529,7 @@
         "link_label": "",
         "link_url": "",
         "columns_desktop": "4",
-        "columns_mobile": "1.2",
+        "columns_mobile": "1",
         "aspect_ratio": "portrait_9_16",
         "gap": 12,
         "corner_radius": 12,
