@@ -1,0 +1,1195 @@
+{%- comment -%}
+  Shoppable video — an Instagram-reel style carousel where each video can be
+  tied to a product.
+
+  This section is deliberately self-contained: all of its CSS, JavaScript and
+  markup live in this one file, and it renders no theme snippets and reads no
+  theme stylesheets or settings. Copying sections/shoppable-video.liquid into
+  another Shopify theme is all that is needed to use it there.
+{%- endcomment -%}
+
+{%- liquid
+  assign cols = section.settings.columns_desktop | default: 4
+  assign cols_mobile = section.settings.columns_mobile | default: '1.2' | times: 1
+
+  assign ratio = '0.5625'
+  case section.settings.aspect_ratio
+    when 'square'
+      assign ratio = '1'
+    when 'portrait_4_5'
+      assign ratio = '0.8'
+  endcase
+
+  comment
+    Checkbox settings need an explicit nil test rather than the default filter,
+    which treats false as blank and would flip every unticked box back on.
+  endcomment
+  assign autoplay = true
+  if section.settings.autoplay == false
+    assign autoplay = false
+  endif
+
+  assign loop_videos = true
+  if section.settings.loop_videos == false
+    assign loop_videos = false
+  endif
+
+  assign show_card = true
+  if section.settings.show_product_card == false
+    assign show_card = false
+  endif
+
+  assign show_sound = true
+  if section.settings.show_sound_toggle == false
+    assign show_sound = false
+  endif
+
+  assign show_arrows = true
+  if section.settings.show_arrows == false
+    assign show_arrows = false
+  endif
+-%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --svid-cols: {{ cols }};
+    --svid-cols-mobile: {{ cols_mobile }};
+    --svid-gap: {{ section.settings.gap }}px;
+    --svid-radius: {{ section.settings.corner_radius }}px;
+    --svid-ratio: {{ ratio }};
+    --svid-bg: {{ section.settings.background }};
+    --svid-fg: {{ section.settings.text_color }};
+    --svid-card-bg: {{ section.settings.card_background }};
+    --svid-card-fg: {{ section.settings.card_text }};
+
+    background-color: var(--svid-bg);
+    color: var(--svid-fg);
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  #shopify-section-{{ section.id }} .svid {
+    max-width: {{ section.settings.max_width }}px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+
+  #shopify-section-{{ section.id }} .svid__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  #shopify-section-{{ section.id }} .svid__heading {
+    margin: 0;
+    font-size: {{ section.settings.heading_size | times: 0.8 | round: 0 }}px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  #shopify-section-{{ section.id }} .svid__sub {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.7;
+  }
+
+  #shopify-section-{{ section.id }} .svid__viewall {
+    flex: none;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 2px;
+    white-space: nowrap;
+  }
+
+  /* --- Track ------------------------------------------------------------- */
+
+  #shopify-section-{{ section.id }} .svid__frame {
+    position: relative;
+  }
+
+  #shopify-section-{{ section.id }} .svid__track {
+    display: flex;
+    gap: var(--svid-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  #shopify-section-{{ section.id }} .svid__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  #shopify-section-{{ section.id }} .svid__track.is-grabbing {
+    scroll-behavior: auto;
+    cursor: grabbing;
+  }
+
+  #shopify-section-{{ section.id }} .svid__track.is-grabbing a {
+    pointer-events: none;
+  }
+
+  #shopify-section-{{ section.id }} .svid__item {
+    flex: 0 0 calc((100% - (var(--svid-cols-mobile) - 1) * var(--svid-gap)) / var(--svid-cols-mobile));
+    scroll-snap-align: start;
+    min-width: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} .svid__item {
+      flex-basis: calc((100% - (var(--svid-cols) - 1) * var(--svid-gap)) / var(--svid-cols));
+    }
+  }
+
+  /* --- Card -------------------------------------------------------------- */
+
+  #shopify-section-{{ section.id }} .svid__media {
+    position: relative;
+    aspect-ratio: var(--svid-ratio);
+    border-radius: var(--svid-radius);
+    overflow: hidden;
+    background-color: rgba(128, 128, 128, 0.12);
+  }
+
+  #shopify-section-{{ section.id }} .svid__video,
+  #shopify-section-{{ section.id }} .svid__poster,
+  #shopify-section-{{ section.id }} .svid__embed {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: 0;
+  }
+
+  #shopify-section-{{ section.id }} .svid__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    opacity: 0.55;
+    text-align: center;
+    padding: 16px;
+  }
+
+  /* --- Controls ---------------------------------------------------------- */
+
+  #shopify-section-{{ section.id }} .svid__btn {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    cursor: pointer;
+    z-index: 2;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  #shopify-section-{{ section.id }} .svid__btn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  /* Deliberately not position:absolute. Inside a product card placed below
+     the video there is no positioned ancestor within the scroll container, so
+     an absolute label escapes to the carousel frame at its static offset and
+     widens the whole page. Staying in flow at 1px cannot do that. */
+  #shopify-section-{{ section.id }} .svid__a11y {
+    display: inline-block;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  #shopify-section-{{ section.id }} .svid__btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    pointer-events: none;
+  }
+
+  #shopify-section-{{ section.id }} .svid__sound {
+    top: 12px;
+    right: 12px;
+  }
+
+  #shopify-section-{{ section.id }} .svid__play {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+  }
+
+  #shopify-section-{{ section.id }} .svid__play svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  #shopify-section-{{ section.id }} .svid__media.is-playing .svid__play {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* The muted glyph is the one shown while muted, and vice versa. */
+  #shopify-section-{{ section.id }} .svid__icon--on,
+  #shopify-section-{{ section.id }} .svid__media.is-muted .svid__icon--off {
+    display: none;
+  }
+
+  #shopify-section-{{ section.id }} .svid__media.is-muted .svid__icon--on {
+    display: block;
+  }
+
+  /* --- Product card ------------------------------------------------------ */
+
+  #shopify-section-{{ section.id }} .svid__product {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    text-decoration: none;
+    color: var(--svid-card-fg);
+    background-color: var(--svid-card-bg);
+    border-radius: calc(var(--svid-radius) * 0.6);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  }
+
+  #shopify-section-{{ section.id }} .svid__product--overlay {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    z-index: 2;
+  }
+
+  #shopify-section-{{ section.id }} .svid__product--below {
+    margin-top: 10px;
+  }
+
+  #shopify-section-{{ section.id }} .svid__thumb {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: calc(var(--svid-radius) * 0.35);
+    object-fit: cover;
+    display: block;
+    background-color: rgba(128, 128, 128, 0.15);
+  }
+
+  #shopify-section-{{ section.id }} .svid__info {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  #shopify-section-{{ section.id }} .svid__title {
+    display: block;
+    font-size: 13px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #shopify-section-{{ section.id }} .svid__price {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #shopify-section-{{ section.id }} .svid__was {
+    margin-left: 6px;
+    font-weight: 400;
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+
+  #shopify-section-{{ section.id }} .svid__chev {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+  }
+
+  /* --- Arrows and dots --------------------------------------------------- */
+
+  #shopify-section-{{ section.id }} .svid__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--svid-card-bg);
+    color: var(--svid-card-fg);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+    cursor: pointer;
+    z-index: 3;
+  }
+
+  #shopify-section-{{ section.id }} .svid__nav svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  #shopify-section-{{ section.id }} .svid__nav[disabled] {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  #shopify-section-{{ section.id }} .svid__nav--prev {
+    left: -8px;
+  }
+
+  #shopify-section-{{ section.id }} .svid__nav--prev svg {
+    transform: rotate(180deg);
+  }
+
+  #shopify-section-{{ section.id }} .svid__nav--next {
+    right: -8px;
+  }
+
+  @media screen and (min-width: 990px) {
+    #shopify-section-{{ section.id }} .svid__nav {
+      display: inline-flex;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    #shopify-section-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+
+    #shopify-section-{{ section.id }} .svid {
+      padding-inline: 32px;
+    }
+
+    #shopify-section-{{ section.id }} .svid__heading {
+      font-size: {{ section.settings.heading_size }}px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #shopify-section-{{ section.id }} .svid__track {
+      scroll-behavior: auto;
+    }
+  }
+{%- endstyle -%}
+
+<div class="svid">
+  {%- if section.settings.heading != blank
+      or section.settings.subheading != blank
+      or section.settings.link_label != blank
+  -%}
+    <div class="svid__head">
+      <div>
+        {%- if section.settings.heading != blank -%}
+          <h2 class="svid__heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="svid__sub">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.link_label != blank and section.settings.link_url != blank -%}
+        <a class="svid__viewall" href="{{ section.settings.link_url }}">
+          {{- section.settings.link_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <shoppable-video
+    class="svid__frame"
+    {% if autoplay %}data-svid-autoplay{% endif %}
+  >
+    <ul class="svid__track" data-svid-track role="list">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign video = block.settings.video
+          assign external = block.settings.video_url
+          assign linked = block.settings.product
+
+          assign poster_image = block.settings.poster
+          if poster_image == blank
+            assign poster_image = video.preview_image
+          endif
+          if poster_image == blank
+            assign poster_image = linked.featured_image
+          endif
+
+          assign poster_url = ''
+          if poster_image != blank
+            assign poster_url = poster_image | image_url: width: 800
+          endif
+
+          assign label = block.settings.title
+          if label == blank
+            assign label = linked.title
+          endif
+          if label == blank
+            assign label = 'Shoppable video'
+          endif
+
+          assign card_url = block.settings.link
+          if card_url == blank
+            assign card_url = linked.url
+          endif
+
+          assign embed_url = ''
+          if external.type == 'youtube'
+            assign embed_url = 'https://www.youtube.com/embed/' | append: external.id | append: '?autoplay=1&playsinline=1&rel=0'
+          elsif external.type == 'vimeo'
+            assign embed_url = 'https://player.vimeo.com/video/' | append: external.id | append: '?autoplay=1'
+          endif
+        -%}
+
+        <li class="svid__item" {{ block.shopify_attributes }}>
+          <div
+            class="svid__media is-muted"
+            data-svid-media
+            {% if embed_url != blank %}data-svid-embed="{{ embed_url | escape }}"{% endif %}
+          >
+            {%- if video != blank -%}
+              {%- comment -%}
+                Built by hand rather than with video_tag, which cannot emit
+                playsinline - without it iOS takes the video fullscreen instead
+                of playing it in the card. mp4 sources come first so every
+                browser gets one it can decode.
+              {%- endcomment -%}
+              <video
+                class="svid__video"
+                data-svid-video
+                playsinline
+                muted
+                preload="none"
+                {% if loop_videos %}loop{% endif %}
+                {% if poster_url != blank %}poster="{{ poster_url }}"{% endif %}
+                aria-label="{{ label | escape }}"
+              >
+                {%- for source in video.sources -%}
+                  {%- if source.format == 'mp4' -%}
+                    <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- for source in video.sources -%}
+                  {%- if source.format != 'mp4' -%}
+                    <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                  {%- endif -%}
+                {%- endfor -%}
+              </video>
+
+            {%- elsif embed_url != blank -%}
+              {%- if poster_url != blank -%}
+                <img
+                  class="svid__poster"
+                  src="{{ poster_url }}"
+                  alt="{{ label | escape }}"
+                  loading="lazy"
+                  width="800"
+                  height="1422"
+                >
+              {%- endif -%}
+
+            {%- else -%}
+              <span class="svid__placeholder">
+                Pick a video for this block, or paste a YouTube or Vimeo link.
+              </span>
+            {%- endif -%}
+
+            {%- if video != blank or embed_url != blank -%}
+              <button type="button" class="svid__btn svid__play" data-svid-play>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                <span class="svid__a11y">Play</span>
+              </button>
+            {%- endif -%}
+
+            {%- if show_sound and video != blank -%}
+              <button type="button" class="svid__btn svid__sound" data-svid-sound aria-pressed="true">
+                <svg class="svid__icon--on" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 4 7 8H3v8h4l5 4V4zm4.5 8a3.5 3.5 0 0 0-1.6-2.9v5.8A3.5 3.5 0 0 0 16.5 12zM19 21.4l1.4-1.4L4 3.6 2.6 5l4 4H3v6h4l5 4v-6.2l4.3 4.3A7 7 0 0 1 14 18v2a9 9 0 0 0 4.7-1.6l.3.4z"/>
+                </svg>
+                <svg class="svid__icon--off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 4 7 8H3v8h4l5 4V4zm4.5 8a3.5 3.5 0 0 0-1.6-2.9v5.8A3.5 3.5 0 0 0 16.5 12zM14 4.5v2a5.5 5.5 0 0 1 0 11v2a7.5 7.5 0 0 0 0-15z"/>
+                </svg>
+                <span class="svid__a11y">Turn sound on</span>
+              </button>
+            {%- endif -%}
+
+            {%- if show_card and section.settings.card_style == 'overlay' and linked != blank -%}
+              <a class="svid__product svid__product--overlay" href="{{ card_url }}">
+                {%- if linked.featured_image != blank -%}
+                  {%- assign thumb = linked.featured_image | image_url: width: 120 -%}
+                  <img class="svid__thumb" src="{{ thumb }}" alt="" loading="lazy" width="44" height="44">
+                {%- endif -%}
+                <span class="svid__info">
+                  <span class="svid__title">{{ label | escape }}</span>
+                  <span class="svid__price">
+                    {{- linked.price | money -}}
+                    {%- if linked.compare_at_price > linked.price -%}
+                      <span class="svid__a11y"> was </span>
+                      <span class="svid__was">{{ linked.compare_at_price | money }}</span>
+                    {%- endif -%}
+                  </span>
+                </span>
+                <svg class="svid__chev" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+            {%- endif -%}
+          </div>
+
+          {%- if show_card and section.settings.card_style == 'below' and linked != blank -%}
+            <a class="svid__product svid__product--below" href="{{ card_url }}">
+              {%- if linked.featured_image != blank -%}
+                {%- assign thumb = linked.featured_image | image_url: width: 120 -%}
+                <img class="svid__thumb" src="{{ thumb }}" alt="" loading="lazy" width="44" height="44">
+              {%- endif -%}
+              <span class="svid__info">
+                <span class="svid__title">{{ label | escape }}</span>
+                <span class="svid__price">
+                  {{- linked.price | money -}}
+                  {%- if linked.compare_at_price > linked.price -%}
+                    <span class="svid__a11y"> was </span>
+                    <span class="svid__was">{{ linked.compare_at_price | money }}</span>
+                  {%- endif -%}
+                </span>
+              </span>
+              <svg class="svid__chev" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if show_arrows and section.blocks.size > 1 -%}
+      <button type="button" class="svid__nav svid__nav--prev" data-svid-prev aria-label="Previous videos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button type="button" class="svid__nav svid__nav--next" data-svid-next aria-label="Next videos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+    {%- endif -%}
+  </shoppable-video>
+</div>
+
+<script>
+  (function () {
+    if (customElements.get('shoppable-video')) return;
+
+    var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    customElements.define(
+      'shoppable-video',
+      class ShoppableVideo extends HTMLElement {
+        connectedCallback() {
+          this.ready();
+        }
+
+        /* Every copy of this section carries its own copy of this script, so
+           the element is defined while the page is still parsing. Instances
+           after the first are therefore upgraded mid-parse, when their own
+           children do not exist yet and connectedCallback would find no
+           track. Those wait for the parser instead of giving up. */
+        ready() {
+          var track = this.querySelector('[data-svid-track]');
+
+          if (!track) {
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', () => this.ready(), { once: true });
+            } else {
+              requestAnimationFrame(() => this.ready());
+            }
+            return;
+          }
+
+          if (this.bound) {
+            // Re-attached, for instance when moved in the theme editor. The
+            // listeners survived; only the observer needs building again.
+            if (!this.observer) this.watchVisibility();
+            return;
+          }
+
+          this.bound = true;
+          this.track = track;
+          this.medias = Array.from(this.querySelectorAll('[data-svid-media]'));
+          this.autoplay = this.hasAttribute('data-svid-autoplay') && !REDUCED.matches;
+
+          this.bindControls();
+          this.bindDrag();
+          this.bindArrows();
+          this.watchVisibility();
+        }
+
+        disconnectedCallback() {
+          if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+          }
+        }
+
+        /* Each card plays only while it is on screen, so a row of six reels
+           never has six videos decoding at once. */
+        watchVisibility() {
+          if (!('IntersectionObserver' in window)) return;
+
+          this.observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                var media = entry.target;
+                var video = media.querySelector('[data-svid-video]');
+                if (!video) return;
+
+                if (entry.isIntersecting) {
+                  if (this.autoplay) this.play(media);
+                } else {
+                  video.pause();
+                  media.classList.remove('is-playing');
+                }
+              });
+            },
+            { threshold: 0.6 }
+          );
+
+          this.medias.forEach((media) => this.observer.observe(media));
+        }
+
+        play(media) {
+          var video = media.querySelector('[data-svid-video]');
+          if (!video) return;
+
+          var started = video.play();
+          if (started && typeof started.catch === 'function') {
+            // A rejected play is normal when the tab is hidden or the browser
+            // refuses autoplay; leaving the poster and play button up is the
+            // right outcome, so this is not an error worth surfacing.
+            started
+              .then(() => media.classList.add('is-playing'))
+              .catch(() => media.classList.remove('is-playing'));
+          } else {
+            media.classList.add('is-playing');
+          }
+        }
+
+        toggle(media) {
+          var video = media.querySelector('[data-svid-video]');
+
+          if (!video) {
+            this.mountEmbed(media);
+            return;
+          }
+
+          if (video.paused) {
+            this.play(media);
+          } else {
+            video.pause();
+            media.classList.remove('is-playing');
+          }
+        }
+
+        /* YouTube and Vimeo only load once asked for, so a card with an
+           external video costs nothing until it is played. */
+        mountEmbed(media) {
+          var src = media.getAttribute('data-svid-embed');
+          if (!src || media.querySelector('.svid__embed')) return;
+
+          var frame = document.createElement('iframe');
+          frame.className = 'svid__embed';
+          frame.setAttribute('src', src);
+          frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+          frame.setAttribute('allowfullscreen', '');
+          frame.setAttribute('title', media.getAttribute('data-svid-label') || 'Video');
+          media.appendChild(frame);
+          media.classList.add('is-playing');
+        }
+
+        bindControls() {
+          this.medias.forEach((media) => {
+            var playBtn = media.querySelector('[data-svid-play]');
+            if (playBtn) {
+              playBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                this.toggle(media);
+              });
+            }
+
+            var soundBtn = media.querySelector('[data-svid-sound]');
+            if (soundBtn) {
+              soundBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.setSound(media);
+              });
+            }
+
+            media.addEventListener('click', (event) => {
+              if (event.target.closest('a') || event.target.closest('button')) return;
+              this.toggle(media);
+            });
+          });
+        }
+
+        /* Only one card may have sound. Unmuting one mutes the rest, the way
+           a feed of reels behaves. */
+        setSound(media) {
+          var video = media.querySelector('[data-svid-video]');
+          if (!video) return;
+
+          var unmuting = video.muted;
+
+          this.medias.forEach((other) => {
+            var otherVideo = other.querySelector('[data-svid-video]');
+            if (!otherVideo) return;
+            otherVideo.muted = true;
+            other.classList.add('is-muted');
+            var btn = other.querySelector('[data-svid-sound]');
+            if (btn) btn.setAttribute('aria-pressed', 'true');
+          });
+
+          if (unmuting) {
+            video.muted = false;
+            media.classList.remove('is-muted');
+            var btn = media.querySelector('[data-svid-sound]');
+            if (btn) btn.setAttribute('aria-pressed', 'false');
+            this.play(media);
+          }
+        }
+
+        bindArrows() {
+          var prev = this.querySelector('[data-svid-prev]');
+          var next = this.querySelector('[data-svid-next]');
+          if (!prev || !next) return;
+
+          var step = () => {
+            var first = this.track.querySelector('.svid__item');
+            if (!first) return this.track.clientWidth;
+            var gap = parseFloat(getComputedStyle(this.track).columnGap) || 0;
+            return first.getBoundingClientRect().width + gap;
+          };
+
+          prev.addEventListener('click', () => {
+            this.track.scrollBy({ left: -step(), behavior: 'smooth' });
+          });
+          next.addEventListener('click', () => {
+            this.track.scrollBy({ left: step(), behavior: 'smooth' });
+          });
+
+          var sync = () => {
+            var max = this.track.scrollWidth - this.track.clientWidth - 2;
+            prev.disabled = this.track.scrollLeft <= 2;
+            next.disabled = this.track.scrollLeft >= max;
+          };
+
+          this.track.addEventListener('scroll', sync, { passive: true });
+          window.addEventListener('resize', sync);
+          sync();
+        }
+
+        bindDrag() {
+          var down = false;
+          var moved = false;
+          var startX = 0;
+          var startLeft = 0;
+
+          this.track.addEventListener('pointerdown', (event) => {
+            if (event.pointerType === 'touch') return;
+            down = true;
+            moved = false;
+            startX = event.clientX;
+            startLeft = this.track.scrollLeft;
+          });
+
+          this.track.addEventListener('pointermove', (event) => {
+            if (!down) return;
+            var delta = event.clientX - startX;
+
+            // The grabbing class kills pointer events on links, so it waits
+            // for a real drag - applying it on pointerdown would swallow taps.
+            if (!moved && Math.abs(delta) > 5) {
+              moved = true;
+              this.track.classList.add('is-grabbing');
+              this.track.setPointerCapture(event.pointerId);
+            }
+            if (moved) this.track.scrollLeft = startLeft - delta;
+          });
+
+          var end = () => {
+            down = false;
+            this.track.classList.remove('is-grabbing');
+          };
+
+          this.track.addEventListener('pointerup', end);
+          this.track.addEventListener('pointercancel', end);
+          this.track.addEventListener('pointerleave', end);
+
+          // A drag that ends over a link would otherwise fire its click.
+          this.track.addEventListener(
+            'click',
+            (event) => {
+              if (moved) {
+                event.preventDefault();
+                event.stopPropagation();
+                moved = false;
+              }
+            },
+            true
+          );
+        }
+      }
+    );
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Shoppable video",
+  "tag": "section",
+  "class": "section-shoppable-video",
+  "max_blocks": 24,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop the look"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 18,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 28
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Videos per row on desktop",
+      "default": "4",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        },
+        {
+          "value": "6",
+          "label": "6"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Videos per row on mobile",
+      "default": "1.2",
+      "info": "A fraction shows the edge of the next video, which hints that the row scrolls.",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "1.2",
+          "label": "1 and a peek"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Video shape",
+      "default": "portrait_9_16",
+      "options": [
+        {
+          "value": "portrait_9_16",
+          "label": "Reel (9:16)"
+        },
+        {
+          "value": "portrait_4_5",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "square",
+          "label": "Square (1:1)"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Space between videos",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Corner radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 900,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 1400
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows on desktop",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Playback"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Play videos automatically",
+      "default": true,
+      "info": "Videos start muted and play only while on screen. Visitors who ask their device to reduce motion always get a play button instead."
+    },
+    {
+      "type": "checkbox",
+      "id": "loop_videos",
+      "label": "Loop videos",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sound_toggle",
+      "label": "Show sound button",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Product card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_card",
+      "label": "Show the linked product",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Card position",
+      "default": "overlay",
+      "options": [
+        {
+          "value": "overlay",
+          "label": "Over the video"
+        },
+        {
+          "value": "below",
+          "label": "Below the video"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Heading text",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_text",
+      "label": "Card text",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "info": "Upload a vertical video for the reel look. Leave empty to use a YouTube or Vimeo link instead."
+        },
+        {
+          "type": "video_url",
+          "id": "video_url",
+          "label": "Or a YouTube or Vimeo link",
+          "accept": [
+            "youtube",
+            "vimeo"
+          ],
+          "info": "Hosted videos autoplay muted; a YouTube or Vimeo link loads only when the visitor presses play."
+        },
+        {
+          "type": "image_picker",
+          "id": "poster",
+          "label": "Cover image",
+          "info": "Optional. Defaults to the video's own thumbnail, then to the product image."
+        },
+        {
+          "type": "header",
+          "content": "Product"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title override",
+          "info": "Optional. Defaults to the product title."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link override",
+          "info": "Optional. Defaults to the product page."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shoppable video",
+      "blocks": [
+        {
+          "type": "video"
+        },
+        {
+          "type": "video"
+        },
+        {
+          "type": "video"
+        },
+        {
+          "type": "video"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
