@@ -468,6 +468,15 @@
     "shoppable_video_Ed9Kt8": {
       "type": "shoppable-video",
       "blocks": {
+        "video_hf7Daa": {
+          "type": "video",
+          "settings": {
+            "video_url": "https://youtube.com/shorts/jywwCy5tn7A",
+            "product": "green",
+            "title": "",
+            "link": ""
+          }
+        },
         "video_Y998TF": {
           "type": "video",
           "settings": {
@@ -506,6 +515,7 @@
         }
       },
       "block_order": [
+        "video_hf7Daa",
         "video_Y998TF",
         "video_c4FJjX",
         "video_6rK3UB",
