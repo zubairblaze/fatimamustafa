@@ -86,17 +86,85 @@
                   assign priority = 'auto'
                 endif
               -%}
+              {%- liquid
+                comment
+                  A product can carry video as well as photos. Every media
+                  type used to print its preview_image, which is why an
+                  uploaded video showed up as a still frame.
+                endcomment
+                assign media_label = media.alt | default: product.title
+                assign poster_url = media.preview_image | image_url: width: 1400
+
+                assign embed_url = ''
+                if media.media_type == 'external_video'
+                  if media.host == 'youtube'
+                    assign embed_url = 'https://www.youtube.com/embed/' | append: media.external_id | append: '?autoplay=1&mute=1&playsinline=1&rel=0'
+                  elsif media.host == 'vimeo'
+                    assign embed_url = 'https://player.vimeo.com/video/' | append: media.external_id | append: '?autoplay=1&muted=1'
+                  endif
+                endif
+              -%}
+
               <div class="fm-gallery__slide" data-fm-slide>
-                {{
-                  media.preview_image
-                  | image_url: width: 1400
-                  | image_tag:
-                    loading: loading,
-                    fetchpriority: priority,
-                    widths: '400, 600, 800, 1000, 1200, 1400',
-                    sizes: '(min-width: 990px) 35vw, 100vw',
-                    alt: media.alt
-                }}
+                {%- case media.media_type -%}
+                  {%- when 'video' -%}
+                    {%- comment -%}
+                      Built from the sources rather than with video_tag, which
+                      cannot emit playsinline; without it iOS takes the video
+                      fullscreen instead of playing it in the frame. mp4 comes
+                      first so every browser finds one it can decode.
+                    {%- endcomment -%}
+                    <video
+                      class="fm-gallery__video"
+                      data-fm-video
+                      playsinline
+                      muted
+                      loop
+                      preload="none"
+                      poster="{{ poster_url }}"
+                      aria-label="{{ media_label | escape }}"
+                    >
+                      {%- for source in media.sources -%}
+                        {%- if source.format == 'mp4' -%}
+                          <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                        {%- endif -%}
+                      {%- endfor -%}
+                      {%- for source in media.sources -%}
+                        {%- if source.format != 'mp4' -%}
+                          <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </video>
+
+                  {%- when 'external_video' -%}
+                    <div class="fm-gallery__embed" data-fm-embed="{{ embed_url | escape }}">
+                      {{
+                        media.preview_image
+                        | image_url: width: 1400
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '400, 600, 800, 1000, 1200, 1400',
+                          sizes: '(min-width: 990px) 35vw, 100vw',
+                          alt: media.alt
+                      }}
+                      <button type="button" class="fm-gallery__embed-play" data-fm-embed-play>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                        <span class="visually-hidden">{{ 'products.product.media.play_video' | t }}</span>
+                      </button>
+                    </div>
+
+                  {%- else -%}
+                    {{
+                      media.preview_image
+                      | image_url: width: 1400
+                      | image_tag:
+                        loading: loading,
+                        fetchpriority: priority,
+                        widths: '400, 600, 800, 1000, 1200, 1400',
+                        sizes: '(min-width: 990px) 35vw, 100vw',
+                        alt: media.alt
+                    }}
+                {%- endcase -%}
               </div>
             {%- endfor -%}
           </div>
@@ -127,6 +195,11 @@
                   | image_url: width: 200
                   | image_tag: loading: 'lazy', widths: '80, 140, 200', sizes: '70px', alt: ''
                 }}
+                {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                  <span class="fm-gallery__thumb-play" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                  </span>
+                {%- endif -%}
               </button>
             </li>
           {%- endfor -%}

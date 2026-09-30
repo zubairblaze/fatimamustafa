@@ -22,15 +22,19 @@ if (!customElements.get('fm-gallery')) {
   class FmGallery extends HTMLElement {
     connectedCallback() {
       if (this.bound) return;
+      this.bound = true;
 
       this.track = this.querySelector('[data-fm-track]');
       this.slides = Array.from(this.querySelectorAll('[data-fm-slide]'));
       this.bar = this.querySelector('[data-fm-progress]');
       this.thumbList = this.querySelector('[data-fm-thumbs]');
       this.thumbs = Array.from(this.querySelectorAll('[data-fm-thumb]'));
-      if (!this.track || this.slides.length < 2) return;
 
-      this.bound = true;
+      // Before the slide-count check below: a product whose only media is a
+      // video still needs that video to play.
+      this.setupVideos();
+
+      if (!this.track || this.slides.length < 2) return;
       this.current = 0;
       this.frame = null;
       this.glide = null;
@@ -51,6 +55,71 @@ if (!customElements.get('fm-gallery')) {
       }
 
       this.update();
+    }
+
+    /**
+     * Product videos play silently while their frame is the one on screen.
+     * An observer against the viewport is enough for that on its own: the
+     * track clips the frames it is not showing, so a slide scrolled out of
+     * view reports no intersection even though the page has not moved.
+     */
+    setupVideos() {
+      this.videos = Array.from(this.querySelectorAll('[data-fm-video]'));
+
+      this.querySelectorAll('[data-fm-embed]').forEach((holder) => {
+        const button = holder.querySelector('[data-fm-embed-play]');
+        if (!button) return;
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.mountEmbed(holder);
+        });
+      });
+
+      if (!this.videos.length || !('IntersectionObserver' in window)) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      this.videoObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const video = entry.target;
+            if (!entry.isIntersecting) {
+              video.pause();
+              return;
+            }
+            // Muted is the only state a browser will autoplay, and the
+            // property matters as well as the attribute in Safari.
+            video.muted = true;
+            const started = video.play();
+            // A refused autoplay simply leaves the poster up, which is a
+            // reasonable outcome rather than an error worth reporting.
+            if (started && typeof started.catch === 'function') started.catch(() => {});
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      this.videos.forEach((video) => this.videoObserver.observe(video));
+    }
+
+    /** YouTube and Vimeo load only once asked for. */
+    mountEmbed(holder) {
+      const src = holder.getAttribute('data-fm-embed');
+      if (!src || holder.querySelector('iframe')) return;
+
+      const frame = document.createElement('iframe');
+      frame.setAttribute('src', src);
+      frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+      frame.setAttribute('allowfullscreen', '');
+      frame.setAttribute('title', holder.querySelector('img')?.alt || 'Video');
+      holder.appendChild(frame);
+      holder.classList.add('is-playing');
+    }
+
+    disconnectedCallback() {
+      if (this.videoObserver) {
+        this.videoObserver.disconnect();
+        this.videoObserver = null;
+      }
     }
 
     schedule() {
