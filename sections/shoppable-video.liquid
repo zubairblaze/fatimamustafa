@@ -472,7 +472,7 @@
             endif
             assign vid = vid | split: '?' | first | split: '&' | first | split: '#' | first | split: '/' | first
             if vid != blank
-              assign embed_url = 'https://www.youtube.com/embed/' | append: vid | append: '?autoplay=1&mute=1&playsinline=1&rel=0'
+              assign embed_url = 'https://www.youtube.com/embed/' | append: vid | append: '?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1'
             endif
 
           elsif link contains 'vimeo'
@@ -690,7 +690,21 @@
               entries.forEach((entry) => {
                 var media = entry.target;
                 var video = media.querySelector('[data-svid-video]');
-                if (!video) return;
+
+                if (!video) {
+                  // A card backed by YouTube or Vimeo. The iframe is built on
+                  // arrival rather than on load, so nothing third-party is
+                  // fetched for a card no one scrolls to.
+                  if (!media.getAttribute('data-svid-embed')) return;
+                  if (entry.isIntersecting) {
+                    if (!this.autoplay) return;
+                    if (media.querySelector('.svid__embed')) this.commandEmbed(media, 'play');
+                    else this.mountEmbed(media);
+                  } else {
+                    this.commandEmbed(media, 'pause');
+                  }
+                  return;
+                }
 
                 if (entry.isIntersecting) {
                   if (this.autoplay) this.play(media);
@@ -759,6 +773,32 @@
           frame.setAttribute('title', media.getAttribute('data-svid-label') || 'Video');
           media.appendChild(frame);
           media.classList.add('is-playing');
+        }
+
+        /**
+         * A player inside an iframe cannot be paused directly, so the
+         * instruction goes over postMessage. Both hosts ignore what they do
+         * not understand, and the video is muted either way, so a message
+         * that does not land costs nothing.
+         */
+        commandEmbed(media, action) {
+          var frame = media.querySelector('.svid__embed');
+          if (!frame || !frame.contentWindow) return;
+
+          var vimeo = (frame.getAttribute('src') || '').indexOf('vimeo') !== -1;
+          var message = vimeo
+            ? JSON.stringify({ method: action })
+            : JSON.stringify({
+                event: 'command',
+                func: action === 'play' ? 'playVideo' : 'pauseVideo',
+                args: '',
+              });
+
+          try {
+            frame.contentWindow.postMessage(message, '*');
+          } catch (error) {
+            // Cross-origin refusal; the player simply stays as it is.
+          }
         }
 
         bindControls() {

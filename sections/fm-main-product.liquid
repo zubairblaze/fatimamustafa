@@ -97,8 +97,13 @@
 
                 assign embed_url = ''
                 if media.media_type == 'external_video'
+                  comment
+                    enablejsapi lets the script pause the player when its
+                    frame scrolls away, rather than leaving it running out
+                    of sight.
+                  endcomment
                   if media.host == 'youtube'
-                    assign embed_url = 'https://www.youtube.com/embed/' | append: media.external_id | append: '?autoplay=1&mute=1&playsinline=1&rel=0'
+                    assign embed_url = 'https://www.youtube.com/embed/' | append: media.external_id | append: '?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1'
                   elsif media.host == 'vimeo'
                     assign embed_url = 'https://player.vimeo.com/video/' | append: media.external_id | append: '?autoplay=1&muted=1'
                   endif

@@ -65,8 +65,11 @@ if (!customElements.get('fm-gallery')) {
      */
     setupVideos() {
       this.videos = Array.from(this.querySelectorAll('[data-fm-video]'));
+      this.embeds = Array.from(this.querySelectorAll('[data-fm-embed]'));
 
-      this.querySelectorAll('[data-fm-embed]').forEach((holder) => {
+      // The button stays as the way in when autoplay is unavailable, and as
+      // the control a keyboard reaches.
+      this.embeds.forEach((holder) => {
         const button = holder.querySelector('[data-fm-embed-play]');
         if (!button) return;
         button.addEventListener('click', (event) => {
@@ -75,21 +78,35 @@ if (!customElements.get('fm-gallery')) {
         });
       });
 
-      if (!this.videos.length || !('IntersectionObserver' in window)) return;
+      const targets = this.videos.concat(this.embeds);
+      if (!targets.length || !('IntersectionObserver' in window)) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
       this.videoObserver = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            const video = entry.target;
+            const target = entry.target;
+
+            if (target.hasAttribute('data-fm-embed')) {
+              if (entry.isIntersecting) {
+                // Mounting only on arrival keeps YouTube off the page until
+                // its frame is actually looked at.
+                if (target.querySelector('iframe')) this.commandEmbed(target, 'play');
+                else this.mountEmbed(target);
+              } else {
+                this.commandEmbed(target, 'pause');
+              }
+              return;
+            }
+
             if (!entry.isIntersecting) {
-              video.pause();
+              target.pause();
               return;
             }
             // Muted is the only state a browser will autoplay, and the
             // property matters as well as the attribute in Safari.
-            video.muted = true;
-            const started = video.play();
+            target.muted = true;
+            const started = target.play();
             // A refused autoplay simply leaves the poster up, which is a
             // reasonable outcome rather than an error worth reporting.
             if (started && typeof started.catch === 'function') started.catch(() => {});
@@ -98,10 +115,10 @@ if (!customElements.get('fm-gallery')) {
         { threshold: 0.5 }
       );
 
-      this.videos.forEach((video) => this.videoObserver.observe(video));
+      targets.forEach((target) => this.videoObserver.observe(target));
     }
 
-    /** YouTube and Vimeo load only once asked for. */
+    /** YouTube and Vimeo load only once their frame is reached. */
     mountEmbed(holder) {
       const src = holder.getAttribute('data-fm-embed');
       if (!src || holder.querySelector('iframe')) return;
@@ -113,6 +130,28 @@ if (!customElements.get('fm-gallery')) {
       frame.setAttribute('title', holder.querySelector('img')?.alt || 'Video');
       holder.appendChild(frame);
       holder.classList.add('is-playing');
+    }
+
+    /**
+     * Players in an iframe cannot be paused directly, so the instruction goes
+     * over postMessage. Both hosts ignore anything they do not understand,
+     * and the video is muted either way, so a message that does not land
+     * costs nothing.
+     */
+    commandEmbed(holder, action) {
+      const frame = holder.querySelector('iframe');
+      if (!frame || !frame.contentWindow) return;
+
+      const vimeo = (frame.getAttribute('src') || '').indexOf('vimeo') !== -1;
+      const message = vimeo
+        ? JSON.stringify({ method: action })
+        : JSON.stringify({ event: 'command', func: action === 'play' ? 'playVideo' : 'pauseVideo', args: '' });
+
+      try {
+        frame.contentWindow.postMessage(message, '*');
+      } catch (error) {
+        // Cross-origin refusal; nothing to recover, the player stays as it is.
+      }
     }
 
     disconnectedCallback() {
