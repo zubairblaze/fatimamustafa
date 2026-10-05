@@ -20,20 +20,58 @@
   if section.settings.height == 'full_below_header'
     assign height_value = 'calc(100svh - var(--fm-hero-offset, 0px))'
   endif
+
+  comment
+    At any fixed height the image has to either lose its edges to a crop or
+    gain empty bars, because the picture and the screen are rarely the same
+    shape. Taking the height from the first image instead means the whole
+    picture shows at full width with neither. Later slides are measured
+    against that same shape, so a set of hero images wants to be one size.
+  endcomment
+  assign fit_image = false
+  if section.settings.height == 'image'
+    assign fit_image = true
+    assign first_block = section.blocks.first
+    assign ratio_desktop = first_block.settings.image.aspect_ratio
+    assign ratio_mobile_image = first_block.settings.image_mobile | default: first_block.settings.image
+    assign ratio_mobile = ratio_mobile_image.aspect_ratio
+    if ratio_desktop == blank
+      assign ratio_desktop = 1.6
+    endif
+    if ratio_mobile == blank
+      assign ratio_mobile = ratio_desktop
+    endif
+  endif
 -%}
 
 {%- style -%}
-  #fm-hero-{{ section.id }} {
-    height: {{ height_value }};
-    min-height: 34rem;
-  }
-
-  @media screen and (max-width: 749px) {
+  {%- if fit_image -%}
     #fm-hero-{{ section.id }} {
-      height: {{ section.settings.height_mobile }}vh;
-      min-height: 30rem;
+      height: auto;
+      min-height: 0;
+      aspect-ratio: {{ ratio_desktop }};
     }
-  }
+
+    @media screen and (max-width: 749px) {
+      #fm-hero-{{ section.id }} {
+        height: auto;
+        min-height: 0;
+        aspect-ratio: {{ ratio_mobile }};
+      }
+    }
+  {%- else -%}
+    #fm-hero-{{ section.id }} {
+      height: {{ height_value }};
+      min-height: 34rem;
+    }
+
+    @media screen and (max-width: 749px) {
+      #fm-hero-{{ section.id }} {
+        height: {{ section.settings.height_mobile }}vh;
+        min-height: 30rem;
+      }
+    }
+  {%- endif -%}
 {%- endstyle -%}
 
 <fm-hero
@@ -222,6 +260,7 @@
       "type": "select",
       "id": "height",
       "label": "Desktop height",
+      "info": "Cover crops whatever does not fit the shape of the screen, which on a wide screen is the top and bottom. \u201cFit the image\u201d takes the height from the picture instead, so nothing is cropped and there are no empty bars \u2014 use a landscape image for it, since a tall one makes a very tall hero.",
       "options": [
         {
           "value": "small",
@@ -242,6 +281,10 @@
         {
           "value": "full_below_header",
           "label": "Full screen below header"
+        },
+        {
+          "value": "image",
+          "label": "Fit the image (never crops)"
         }
       ],
       "default": "large"
@@ -254,6 +297,7 @@
       "step": 5,
       "unit": "vh",
       "label": "Mobile height",
+      "info": "Ignored when the desktop height is \u201cFit the image\u201d, which takes its shape from the picture on every screen.",
       "default": 70
     },
     {
