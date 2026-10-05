@@ -15,8 +15,8 @@
         "slide_KB88tR": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/FM-Banner-1_jpg.jpg",
-            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-1_jpg.jpg",
+            "image": "shopify://shop_images/Web-Banner-Oct-2026_jpg.jpg",
+            "image_mobile": "shopify://shop_images/Mob-Banner-Oct-2026_jpg.jpg",
             "heading": "",
             "subheading": "",
             "link": "",
@@ -67,7 +67,7 @@
         "slide_Upbm4m"
       ],
       "settings": {
-        "height": "full",
+        "height": "full_below_header",
         "height_mobile": 70,
         "image_fit": "cover",
         "autoplay": true,
