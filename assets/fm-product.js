@@ -359,11 +359,6 @@ if (!customElements.get('fm-custom-order')) {
         this.form = document.getElementById(this.dataset.fmForm);
         this.variantInput = this.form?.querySelector('input[name="id"]');
         this.submit = this.form?.querySelector('[name="add"]');
-        this.originalVariant = this.variantInput?.value;
-        this.originalLabel = this.submit?.querySelector('span')?.textContent;
-        // Remember whether the button started disabled (a sold-out product),
-        // so closing the panel restores exactly that state.
-        this.wasDisabled = this.submit?.disabled === true;
       }
 
       this.setOpen(false);
@@ -392,20 +387,36 @@ if (!customElements.get('fm-custom-order')) {
       // the product being sold out no longer blocks the add.
       if (this.dataset.fmMode === 'variant' && this.variantInput) {
         const customId = this.dataset.fmVariant;
+        const label = this.submit?.querySelector('span');
+
         if (open && customId) {
+          /* What to put back is read here, as the panel opens, rather than
+             once at page load. The theme rewrites this button on every
+             variant change, so a snapshot taken at load is stale the moment a
+             different size is picked, and restoring it would grey out a
+             button for a size that is in stock. */
+          if (!this.saved) {
+            this.saved = {
+              variant: this.variantInput.value,
+              disabled: this.submit?.disabled === true,
+              label: label?.textContent,
+            };
+          }
+
           this.variantInput.value = customId;
           if (this.submit) {
             this.submit.disabled = false;
-            const label = this.submit.querySelector('span');
             if (label && this.dataset.fmAddLabel) label.textContent = this.dataset.fmAddLabel;
           }
-        } else {
-          this.variantInput.value = this.originalVariant ?? this.variantInput.value;
+        } else if (this.saved) {
+          this.variantInput.value = this.saved.variant ?? this.variantInput.value;
           if (this.submit) {
-            this.submit.disabled = this.wasDisabled;
-            const label = this.submit.querySelector('span');
-            if (label && this.originalLabel) label.textContent = this.originalLabel;
+            this.submit.disabled = this.saved.disabled;
+            if (label && this.saved.label) label.textContent = this.saved.label;
           }
+          // Nothing of ours is in place any more, so there is nothing to undo
+          // until the panel is opened again.
+          this.saved = null;
         }
       }
 
