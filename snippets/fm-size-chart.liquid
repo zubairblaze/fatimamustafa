@@ -84,6 +84,48 @@
   endif
 
   comment
+    Charts written as HTML often arrive wrapped in a details
+    element. Inside the popup that is a second click for something
+    the reader already asked to see, so the disclosure is unwrapped:
+    details becomes a plain container and its summary a heading.
+    Tag names are matched in lower case, so the all-caps spelling
+    hand-written HTML sometimes uses is folded in first.
+  endcomment
+  assign chart_html = chart_html | replace: '<DETAILS', '<details' | replace: '</DETAILS', '</details' | replace: '<SUMMARY', '<summary' | replace: '</SUMMARY', '</summary'
+
+  comment
+    Splitting on the opening tag catches one that carries
+    attributes, which replacing a literal '<details>' would miss.
+    The marker then makes the end of that tag findable: what sits
+    before it is the attribute list and is dropped, what follows is
+    the content and is kept. Without that, attributes would land on
+    the page as text.
+  endcomment
+  assign gtmark = '@@FMGT@@'
+
+  if chart_html contains '<details'
+    assign chart_html = chart_html | replace: '</details>', '</div>'
+    assign fm_pieces = chart_html | split: '<details'
+    assign fm_rebuilt = fm_pieces | first
+    for fm_piece in fm_pieces offset: 1
+      assign fm_inner = fm_piece | replace_first: '>', gtmark | split: gtmark | last
+      assign fm_rebuilt = fm_rebuilt | append: '<div class="fm-sizechart__group">' | append: fm_inner
+    endfor
+    assign chart_html = fm_rebuilt
+  endif
+
+  if chart_html contains '<summary'
+    assign chart_html = chart_html | replace: '</summary>', '</h3>'
+    assign fm_pieces = chart_html | split: '<summary'
+    assign fm_rebuilt = fm_pieces | first
+    for fm_piece in fm_pieces offset: 1
+      assign fm_inner = fm_piece | replace_first: '>', gtmark | split: gtmark | last
+      assign fm_rebuilt = fm_rebuilt | append: '<h3 class="fm-sizechart__group-title">' | append: fm_inner
+    endfor
+    assign chart_html = fm_rebuilt
+  endif
+
+  comment
     One pass turns every source into newline-marked plain text:
     paragraph and line breaks become the marker, then strip_html
     removes what is left. Splitting on the marker avoids needing a
