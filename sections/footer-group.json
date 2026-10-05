@@ -57,6 +57,12 @@
         "logo": "shopify://shop_images/Fatima_Mustafa_Logo_1.png",
         "logo_width": 180,
         "address": "<p>Store address line 1, City</p><p>Phone: +00 000 0000000</p><p>Email: hello@example.com</p>",
+        "credit_text": "Powered By Daairah",
+        "credit_url": "https://www.daairah.com",
+        "show_whatsapp": false,
+        "whatsapp_number": "+971",
+        "whatsapp_label": "WhatsApp",
+        "whatsapp_message": "",
         "show_social": true,
         "show_payment_icons": true,
         "background": "#ffffff"

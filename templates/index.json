@@ -67,9 +67,9 @@
         "slide_Upbm4m"
       ],
       "settings": {
-        "height": "full",
+        "height": "full_below_header",
         "height_mobile": 70,
-        "image_fit": "cover",
+        "image_fit": "contain",
         "autoplay": true,
         "autoplay_speed": 6,
         "accessibility_label": "Featured collections"
