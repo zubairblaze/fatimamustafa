@@ -371,6 +371,10 @@ if (!customElements.get('product-info')) {
         this.setQuantityBoundries();
 
         const quantityFormUpdated = html.getElementById(`Quantity-Form-${sectionId}`);
+        // Both are read unguarded below. A section without this markup used to
+        // throw here, which aborted handleUpdateProductInfo before it could
+        // re-enable the buy button.
+        if (!this.quantityForm || !quantityFormUpdated) return;
         const selectors = ['.quantity__input', '.quantity__rules', '.quantity__label'];
         for (let selector of selectors) {
           const current = this.quantityForm.querySelector(selector);

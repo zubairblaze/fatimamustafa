@@ -482,9 +482,30 @@
             %}
 
           {%- when 'quantity_selector' -%}
-            <div {{ block.shopify_attributes }}>
+            {%- comment -%}
+              The id and the product-form__quantity class are what Dawn's
+              product-info.js looks for. Without them updateQuantityRules
+              throws on every variant change, which aborts the rest of the
+              update -- including the call that re-enables the buy button.
+            {%- endcomment -%}
+            <div
+              id="Quantity-Form-{{ section.id }}"
+              class="product-form__quantity"
+              {{ block.shopify_attributes }}
+            >
+              {% # theme-check-disable %}
+              {%- assign cart_qty = cart
+                | item_count_for_variant: product.selected_or_first_available_variant.id
+              -%}
+              {% # theme-check-enable %}
               <label class="fm-pdp__row-label" for="Quantity-{{ section.id }}">
-                {{ 'products.product.quantity.label' | t }}
+                <span>{{ 'products.product.quantity.label' | t }}</span>
+                <span class="quantity__rules-cart{% if cart_qty == 0 %} hidden{% endif %}" aria-hidden="true">
+                  {%- render 'loading-spinner' -%}
+                  <span>
+                    ({{- 'products.product.quantity.in_cart_html' | t: quantity: cart_qty -}})
+                  </span>
+                </span>
               </label>
               <quantity-input class="quantity" data-url="{{ product.url }}" data-section="{{ section.id }}">
                 <button class="quantity__button" name="minus" type="button">
