@@ -69,7 +69,7 @@
       "settings": {
         "height": "full_below_header",
         "height_mobile": 70,
-        "image_fit": "contain",
+        "image_fit": "cover",
         "autoplay": true,
         "autoplay_speed": 6,
         "accessibility_label": "Featured collections"
