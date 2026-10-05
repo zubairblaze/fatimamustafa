@@ -55,7 +55,21 @@
   <div class="fm-footer__bottom">
     <p class="fm-footer__copyright">
       &copy; {{ 'now' | date: '%Y' }}, {{ shop.name | link_to: routes.root_url }}.
-      {{ powered_by_link }}
+      {%- comment -%}
+        Left empty the line keeps Shopify's own credit, so an existing footer
+        reads exactly as it did; filled in, it names whoever built the store.
+      {%- endcomment -%}
+      {%- if section.settings.credit_text != blank -%}
+        {%- if section.settings.credit_url != blank -%}
+          <a href="{{ section.settings.credit_url }}" rel="noopener" target="_blank">
+            {{- section.settings.credit_text | escape -}}
+          </a>
+        {%- else -%}
+          {{ section.settings.credit_text | escape }}
+        {%- endif -%}
+      {%- else -%}
+        {{ powered_by_link }}
+      {%- endif -%}
     </p>
 
     {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
@@ -64,6 +78,39 @@
           <li>{{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}</li>
         {%- endfor -%}
       </ul>
+    {%- endif -%}
+
+    {%- liquid
+      comment
+        wa.me takes digits only, so the spaces, brackets and dashes a merchant
+        naturally types are stripped out before the number reaches the link.
+      endcomment
+      assign wa_number = section.settings.whatsapp_number | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | remove: '.' | strip
+    -%}
+
+    {%- if section.settings.show_whatsapp and wa_number != blank -%}
+      {%- liquid
+        assign wa_href = 'https://wa.me/' | append: wa_number
+        if section.settings.whatsapp_message != blank
+          comment
+            The message is encoded on its own. Encoding it as part of the
+            chain would run url_encode over the finished url and mangle the
+            scheme and the slashes with it.
+          endcomment
+          assign wa_text = section.settings.whatsapp_message | url_encode
+          assign wa_href = wa_href | append: '?text=' | append: wa_text
+        endif
+        assign wa_label = section.settings.whatsapp_label | default: 'WhatsApp'
+      -%}
+      <a
+        class="fm-footer__whatsapp"
+        href="{{ wa_href }}"
+        rel="noopener"
+        target="_blank"
+      >
+        <span class="svg-wrapper">{{ 'icon-whatsapp.svg' | inline_asset_content }}</span>
+        <span>{{ wa_label | escape }}</span>
+      </a>
     {%- endif -%}
 
     {%- if section.settings.show_social -%}
@@ -123,6 +170,50 @@
       "id": "address",
       "label": "Address and contact",
       "default": "<p>Enter your store address, phone number and support email here.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Credit line"
+    },
+    {
+      "type": "text",
+      "id": "credit_text",
+      "label": "Credit text",
+      "info": "Replaces \u201cPowered by Shopify\u201d. Leave empty to keep Shopify's own credit."
+    },
+    {
+      "type": "url",
+      "id": "credit_url",
+      "label": "Credit link",
+      "info": "Optional. Links the credit text, for instance to the agency that built the store."
+    },
+    {
+      "type": "header",
+      "content": "WhatsApp"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_whatsapp",
+      "label": "Show a WhatsApp button",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_number",
+      "label": "WhatsApp number",
+      "info": "With the country code, for example +92 300 1234567. Spaces and brackets are fine. The button stays hidden until this is filled in."
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_label",
+      "label": "Button text",
+      "default": "WhatsApp"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_message",
+      "label": "Pre-filled message",
+      "info": "Optional. Starts the chat with this text already typed."
     },
     {
       "type": "checkbox",

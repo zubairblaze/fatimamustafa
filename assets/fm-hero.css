@@ -52,6 +52,18 @@
   display: block;
 }
 
+/* Cover always crops the axis the screen does not match, and on a wide screen
+   that is the top and bottom - which is how a model loses her head. The focal
+   point set on the image in the admin decides what survives the crop; without
+   one it stays dead centre, as before. */
+.fm-hero__media--desktop {
+  object-position: var(--fm-focal-desktop, 50% 50%);
+}
+
+.fm-hero__media--mobile {
+  object-position: var(--fm-focal-mobile, 50% 50%);
+}
+
 .fm-hero__media--mobile {
   display: block;
 }

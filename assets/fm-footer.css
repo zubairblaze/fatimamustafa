@@ -116,6 +116,34 @@
   color: inherit;
 }
 
+/* The WhatsApp button sits in the bottom bar beside the social icons, reading
+   as a button rather than another glyph so it is findable at a glance. */
+.fm-footer__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(var(--fm-ink), 0.2);
+  border-radius: 999px;
+  font-size: 1.2rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: rgb(var(--fm-ink));
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.fm-footer__whatsapp:hover {
+  border-color: rgba(var(--fm-ink), 0.55);
+}
+
+.fm-footer__whatsapp svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  color: #25d366;
+}
+
 .fm-footer__social {
   display: flex;
   align-items: center;

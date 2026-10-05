@@ -2,14 +2,24 @@
 <script src="{{ 'fm-carousel.js' | asset_url }}" defer="defer"></script>
 
 {%- liquid
-  assign heights = 'small:52vh,medium:66vh,large:78vh,full:100vh' | split: ','
-  assign height_value = '66vh'
+  assign heights = 'small:52svh,medium:66svh,large:78svh,full:100svh' | split: ','
+  assign height_value = '66svh'
   for pair in heights
     assign parts = pair | split: ':'
     if parts[0] == section.settings.height
       assign height_value = parts[1]
     endif
   endfor
+
+  comment
+    Below the header, the hero fills what is left of the screen rather than a
+    whole screen of its own, so the page does not start already scrolled. The
+    offset is measured by the script at the end of this section, because the
+    header only publishes its own height when it is set to stick.
+  endcomment
+  if section.settings.height == 'full_below_header'
+    assign height_value = 'calc(100svh - var(--fm-hero-offset, 0px))'
+  endif
 -%}
 
 {%- style -%}
@@ -50,11 +60,35 @@
       assign alt_desktop = block.settings.image.alt | default: block.settings.heading | escape
       assign mobile_image = block.settings.image_mobile | default: block.settings.image
       assign alt_mobile = mobile_image.alt | default: block.settings.heading | escape
+
+      comment
+        Cover has to crop something whenever the image and the screen are not
+        the same shape, and on a wide screen it takes that out of the top and
+        bottom - which is how a model loses her head. The focal point set on
+        the image in the admin decides what stays, so the crop keeps the face
+        rather than the middle.
+      endcomment
+      assign focal_desktop = block.settings.image.presentation.focal_point
+      assign focal_mobile = mobile_image.presentation.focal_point
+
+      comment
+        Carried as custom properties on the slide rather than as a style
+        attribute on the image, so this does not rest on image_tag passing an
+        arbitrary attribute through. The css falls back to dead centre.
+      endcomment
+      assign focal_style = ''
+      if focal_desktop != blank
+        assign focal_style = focal_style | append: '--fm-focal-desktop: ' | append: focal_desktop | append: ';'
+      endif
+      if focal_mobile != blank
+        assign focal_style = focal_style | append: '--fm-focal-mobile: ' | append: focal_mobile | append: ';'
+      endif
     -%}
     <div
       class="fm-hero__slide"
       data-fm-slide
       aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+      {% if focal_style != blank %}style="{{ focal_style }}"{% endif %}
       {{ block.shopify_attributes }}
     >
       {%- if has_link -%}<a class="fm-hero__link" href="{{ block.settings.link }}">{%- endif -%}
@@ -144,6 +178,33 @@
   {%- endif -%}
 </fm-hero>
 
+{%- if section.settings.height == 'full_below_header' -%}
+  <script>
+    (function () {
+      var hero = document.getElementById('fm-hero-{{ section.id }}');
+      if (!hero) return;
+
+      // Whatever sits above the hero - announcement bar, header, nav row - is
+      // what the hero has to give back. Measuring it beats reading the
+      // header's own variable, which only exists when the header is sticky.
+      var apply = function () {
+        var above = hero.getBoundingClientRect().top + window.pageYOffset;
+        if (above < 0) above = 0;
+        hero.style.setProperty('--fm-hero-offset', above + 'px');
+      };
+
+      // Measured before paint, then again once webfonts and images have
+      // settled, since either can change the header's height.
+      apply();
+      window.addEventListener('load', apply);
+      window.addEventListener('resize', apply);
+      if ('ResizeObserver' in window && hero.previousElementSibling) {
+        new ResizeObserver(apply).observe(document.body);
+      }
+    })();
+  </script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "FM Hero",
@@ -177,6 +238,10 @@
         {
           "value": "full",
           "label": "Full screen"
+        },
+        {
+          "value": "full_below_header",
+          "label": "Full screen below header"
         }
       ],
       "default": "large"
