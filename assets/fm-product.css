@@ -868,6 +868,21 @@ body:has(.fm-header) .fm-crumbs {
   text-transform: uppercase;
 }
 
+/* An HTML chart may arrive wrapped in a details element. The snippet
+   unwraps it so the table is open on arrival; what was the summary
+   becomes this heading, which keeps the label without the toggle. */
+.fm-sizechart__group + .fm-sizechart__group {
+  margin-top: 2rem;
+}
+
+.fm-sizechart__group-title {
+  margin: 0 0 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .fm-sizechart__content table {
   width: 100%;
   border-collapse: collapse;
