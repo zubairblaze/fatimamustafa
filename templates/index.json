@@ -31,24 +31,8 @@
         "slide_LzKA9E": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/FM-Banner-2_jpg.jpg",
-            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-2_jpg.jpg",
-            "heading": "",
-            "subheading": "",
-            "link": "",
-            "button_label": "",
-            "button_link": "",
-            "text_color": "#ffffff",
-            "overlay_opacity": 10,
-            "position_vertical": "bottom",
-            "position_horizontal": "center"
-          }
-        },
-        "slide_Upbm4m": {
-          "type": "slide",
-          "settings": {
-            "image": "shopify://shop_images/FM-Banner-3_jpg.jpg",
-            "image_mobile": "shopify://shop_images/FM-Mobile-Banner-3_jpg.jpg",
+            "image": "shopify://shop_images/2-FM-Desktop-Banner-Oct-2026.jpg",
+            "image_mobile": "shopify://shop_images/2-FM-Mobile-Banner-Oct-2026.jpg",
             "heading": "",
             "subheading": "",
             "link": "",
@@ -63,8 +47,7 @@
       },
       "block_order": [
         "slide_KB88tR",
-        "slide_LzKA9E",
-        "slide_Upbm4m"
+        "slide_LzKA9E"
       ],
       "settings": {
         "height": "image",
@@ -85,40 +68,40 @@
         "tile_1": {
           "type": "tile",
           "settings": {
-            "collection": "bestsellers",
-            "label": "Accessories",
+            "collection": "feya-fall",
+            "label": "Feya Fall",
             "link": ""
           }
         },
         "tile_2": {
           "type": "tile",
           "settings": {
-            "collection": "festive-luxe",
-            "label": "Kids",
+            "collection": "festive-luxe-2026",
+            "label": "Festive Luxe 2026",
             "link": ""
           }
         },
         "tile_3": {
           "type": "tile",
           "settings": {
-            "collection": "festive-luxe-2026",
-            "label": "Unstitched",
+            "collection": "velvet-edit🕊️",
+            "label": "Velvet Edit🕊️",
             "link": ""
           }
         },
         "tile_4": {
           "type": "tile",
           "settings": {
-            "collection": "festive-luxe-edit",
-            "label": "Luxury Formals",
+            "collection": "chantelle",
+            "label": "Festive Edit",
             "link": ""
           }
         },
         "tile_5": {
           "type": "tile",
           "settings": {
-            "collection": "summer-edit",
-            "label": "Luxury Pret",
+            "collection": "homepage",
+            "label": "Feya🕊️",
             "link": ""
           }
         }
@@ -154,7 +137,7 @@
           "type": "tile",
           "settings": {
             "collection": "festive-luxe-edit",
-            "label": "Luxury Pret",
+            "label": "Festive Luxe Edit",
             "link": ""
           }
         },
@@ -162,7 +145,7 @@
           "type": "tile",
           "settings": {
             "collection": "festive-luxe",
-            "label": "Luxury Formals",
+            "label": "Festive Luxe",
             "link": ""
           }
         }
@@ -194,24 +177,24 @@
         "tile_1": {
           "type": "tile",
           "settings": {
-            "collection": "summer-edit",
-            "label": "Chiffon",
+            "collection": "ramadan-eid-edit-1",
+            "label": "Eid Edit 2026",
             "link": ""
           }
         },
         "tile_2": {
           "type": "tile",
           "settings": {
-            "collection": "festive-luxe-2026",
-            "label": "Jewellery",
+            "collection": "summer-edit",
+            "label": "Summer Edit",
             "link": ""
           }
         },
         "tile_3": {
           "type": "tile",
           "settings": {
-            "collection": "bestsellers",
-            "label": "Accessories",
+            "collection": "spring-edit",
+            "label": "Luxury Pret",
             "link": ""
           }
         }
@@ -244,36 +227,36 @@
         "tab_1": {
           "type": "tab",
           "settings": {
-            "collection": "bestsellers",
-            "label": "New Arrivals"
+            "collection": "spring-fling-2022",
+            "label": "Bestsellers"
           }
         },
         "tab_2": {
           "type": "tab",
           "settings": {
-            "collection": "festive-luxe-edit",
-            "label": "Luxury Pret"
+            "collection": "bottoms",
+            "label": "Bottoms"
           }
         },
         "tab_3": {
           "type": "tab",
           "settings": {
-            "collection": "festive-luxe-2026",
-            "label": "Luxury Formals"
+            "collection": "mia-rtw23",
+            "label": "Velvets"
           }
         },
         "tab_4": {
           "type": "tab",
           "settings": {
-            "collection": "festive-luxe-edit",
-            "label": "Festive"
+            "collection": "ramadan-eid-edit",
+            "label": "Sale"
           }
         },
         "tab_5": {
           "type": "tab",
           "settings": {
-            "collection": "summer-edit",
-            "label": "Pret Solo"
+            "collection": "sufi-festive-2023",
+            "label": "Spring Edit"
           }
         }
       },
@@ -300,7 +283,7 @@
         "fm_font_family": "theme",
         "fm_font_custom": "assistant_n4",
         "fm_heading_scale": 200,
-        "fm_text_scale": 150
+        "fm_text_scale": 125
       }
     },
     "fm_split": {
@@ -324,8 +307,8 @@
         "image_fit": "cover",
         "fm_font_family": "theme",
         "fm_font_custom": "assistant_n4",
-        "fm_heading_scale": 100,
-        "fm_text_scale": 100
+        "fm_heading_scale": 150,
+        "fm_text_scale": 125
       }
     },
     "fm_bridal": {
@@ -336,8 +319,8 @@
           "settings": {
             "collection": "",
             "image": "shopify://shop_images/ECF95A52-0DC8-456E-B4C0-AE976FE10D69.jpg",
-            "label": "Dholki",
-            "link": ""
+            "label": "Alyana Kaftan",
+            "link": "shopify://products/kaftan-48"
           }
         },
         "tile_2": {
@@ -345,8 +328,8 @@
           "settings": {
             "collection": "",
             "image": "shopify://shop_images/7A0D0CAA-0B78-4BDC-8353-1CDAA52FAEA7.jpg",
-            "label": "Mehendi",
-            "link": ""
+            "label": "Reena Kaftan",
+            "link": "shopify://products/untitled-aug6_18-05-30"
           }
         },
         "tile_3": {
@@ -354,8 +337,8 @@
           "settings": {
             "collection": "",
             "image": "shopify://shop_images/EBEA8A82-688E-4E90-A0EC-3AB6A148D218.jpg",
-            "label": "Mehendi",
-            "link": ""
+            "label": "Meisa Kaftan",
+            "link": "shopify://products/kaftan-46"
           }
         },
         "tile_4": {
@@ -363,8 +346,8 @@
           "settings": {
             "collection": "",
             "image": "shopify://shop_images/Skinnyshalwara.jpg",
-            "label": "Nikkah",
-            "link": ""
+            "label": "Mosaic Set",
+            "link": "shopify://products/set-8"
           }
         },
         "tile_5": {
@@ -372,8 +355,8 @@
           "settings": {
             "collection": "",
             "image": "shopify://shop_images/08_23f45681-a537-4196-b32d-b56acc4bf4fd.jpg",
-            "label": "Barat",
-            "link": ""
+            "label": "Pink Petal",
+            "link": "shopify://products/kaftan-41"
           }
         }
       },
@@ -385,10 +368,10 @@
         "tile_5"
       ],
       "settings": {
-        "title": "Bridal",
+        "title": "Festive Luxe 2026",
         "show_view_all": true,
         "view_all_link": "",
-        "image": "shopify://shop_images/AAD36CA2-408A-46A9-8155-A49E239E608B.jpg",
+        "image": "shopify://shop_images/Web-Banner-Oct-2026_jpg.jpg",
         "image_link": "",
         "full_bleed": false,
         "background": "#ffffff",
