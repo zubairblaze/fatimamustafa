@@ -479,7 +479,7 @@
         "image_fit": "cover",
         "fm_font_family": "theme",
         "fm_font_custom": "assistant_n4",
-        "fm_heading_scale": 100,
+        "fm_heading_scale": 200,
         "fm_text_scale": 100
       }
     }
