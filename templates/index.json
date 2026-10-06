@@ -496,88 +496,6 @@
         "fm_heading_scale": 100,
         "fm_text_scale": 100
       }
-    },
-    "shoppable_video_Ed9Kt8": {
-      "type": "shoppable-video",
-      "blocks": {
-        "video_hf7Daa": {
-          "type": "video",
-          "settings": {
-            "video_url": "https://youtube.com/shorts/jywwCy5tn7A",
-            "product": "green",
-            "title": "",
-            "link": ""
-          }
-        },
-        "video_Y998TF": {
-          "type": "video",
-          "settings": {
-            "video_url": "https://youtube.com/shorts/s9OIWfxCRUk",
-            "product": "alana-dupata",
-            "title": "",
-            "link": ""
-          }
-        },
-        "video_c4FJjX": {
-          "type": "video",
-          "settings": {
-            "video_url": "https://youtube.com/shorts/M852HjMVEWY",
-            "product": "kurta-1",
-            "title": "",
-            "link": ""
-          }
-        },
-        "video_6rK3UB": {
-          "type": "video",
-          "settings": {
-            "video_url": "https://youtube.com/shorts/9AhsnwO6uxg",
-            "product": "alana-kaftan-1",
-            "title": "",
-            "link": ""
-          }
-        },
-        "video_qYec3b": {
-          "type": "video",
-          "settings": {
-            "video_url": "https://youtube.com/shorts/9VXkkZNCsYY",
-            "product": "untitled-jan28_22-14",
-            "title": "",
-            "link": ""
-          }
-        }
-      },
-      "block_order": [
-        "video_hf7Daa",
-        "video_Y998TF",
-        "video_c4FJjX",
-        "video_6rK3UB",
-        "video_qYec3b"
-      ],
-      "name": "Shoppable video",
-      "settings": {
-        "heading": "Shop the look",
-        "subheading": "",
-        "heading_size": 28,
-        "link_label": "",
-        "link_url": "",
-        "columns_desktop": "4",
-        "columns_mobile": "1",
-        "aspect_ratio": "portrait_9_16",
-        "gap": 12,
-        "corner_radius": 12,
-        "max_width": 1400,
-        "show_arrows": true,
-        "autoplay": true,
-        "loop_videos": true,
-        "show_product_card": true,
-        "card_style": "overlay",
-        "background": "#ffffff",
-        "text_color": "#1a1a1a",
-        "card_background": "#ffffff",
-        "card_text": "#1a1a1a",
-        "padding_top": 48,
-        "padding_bottom": 48
-      }
     }
   },
   "order": [
@@ -588,7 +506,6 @@
     "fm_trending",
     "fm_split",
     "fm_bridal",
-    "fm_worn_loved",
-    "shoppable_video_Ed9Kt8"
+    "fm_worn_loved"
   ]
 }
