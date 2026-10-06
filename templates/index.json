@@ -318,16 +318,16 @@
           "type": "tile",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/ECF95A52-0DC8-456E-B4C0-AE976FE10D69.jpg",
+            "product": "kurta-1",
             "label": "Alyana Kaftan",
-            "link": "shopify://products/kaftan-48"
+            "link": "shopify://products/alana-kaftan"
           }
         },
         "tile_2": {
           "type": "tile",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/7A0D0CAA-0B78-4BDC-8353-1CDAA52FAEA7.jpg",
+            "product": "kaftan-48",
             "label": "Reena Kaftan",
             "link": "shopify://products/untitled-aug6_18-05-30"
           }
@@ -336,7 +336,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/EBEA8A82-688E-4E90-A0EC-3AB6A148D218.jpg",
+            "product": "kaftan-42",
             "label": "Meisa Kaftan",
             "link": "shopify://products/kaftan-46"
           }
@@ -345,7 +345,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/Skinnyshalwara.jpg",
+            "product": "set-8",
             "label": "Mosaic Set",
             "link": "shopify://products/set-8"
           }
@@ -354,7 +354,7 @@
           "type": "tile",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/08_23f45681-a537-4196-b32d-b56acc4bf4fd.jpg",
+            "product": "kaftan-41",
             "label": "Pink Petal",
             "link": "shopify://products/kaftan-41"
           }
@@ -367,11 +367,14 @@
         "tile_4",
         "tile_5"
       ],
+      "name": "Featured",
       "settings": {
         "title": "Festive Luxe 2026",
         "show_view_all": true,
         "view_all_link": "",
         "image": "shopify://shop_images/Web-Banner-Oct-2026_jpg.jpg",
+        "collection": "",
+        "product": "",
         "image_link": "",
         "full_bleed": false,
         "background": "#ffffff",
@@ -476,7 +479,7 @@
         "image_fit": "cover",
         "fm_font_family": "theme",
         "fm_font_custom": "assistant_n4",
-        "fm_heading_scale": 100,
+        "fm_heading_scale": 200,
         "fm_text_scale": 100
       }
     }
