@@ -32,6 +32,19 @@
               </div>
             {%- endfor -%}
           {%- endunless -%}
+
+          {%- comment -%}
+            Shopify already records the SKU on the order line; this puts it in
+            front of the shopper too, so a cart holding two sizes of the same
+            garment says which is which without opening the product.
+          {%- endcomment -%}
+          {%- if item.variant.sku != blank -%}
+            <div class="product-option">
+              <dt>{{ 'products.product.sku' | t }}:</dt>
+              <dd>{{ item.variant.sku }}</dd>
+            </div>
+          {%- endif -%}
+
           {%- for property in item.properties -%}
             {%- assign property_first_char = property.first | slice: 0 -%}
             {%- if property.last != blank and property_first_char != '_' -%}
