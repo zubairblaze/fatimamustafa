@@ -1,3 +1,4 @@
+{% render 'fm-typography', section: section %}
 <link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="{{ 'component-cart-notification.css' | asset_url }}" media="print" onload="this.media='all'">
@@ -256,6 +257,62 @@
       "id": "text_color",
       "label": "Text",
       "default": "#1a1a1a"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "fm_font_family",
+      "label": "Font",
+      "info": "Custom loads an extra font file, so prefer a theme font unless this section needs its own.",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "heading",
+          "label": "Theme heading font"
+        },
+        {
+          "value": "body",
+          "label": "Theme body font"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "font_picker",
+      "id": "fm_font_custom",
+      "label": "Custom font",
+      "info": "Used only when Font is set to Custom.",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "fm_heading_scale",
+      "label": "Heading size",
+      "min": 50,
+      "max": 250,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "fm_text_scale",
+      "label": "Text size",
+      "min": 50,
+      "max": 250,
+      "step": 5,
+      "unit": "%",
+      "default": 100
     }
   ],
   "blocks": [

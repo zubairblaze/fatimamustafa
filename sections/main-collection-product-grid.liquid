@@ -1,4 +1,17 @@
 {{ 'template-collection.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Full width drops the container cap only inside this section, so the
+  gutters Dawn sets on .page-width survive and nothing else on the page
+  moves. Boxed is the theme-wide width and emits no override at all.
+{%- endcomment -%}
+{%- if section.settings.page_width_style == 'full' -%}
+  {% style %}
+    #shopify-section-{{ section.id }} .page-width {
+      max-width: 100%;
+    }
+  {% endstyle %}
+{%- endif -%}
+
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
 
@@ -206,6 +219,17 @@
   "name": "t:sections.main-collection-product-grid.name",
   "class": "section",
   "settings": [
+    {
+      "type": "select",
+      "id": "page_width_style",
+      "label": "Page width",
+      "info": "Boxed keeps the width set in Theme settings. Full width runs the grid to the edge of the screen.",
+      "options": [
+        { "value": "boxed", "label": "Boxed" },
+        { "value": "full", "label": "Full width" }
+      ],
+      "default": "boxed"
+    },
     {
       "type": "range",
       "id": "products_per_page",

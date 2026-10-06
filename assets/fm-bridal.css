@@ -70,7 +70,7 @@
 .fm-bridal__caption {
   display: block;
   margin-top: 0.9rem;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--fm-text-scale, 1));
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--fm-ink));

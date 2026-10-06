@@ -143,7 +143,7 @@
 
 .fm-hero__heading {
   margin: 0;
-  font-size: clamp(2.8rem, 6vw, 6.4rem);
+  font-size: calc(clamp(2.8rem, 6vw, 6.4rem) * var(--fm-heading-scale, 1));
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: 0.16em;
@@ -154,7 +154,7 @@
 
 .fm-hero__subheading {
   margin: 1rem 0 0;
-  font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+  font-size: calc(clamp(1.1rem, 1.6vw, 1.6rem) * var(--fm-text-scale, 1));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   text-indent: 0.3em;
@@ -166,7 +166,7 @@
   display: inline-block;
   margin-top: 2.2rem;
   padding: 1.1rem 2.8rem;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
   letter-spacing: var(--fm-track);
   text-transform: uppercase;
   text-decoration: none;

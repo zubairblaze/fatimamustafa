@@ -18,14 +18,14 @@
 
 .fm-newsletter__heading {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: calc(1.6rem * var(--fm-heading-scale, 1));
   font-weight: 500;
   color: rgb(var(--fm-ink));
 }
 
 .fm-newsletter__text {
   margin: 0.4rem 0 0;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
   color: rgba(var(--fm-ink), 0.6);
 }
 
@@ -52,7 +52,7 @@
   min-width: 0;
   height: 4.4rem;
   padding: 0 1.4rem;
-  font-size: 1.3rem;
+  font-size: calc(1.3rem * var(--fm-text-scale, 1));
   color: rgb(var(--fm-ink));
   background-color: #fff;
   border: 1px solid rgba(var(--fm-ink), 0.25);
@@ -68,7 +68,7 @@
 .fm-newsletter__button {
   height: 4.4rem;
   padding: 0 2.2rem;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--fm-text-scale, 1));
   letter-spacing: var(--fm-track);
   text-transform: uppercase;
   color: #fff;
@@ -86,7 +86,7 @@
 .fm-newsletter__message {
   flex: 0 0 100%;
   margin: 0.8rem 0 0;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
 }
 
 .fm-newsletter__message--error {

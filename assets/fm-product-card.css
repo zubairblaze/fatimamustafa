@@ -68,7 +68,7 @@
 }
 
 .fm-card__badge {
-  font-size: 1rem;
+  font-size: calc(1rem * var(--fm-text-scale, 1));
   line-height: 1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -95,7 +95,7 @@
 
 .fm-card__title {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
   font-weight: 400;
   line-height: 1.45;
   color: rgb(var(--fm-ink));
@@ -108,7 +108,7 @@
 
 .fm-card__vendor {
   margin: 0 0 0.3rem;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--fm-text-scale, 1));
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(var(--fm-ink), 0.5);
@@ -116,7 +116,7 @@
 
 .fm-card__price {
   margin: 0.5rem 0 0;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
   color: rgb(var(--fm-ink));
   display: flex;
   align-items: baseline;

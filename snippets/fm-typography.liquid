@@ -1,0 +1,90 @@
+{%- comment -%}
+  Per-section typography, driven from the theme editor.
+
+  Only the settings a merchant actually changes are emitted, scoped to
+  this one section, so a section left on its defaults renders exactly as
+  it did before these controls existed.
+
+  Sizes are multipliers rather than pixel values on purpose: the stylesheet
+  keeps its own proportions between a title, a subtitle and body copy, and
+  the slider moves the whole set together. That also leaves the theme's
+  global font scale working underneath.
+
+  Accepts:
+  - section: {Object} the section whose settings to read
+
+  Usage:
+  {% render 'fm-typography', section: section %}
+{%- endcomment -%}
+
+{%- liquid
+  assign fm_family = section.settings.fm_font_family | default: 'theme'
+  assign fm_custom = section.settings.fm_font_custom
+
+  assign fm_heading = section.settings.fm_heading_scale
+  if fm_heading == nil
+    assign fm_heading = 100
+  endif
+
+  assign fm_text = section.settings.fm_text_scale
+  if fm_text == nil
+    assign fm_text = 100
+  endif
+
+  assign fm_stack = ''
+  if fm_family == 'heading'
+    assign fm_stack = 'var(--font-heading-family)'
+  elsif fm_family == 'body'
+    assign fm_stack = 'var(--font-body-family)'
+  elsif fm_family == 'custom' and fm_custom != blank
+    assign fm_stack = fm_custom.family | append: ', ' | append: fm_custom.fallback_families
+  endif
+-%}
+
+{%- if fm_family == 'custom' and fm_custom != blank -%}
+  {{ fm_custom | font_face: font_display: 'swap' }}
+  {%- assign fm_custom_bold = fm_custom | font_modify: 'weight', 'bold' -%}
+  {%- if fm_custom_bold -%}
+    {{ fm_custom_bold | font_face: font_display: 'swap' }}
+  {%- endif -%}
+  {%- assign fm_custom_italic = fm_custom | font_modify: 'style', 'italic' -%}
+  {%- if fm_custom_italic -%}
+    {{ fm_custom_italic | font_face: font_display: 'swap' }}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if fm_stack != blank or fm_heading != 100 or fm_text != 100 -%}
+  {% style %}
+    {% if fm_heading != 100 or fm_text != 100 %}
+      #shopify-section-{{ section.id }} {
+        {% if fm_heading != 100 %}
+          --fm-heading-scale: {{ fm_heading | divided_by: 100.0 }};
+        {% endif %}
+        {% if fm_text != 100 %}
+          --fm-text-scale: {{ fm_text | divided_by: 100.0 }};
+        {% endif %}
+      }
+    {% endif %}
+
+    {% comment %}
+      Headings are listed one by one because Dawn's base stylesheet pins
+      h1-h6 to the heading family; an id on the section alone would lose
+      to that, and the section would keep the theme font for its titles.
+    {% endcomment %}
+    {% if fm_stack != blank %}
+      #shopify-section-{{ section.id }},
+      #shopify-section-{{ section.id }} h1,
+      #shopify-section-{{ section.id }} h2,
+      #shopify-section-{{ section.id }} h3,
+      #shopify-section-{{ section.id }} h4,
+      #shopify-section-{{ section.id }} h5,
+      #shopify-section-{{ section.id }} h6,
+      #shopify-section-{{ section.id }} button,
+      #shopify-section-{{ section.id }} input,
+      #shopify-section-{{ section.id }} select,
+      #shopify-section-{{ section.id }} textarea {
+        font-family: {{ fm_stack }};
+      }
+    {% endif %}
+  {% endstyle %}
+{%- endif -%}
