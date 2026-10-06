@@ -20,43 +20,47 @@
         "button_label": "Subscribe",
         "background": "#ffffff",
         "padding_top": 36,
-        "padding_bottom": 36
+        "padding_bottom": 36,
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 100,
+        "fm_text_scale": 100
       }
     },
     "fm_footer": {
       "type": "fm-footer",
       "blocks": {
-        "link_column_MyVejx": {
+        "link_column_FVnBwn": {
           "type": "link_column",
           "settings": {
-            "title": "Policies",
+            "title": "Information",
             "menu": "policies"
           }
         },
         "col_information": {
           "type": "link_column",
           "settings": {
-            "title": "Information",
-            "menu": "footer"
+            "title": "collections",
+            "menu": "collection-footer"
           }
         },
         "col_customer_care": {
           "type": "link_column",
           "settings": {
             "title": "Customer Care",
-            "menu": "footer"
+            "menu": "contact-us"
           }
         }
       },
       "block_order": [
-        "link_column_MyVejx",
+        "link_column_FVnBwn",
         "col_information",
         "col_customer_care"
       ],
       "settings": {
-        "logo": "shopify://shop_images/Fatima_Mustafa_Logo_1.png",
+        "logo": "shopify://shop_images/FM_Logo.png",
         "logo_width": 180,
-        "address": "<p>Store address line 1, City</p><p>Phone: +00 000 0000000</p><p>Email: hello@example.com</p>",
+        "address": "",
         "credit_text": "Powered By Daairah",
         "credit_url": "https://www.daairah.com",
         "show_whatsapp": false,
@@ -65,7 +69,11 @@
         "whatsapp_message": "",
         "show_social": true,
         "show_payment_icons": true,
-        "background": "#ffffff"
+        "background": "#ffffff",
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 100,
+        "fm_text_scale": 100
       }
     }
   },
