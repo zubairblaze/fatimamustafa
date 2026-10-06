@@ -318,7 +318,6 @@
           "type": "tile",
           "settings": {
             "collection": "",
-            "image": "shopify://shop_images/ECF95A52-0DC8-456E-B4C0-AE976FE10D69.jpg",
             "label": "Alyana Kaftan",
             "link": "shopify://products/kaftan-48"
           }
@@ -367,6 +366,7 @@
         "tile_4",
         "tile_5"
       ],
+      "name": "Featured",
       "settings": {
         "title": "Festive Luxe 2026",
         "show_view_all": true,
