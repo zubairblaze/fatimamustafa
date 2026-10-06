@@ -355,7 +355,7 @@ if (!customElements.get('fm-custom-order')) {
 
       this.fields = Array.from(this.panel.querySelectorAll('input, textarea'));
 
-      if (this.dataset.fmMode === 'variant') {
+      if (this.dataset.fmMode === 'cart') {
         this.form = document.getElementById(this.dataset.fmForm);
         this.variantInput = this.form?.querySelector('input[name="id"]');
         this.submit = this.form?.querySelector('[name="add"]');
@@ -383,13 +383,12 @@ if (!customElements.get('fm-custom-order')) {
         if (field.dataset.fmRequired !== undefined) field.required = open;
       });
 
-      // Point the product form at the always-in-stock custom order variant, so
-      // the product being sold out no longer blocks the add.
-      if (this.dataset.fmMode === 'variant' && this.variantInput) {
+      if (this.dataset.fmMode === 'cart' && this.variantInput) {
         const customId = this.dataset.fmVariant;
+        const fallbackId = this.dataset.fmFallback;
         const label = this.submit?.querySelector('span');
 
-        if (open && customId) {
+        if (open) {
           /* What to put back is read here, as the panel opens, rather than
              once at page load. The theme rewrites this button on every
              variant change, so a snapshot taken at load is stale the moment a
@@ -398,18 +397,30 @@ if (!customElements.get('fm-custom-order')) {
           if (!this.saved) {
             this.saved = {
               variant: this.variantInput.value,
+              movedVariant: false,
               disabled: this.submit?.disabled === true,
               label: label?.textContent,
             };
           }
 
-          this.variantInput.value = customId;
+          /* Normally the order rides the variant the shopper is looking at,
+             which is what charges the price they saw. It is only moved for a
+             dedicated custom order variant, or when the size on screen cannot
+             be added at all and Shopify would reject the line. */
+          const target = customId || (this.saved.disabled ? fallbackId : null);
+          if (target) {
+            this.variantInput.value = target;
+            this.saved.movedVariant = true;
+          }
+
           if (this.submit) {
             this.submit.disabled = false;
             if (label && this.dataset.fmAddLabel) label.textContent = this.dataset.fmAddLabel;
           }
         } else if (this.saved) {
-          this.variantInput.value = this.saved.variant ?? this.variantInput.value;
+          // Only undo a swap we made. Putting an id back that the theme has
+          // since replaced would hand the cart the previously selected size.
+          if (this.saved.movedVariant) this.variantInput.value = this.saved.variant;
           if (this.submit) {
             this.submit.disabled = this.saved.disabled;
             if (label && this.saved.label) label.textContent = this.saved.label;

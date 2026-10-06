@@ -218,27 +218,48 @@
       {%- for block in section.blocks -%}
         {%- case block.type -%}
           {%- when 'title' -%}
+            {%- comment -%}
+              The ids are the ones product-info.js looks for when a variant is
+              picked: it swaps the innerHTML of #price-, #Sku- and #Inventory-
+              for this section. Without them the fetched values are dropped and
+              the page keeps showing the first variant's price and SKU until a
+              reload. The class that colours a sold-out badge sits on an inner
+              span for the same reason - only the innerHTML is replaced, so a
+              modifier on the outer element would never follow the swap.
+            {%- endcomment -%}
             <div class="fm-pdp__heading" {{ block.shopify_attributes }}>
               <h1 class="fm-pdp__title">{{ product.title | escape }}</h1>
               {%- if block.settings.show_stock -%}
-                {%- if product.available -%}
-                  <span class="fm-pdp__stock">{{ block.settings.in_stock_text }}</span>
-                {%- else -%}
-                  <span class="fm-pdp__stock fm-pdp__stock--out">
-                    {{- 'products.product.sold_out' | t -}}
-                  </span>
-                {%- endif -%}
+                <span id="Inventory-{{ section.id }}">
+                  {%- if variant.available -%}
+                    <span class="fm-pdp__stock">{{ block.settings.in_stock_text }}</span>
+                  {%- else -%}
+                    <span class="fm-pdp__stock fm-pdp__stock--out">
+                      {{- 'products.product.sold_out' | t -}}
+                    </span>
+                  {%- endif -%}
+                </span>
               {%- endif -%}
             </div>
 
-            {%- if block.settings.show_sku and variant.sku != blank -%}
-              <p class="fm-pdp__sku">{{ variant.sku }}</p>
+            {%- comment -%}
+              Rendered even when this variant has no SKU, carrying Dawn's
+              hidden class instead: an element that is absent cannot be filled
+              in when the shopper switches to a variant that does have one.
+            {%- endcomment -%}
+            {%- if block.settings.show_sku -%}
+              <p
+                class="fm-pdp__sku{% if variant.sku == blank %} hidden{% endif %}"
+                id="Sku-{{ section.id }}"
+              >
+                {{- variant.sku -}}
+              </p>
             {%- endif -%}
 
           {%- when 'price' -%}
             <div class="fm-pdp__row" {{ block.shopify_attributes }}>
               <span class="fm-pdp__row-label">{{ block.settings.label }}</span>
-              <span class="fm-pdp__row-value fm-pdp__price">
+              <span class="fm-pdp__row-value fm-pdp__price" id="price-{{ section.id }}">
                 {{ variant.price | money }}
                 {%- if variant.compare_at_price > variant.price -%}
                   <s>{{ variant.compare_at_price | money }}</s>
@@ -307,33 +328,50 @@
               assign measure_lines = field_source | newline_to_br | split: '<br />'
 
               comment
-                A sold-out product cannot be added to the cart at all — Shopify
-                rejects the line, so re-enabling the button would only fail
-                later. Two ways round it:
-                  variant - the product carries an always-in-stock custom order
-                            option value, and we switch the form to it;
-                  enquiry - the measurements go through the contact form, which
-                            works on any product whatever its stock.
-                Automatic picks the variant when the product has one, else
-                enquiry, so custom orders are never blocked by stock.
+                A custom order is still an order: the shopper is on a product
+                page, so the measurements ride that product's own form as line
+                item properties and the line is paid for at checkout, where
+                Shopify collects the name and address anyway. The variant they
+                are looking at carries the order, which is what sets the price.
+
+                Two optional helpers:
+                  custom_variant   - a dedicated, always-in-stock "Custom Order"
+                                     option value, when custom work is priced
+                                     differently from the rack size;
+                  fallback_variant - the first variant that can actually be
+                                     added, for when the size on screen is sold
+                                     out, since Shopify rejects that line.
+
+                Only when nothing at all can be added does this fall back to
+                the enquiry email, which works whatever the stock.
               endcomment
               assign co_name = block.settings.variant_name | default: 'Custom Order'
               assign custom_variant = nil
+              assign fallback_variant = nil
               for candidate in product.variants
-                if candidate.title contains co_name and candidate.available
-                  assign custom_variant = candidate
-                  break
+                if candidate.available
+                  if fallback_variant == nil
+                    assign fallback_variant = candidate
+                  endif
+                  if custom_variant == nil and candidate.title contains co_name
+                    assign custom_variant = candidate
+                  endif
                 endif
               endfor
 
+              comment
+                The add-to-cart mode used to be stored under the name
+                variant; it is mapped here so a shop that saved the old value
+                does not silently drop to the enquiry email.
+              endcomment
               assign co_mode = block.settings.submit_mode | default: 'auto'
-              if co_mode == 'auto'
-                assign co_mode = 'enquiry'
-                if custom_variant != nil
-                  assign co_mode = 'variant'
-                endif
+              if co_mode == 'variant'
+                assign co_mode = 'cart'
               endif
-              if co_mode == 'variant' and custom_variant == nil
+              if co_mode == 'auto'
+                assign co_mode = 'cart'
+              endif
+              if co_mode == 'cart' and custom_variant == nil and fallback_variant == nil
                 assign co_mode = 'enquiry'
               endif
             -%}
@@ -345,6 +383,7 @@
                 data-fm-form="{{ product_form_id }}"
                 data-fm-add-label="{{ block.settings.add_label | escape }}"
                 {% if custom_variant != nil %}data-fm-variant="{{ custom_variant.id }}"{% endif %}
+                {% if fallback_variant != nil %}data-fm-fallback="{{ fallback_variant.id }}"{% endif %}
                 {{ block.shopify_attributes }}
               >
                 <button
@@ -362,11 +401,11 @@
                     <p class="fm-custom__intro">{{ block.settings.intro }}</p>
                   {%- endif -%}
 
-                  {%- if co_mode == 'variant' -%}
+                  {%- if co_mode == 'cart' -%}
                     {%- comment -%}
                       Fields ride the product form and post as line item
-                      properties; the script points the form at the custom
-                      variant so a sold-out product can still be ordered.
+                      properties, so the measurements arrive on the order line
+                      in admin. No name or email here: checkout collects both.
                     {%- endcomment -%}
                     <fieldset class="fm-custom__grid">
                       <legend class="visually-hidden">{{ block.settings.toggle_text }}</legend>
@@ -1149,21 +1188,22 @@
               "label": "Automatic"
             },
             {
-              "value": "variant",
-              "label": "Add to cart (custom order variant)"
+              "value": "cart",
+              "label": "Add to cart (becomes a Shopify order)"
             },
             {
               "value": "enquiry",
               "label": "Enquiry email"
             }
           ],
-          "default": "auto"
+          "default": "auto",
+          "info": "Add to cart puts the measurements on the order line and the shopper pays at checkout. Automatic does that too, and only falls back to the enquiry email when every variant is sold out."
         },
         {
           "type": "text",
           "id": "variant_name",
           "label": "Custom order variant name",
-          "info": "An always-in-stock option value on the product, e.g. a Size called \"Custom Order\".",
+          "info": "Optional. A variant whose name contains this is used instead of the size on screen, for pricing custom work differently. Without one the selected variant's price is charged.",
           "default": "Custom Order"
         },
         {
