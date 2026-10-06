@@ -72,7 +72,11 @@
         "image_fit": "cover",
         "autoplay": true,
         "autoplay_speed": 6,
-        "accessibility_label": "Featured collections"
+        "accessibility_label": "Featured collections",
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 100,
+        "fm_text_scale": 100
       }
     },
     "fm_new_arrivals": {
@@ -136,7 +140,11 @@
         "image_fit": "cover",
         "background": "#ffffff",
         "padding_top": 36,
-        "padding_bottom": 28
+        "padding_bottom": 28,
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 200,
+        "fm_text_scale": 150
       }
     },
     "fm_duo": {
@@ -173,7 +181,11 @@
         "full_bleed": false,
         "background": "#ffffff",
         "padding_top": 8,
-        "padding_bottom": 8
+        "padding_bottom": 8,
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 200,
+        "fm_text_scale": 150
       }
     },
     "fm_trio": {
@@ -219,7 +231,11 @@
         "full_bleed": false,
         "background": "#ffffff",
         "padding_top": 8,
-        "padding_bottom": 28
+        "padding_bottom": 28,
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 100,
+        "fm_text_scale": 150
       }
     },
     "fm_trending": {
@@ -280,7 +296,11 @@
         "new_badge_label": "New",
         "background": "#ffffff",
         "padding_top": 40,
-        "padding_bottom": 32
+        "padding_bottom": 32,
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 200,
+        "fm_text_scale": 150
       }
     },
     "fm_split": {
@@ -301,7 +321,11 @@
         "panel_background": "#ffffff",
         "padding_top": 8,
         "padding_bottom": 8,
-        "image_fit": "cover"
+        "image_fit": "cover",
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 100,
+        "fm_text_scale": 100
       }
     },
     "fm_bridal": {
@@ -370,7 +394,11 @@
         "background": "#ffffff",
         "padding_top": 8,
         "padding_bottom": 40,
-        "image_fit": "cover"
+        "image_fit": "cover",
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 100,
+        "fm_text_scale": 100
       }
     },
     "fm_worn_loved": {
@@ -462,7 +490,11 @@
         "background": "#ffffff",
         "padding_top": 40,
         "padding_bottom": 48,
-        "image_fit": "cover"
+        "image_fit": "cover",
+        "fm_font_family": "theme",
+        "fm_font_custom": "assistant_n4",
+        "fm_heading_scale": 100,
+        "fm_text_scale": 100
       }
     },
     "shoppable_video_Ed9Kt8": {
