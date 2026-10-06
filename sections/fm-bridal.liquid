@@ -20,19 +20,41 @@
 <div class="fm-section{% if section.settings.full_bleed %} fm-section--flush{% endif %} fm-fit-{{ section.settings.image_fit | default: 'cover' }}">
   <div class="fm-bridal">
     {%- liquid
+      comment
+        With no image uploaded the side panel borrows one: the collection's
+        image first, then the product's, so picking either is enough to fill
+        the panel. The link follows the same order, which saves pasting a URL
+        that is already implied by the choice.
+      endcomment
+      assign aside_image = section.settings.image
+      if aside_image == blank
+        assign aside_image = section.settings.collection.featured_image
+      endif
+      if aside_image == blank
+        assign aside_image = section.settings.product.featured_image
+      endif
+
+      assign aside_url = section.settings.image_link
+      if aside_url == blank
+        assign aside_url = section.settings.collection.url
+      endif
+      if aside_url == blank
+        assign aside_url = section.settings.product.url
+      endif
+
       assign aside_tag = 'div'
-      if section.settings.image_link != blank
+      if aside_url != blank
         assign aside_tag = 'a'
       endif
-      assign aside_alt = section.settings.image.alt | default: section.settings.title | escape
+      assign aside_alt = aside_image.alt | default: section.settings.title | escape
     -%}
     <{{ aside_tag }}
       class="fm-bridal__aside"
-      {% if section.settings.image_link != blank %}href="{{ section.settings.image_link }}"{% endif %}
+      {% if aside_url != blank %}href="{{ aside_url }}"{% endif %}
     >
-      {%- if section.settings.image != blank -%}
+      {%- if aside_image != blank -%}
         {{
-          section.settings.image
+          aside_image
           | image_url: width: 1200
           | image_tag:
             loading: 'lazy',
@@ -74,20 +96,37 @@
         <ul class="fm-scroller" data-fm-track role="list">
           {%- for block in section.blocks -%}
             {%- liquid
+              comment
+                Each of caption, image and link falls back the same way:
+                whatever the merchant typed, then the collection, then the
+                product. A tile is therefore usable with nothing but a
+                collection or a product picked.
+              endcomment
               assign collection = block.settings.collection
+              assign tile_product = block.settings.product
+
               assign label = block.settings.label
               if label == blank
                 assign label = collection.title
+              endif
+              if label == blank
+                assign label = tile_product.title
               endif
 
               assign image = block.settings.image
               if image == blank
                 assign image = collection.featured_image
               endif
+              if image == blank
+                assign image = tile_product.featured_image
+              endif
 
               assign url = block.settings.link
               if url == blank and collection != blank
                 assign url = collection.url
+              endif
+              if url == blank and tile_product != blank
+                assign url = tile_product.url
               endif
 
               assign alt_text = image.alt | default: label | escape
@@ -164,12 +203,26 @@
     {
       "type": "image_picker",
       "id": "image",
-      "label": "Image"
+      "label": "Image",
+      "info": "Leave empty to use the collection or product image below."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Used for the image and the link when no image is uploaded."
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product",
+      "info": "Used when there is no image and no collection."
     },
     {
       "type": "url",
       "id": "image_link",
-      "label": "Image link"
+      "label": "Image link",
+      "info": "Falls back to the collection or product above."
     },
     {
       "type": "header",
@@ -291,16 +344,22 @@
           "label": "Collection"
         },
         {
+          "type": "product",
+          "id": "product",
+          "label": "Product",
+          "info": "Used when no collection is picked."
+        },
+        {
           "type": "image_picker",
           "id": "image",
           "label": "Image",
-          "info": "Falls back to the collection image."
+          "info": "Falls back to the collection image, then the product image."
         },
         {
           "type": "text",
           "id": "label",
           "label": "Caption",
-          "info": "Falls back to the collection title."
+          "info": "Falls back to the collection title, then the product title."
         },
         {
           "type": "url",
