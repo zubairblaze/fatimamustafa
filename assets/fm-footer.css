@@ -23,7 +23,7 @@
 
 .fm-footer__brand-name {
   margin: 0 0 1.6rem;
-  font-size: clamp(2.2rem, 3vw, 3.2rem);
+  font-size: calc(clamp(2.2rem, 3vw, 3.2rem) * var(--fm-heading-scale, 1));
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -31,7 +31,7 @@
 }
 
 .fm-footer__brand-text {
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
   line-height: 1.9;
   color: rgba(var(--fm-ink), 0.6);
   max-width: 34ch;
@@ -59,7 +59,7 @@
 
 .fm-footer__column-title {
   margin: 0 0 1.2rem;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--fm-heading-scale, 1));
   letter-spacing: var(--fm-track);
   text-transform: uppercase;
   color: rgb(var(--fm-ink));
@@ -76,7 +76,7 @@
 }
 
 .fm-footer__list a {
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
   color: rgba(var(--fm-ink), 0.62);
   text-decoration: none;
 }
@@ -108,7 +108,7 @@
 
 .fm-footer__copyright {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--fm-text-scale, 1));
   color: rgba(var(--fm-ink), 0.55);
 }
 
@@ -125,7 +125,7 @@
   padding: 0.6rem 1.2rem;
   border: 1px solid rgba(var(--fm-ink), 0.2);
   border-radius: 999px;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fm-text-scale, 1));
   line-height: 1;
   letter-spacing: 0.04em;
   color: rgb(var(--fm-ink));

@@ -16,7 +16,7 @@
 }
 
 .fm-ugc .fm-head__title {
-  font-size: 1.6rem;
+  font-size: calc(1.6rem * var(--fm-heading-scale, 1));
   font-weight: 500;
 }
 
@@ -77,7 +77,7 @@
 }
 
 .fm-ugc__handle {
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--fm-text-scale, 1));
   color: rgb(var(--fm-ink));
   text-decoration: none;
   overflow: hidden;
@@ -134,7 +134,7 @@
 }
 
 .fm-ugc__shop {
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--fm-text-scale, 1));
   letter-spacing: 0.04em;
   color: rgb(var(--fm-ink));
   text-decoration: none;

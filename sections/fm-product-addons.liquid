@@ -1,3 +1,4 @@
+{% render 'fm-typography', section: section %}
 {%- comment -%}
   FM Product add-ons: the paid add-ons checklist as a section of its own, so it
   can be placed, moved or removed on the product template from the theme
@@ -151,6 +152,62 @@
       "unit": "px",
       "label": "Bottom padding",
       "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "fm_font_family",
+      "label": "Font",
+      "info": "Custom loads an extra font file, so prefer a theme font unless this section needs its own.",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "heading",
+          "label": "Theme heading font"
+        },
+        {
+          "value": "body",
+          "label": "Theme body font"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "font_picker",
+      "id": "fm_font_custom",
+      "label": "Custom font",
+      "info": "Used only when Font is set to Custom.",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "fm_heading_scale",
+      "label": "Heading size",
+      "min": 50,
+      "max": 250,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "fm_text_scale",
+      "label": "Text size",
+      "min": 50,
+      "max": 250,
+      "step": 5,
+      "unit": "%",
+      "default": 100
     }
   ],
   "presets": [

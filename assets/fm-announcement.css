@@ -8,7 +8,7 @@
   gap: 1.6rem;
   min-height: 3.6rem;
   padding: 0.6rem var(--fm-edge);
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--fm-text-scale, 1));
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
