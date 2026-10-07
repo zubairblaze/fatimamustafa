@@ -5,6 +5,11 @@
   display: block;
   overflow: hidden;
   background-color: rgba(var(--fm-ink), 0.04);
+  /* Without this a sideways drag is the browser's to scroll with, and it
+     takes the gesture by firing pointercancel - so the swipe below never
+     completes. pan-y hands horizontal movement to the script and leaves
+     vertical movement scrolling the page as usual. */
+  touch-action: pan-y;
 }
 
 .fm-hero__slide {

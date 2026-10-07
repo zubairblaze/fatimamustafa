@@ -186,10 +186,21 @@
             {%- if block.settings.subheading != blank -%}
               <p class="fm-hero__subheading">{{ block.settings.subheading }}</p>
             {%- endif -%}
-            {%- if block.settings.button_label != blank and has_link == false -%}
-              <a class="fm-hero__cta" href="{{ block.settings.button_link | default: routes.all_products_collection_url }}">
-                <span>{{ block.settings.button_label }}</span>
-              </a>
+            {%- if block.settings.button_label != blank -%}
+              {%- if has_link -%}
+                {%- comment -%}
+                  The slide is already one big link, and an anchor inside an
+                  anchor is not valid markup - the browser closes the outer one
+                  where the inner begins, and the rest of the slide stops being
+                  clickable. So the button keeps its look without being a link
+                  of its own, and the slide's link carries the click.
+                {%- endcomment -%}
+                <span class="fm-hero__cta"><span>{{ block.settings.button_label }}</span></span>
+              {%- else -%}
+                <a class="fm-hero__cta" href="{{ block.settings.button_link | default: routes.all_products_collection_url }}">
+                  <span>{{ block.settings.button_label }}</span>
+                </a>
+              {%- endif -%}
             {%- endif -%}
           </div>
         </div>
@@ -428,7 +439,7 @@
           "type": "url",
           "id": "link",
           "label": "Slide link",
-          "info": "Makes the whole slide clickable and hides the button."
+          "info": "Makes the whole slide clickable. Pick a collection, product or page. The button below still shows, and follows this link too."
         },
         {
           "type": "text",

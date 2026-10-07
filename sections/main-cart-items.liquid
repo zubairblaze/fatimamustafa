@@ -144,6 +144,7 @@
                       {%- if item.product.has_only_default_variant == false
                         or item.properties.size != 0
                         or item.selling_plan_allocation != null
+                        or item.variant.sku != blank
                       -%}
                         <dl>
                           {%- if item.product.has_only_default_variant == false -%}
@@ -153,6 +154,18 @@
                                 <dd>{{ option.value }}</dd>
                               </div>
                             {%- endfor -%}
+                          {%- endif -%}
+
+                          {%- comment -%}
+                            Shopify already records the SKU on the order line; this puts it in
+                            front of the shopper too, so a cart holding two sizes of the same
+                            garment says which is which without opening the product.
+                          {%- endcomment -%}
+                          {%- if item.variant.sku != blank -%}
+                            <div class="product-option">
+                              <dt>{{ 'products.product.sku' | t }}:</dt>
+                              <dd>{{ item.variant.sku }}</dd>
+                            </div>
                           {%- endif -%}
 
                           {%- for property in item.properties -%}
