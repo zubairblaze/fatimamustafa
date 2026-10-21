@@ -278,6 +278,7 @@ if (!customElements.get('fm-hero')) {
     bindSwipe() {
       let startX = null;
       let startY = 0;
+      let swiped = false;
 
       this.addEventListener(
         'pointerdown',
@@ -285,6 +286,7 @@ if (!customElements.get('fm-hero')) {
           if (event.button && event.button !== 0) return;
           startX = event.clientX;
           startY = event.clientY;
+          swiped = false;
         },
         { passive: true }
       );
@@ -296,6 +298,7 @@ if (!customElements.get('fm-hero')) {
         startX = null;
         // Ignore mostly-vertical gestures — that's the page scrolling.
         if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+        swiped = true;
         this.goTo((this.index + (dx < 0 ? 1 : -1) + this.slides.length) % this.slides.length);
         this.restart();
       });
@@ -303,6 +306,25 @@ if (!customElements.get('fm-hero')) {
       this.addEventListener('pointercancel', () => {
         startX = null;
       });
+
+      /* A swipe ends in a click, and a slide that carries a link would
+         follow it — so the shopper would land on a collection page instead
+         of seeing the next slide. Swallow that one click; a plain tap never
+         sets the flag and still opens the link. */
+      this.addEventListener(
+        'click',
+        (event) => {
+          if (!swiped) return;
+          swiped = false;
+          event.preventDefault();
+          event.stopPropagation();
+        },
+        true
+      );
+
+      /* Dragging a linked image is a native drag to the browser, which
+         cancels the pointer stream mid-gesture. */
+      this.addEventListener('dragstart', (event) => event.preventDefault());
     }
 
     goTo(index) {
