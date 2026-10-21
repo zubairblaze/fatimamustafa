@@ -114,8 +114,8 @@
         "tile_5"
       ],
       "settings": {
-        "title": "New Arrivals",
-        "subtitle": "Shop the latest arrivals across every category",
+        "title": "COLLECTIONS",
+        "subtitle": "",
         "columns_desktop": 4,
         "columns_mobile": 2,
         "show_arrows": true,
